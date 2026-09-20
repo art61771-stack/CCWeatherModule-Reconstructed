@@ -7,7 +7,7 @@
     NSHashTable *_tasks;
     dispatch_queue_t _queue;
 }
-- (instancetype)init { if ((self=[super init])) { _tasks=[NSHashTable strongObjectsHashTable]; _queue=dispatch_queue_create("weather.gallery.media", DISPATCH_QUEUE_SERIAL); } return self; }
+- (instancetype)init { if ((self=[super init])) { _tasks=[NSHashTable hashTableWithOptions:NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPointerPersonality]; _queue=dispatch_queue_create("weather.gallery.media", DISPATCH_QUEUE_SERIAL); } return self; }
 - (void)invalidate { [_tasks removeAllObjects]; }
 - (void)webView:(WKWebView *)web stopURLSchemeTask:(id<WKURLSchemeTask>)task { [_tasks removeObject:task]; }
 - (void)webView:(WKWebView *)web startURLSchemeTask:(id<WKURLSchemeTask>)task {
