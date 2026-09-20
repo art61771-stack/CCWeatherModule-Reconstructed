@@ -1,0 +1,6 @@
+Recovered metadata entries: 46
+Explicit source selectors: 36
+Missing original selectors: []
+Byte-identical original resources: 30
+All 144 recovered condition/image/symbol entries and image resources present.
+STATIC CHECKS ONLY: no Apple SDK compile, link or device runtime test performed.
