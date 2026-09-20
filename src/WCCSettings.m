@@ -1,6 +1,7 @@
 #import "WCCSettings.h"
 #import "WCCPreferences.h"
 #import "WCCGallery.h"
+#import "WCCHostObserver.h"
 #import <objc/message.h>
 
 static void WCCSave(void) {
@@ -82,6 +83,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。");
     WCCAction(a, @"自定义图标", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
     WCCAction(a, @"模块尺寸（列 × 行）", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); });
+    WCCAction(a, @"下拉问候 · 本地诊断", ^{ WCCAfterAlert(p, ^{ [self diagnosticsFrom:p completion:completion]; }); });
     WCCAction(a, @"地标显示", ^{ WCCAfterAlert(p, ^{ [self modesFrom:p completion:completion]; }); });
     [a addAction:[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) { WCCAfterAlert(p, completion); }]];
     WCCShow(p, a);
@@ -90,6 +92,24 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     [a addAction:[UIAlertAction actionWithTitle:@"返回" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
         WCCAfterAlert(p, ^{ [self presentFrom:p completion:completion]; });
     }]];
+}
++ (void)diagnosticsFrom:(UIViewController *)p completion:(void (^)(void))completion {
+    BOOL enabled=[WCCPrefs() boolForKey:@"hostDiagnostics"];
+    UIAlertController *a=WCCAlert(@"下拉问候 · 本地诊断",@"默认关闭。不采集位置、天气文字、输入或个人内容；仅记录宿主类/方法ABI与事件、安装和抽样计数。开启后退出设置，完整收起/下拉控制中心3次（不要展开模块），再回来导出一次。仅点导出时写本地文件，不自动上传。不代表真机问题已修复。");
+    WCCAction(a,enabled?@"关闭诊断":@"开启诊断",^{
+        [WCCPrefs() setBool:!enabled forKey:@"hostDiagnostics"]; WCCSave();
+        if (!enabled) WCCObserveHostForModule(p);
+        WCCAfterAlert(p,^{ [self diagnosticsFrom:p completion:completion]; });
+    });
+    if (enabled) WCCAction(a,@"导出本地聚合并复制",^{
+        WCCObserveHostForModule(p);
+        NSString *report=WCCDiagnosticExport(); UIPasteboard.generalPasteboard.string=report;
+        WCCAfterAlert(p,^{
+            UIAlertController *result=WCCAlert(@"诊断已复制",report);
+            WCCAction(result,@"好",^{ WCCAfterAlert(p,^{ [self diagnosticsFrom:p completion:completion]; }); }); WCCShow(p,result);
+        });
+    });
+    [self back:a from:p completion:completion]; WCCShow(p,a);
 }
 + (void)sizesFrom:(UIViewController *)p completion:(void (^)(void))completion {
     BOOL enabled = [WCCPrefs() boolForKey:@"customSize"];

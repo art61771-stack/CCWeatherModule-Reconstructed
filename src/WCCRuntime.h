@@ -81,8 +81,11 @@ static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,in
     g.greeting=WCCR(p,h-17*s,w-2*p,12*s);
     g.tempFont=(compact?27:29)*s; g.cityFont=(compact?11:13)*s; g.detailFont=(compact?9:10)*s; g.greetingFont=10*s;
     if (columns==3) {
-        // Only 3x1: compact icon+left-aligned city/weather, no far-right text rail.
-        double x=p+leftWidth+6*s, tx=x+30*s+6*s;
+        // Only 3x1: share surplus between the temperature gap and outer margin.
+        // Keep a bounded group (not a trailing-aligned rail) and the left hero.
+        double group=130*s, start=p+leftWidth+6*s;
+        double surplus=fmax(0,w-p-start-group);
+        double x=start+surplus*.55, tx=x+30*s+6*s;
         g.icon=WCCR(x,9*s,30*s,30*s);
         g.city=WCCR(tx,7*s,fmin(94*s,w-p-tx),16*s);
         g.condition=WCCR(tx,26*s,fmin(94*s,w-p-tx),13*s);
@@ -91,6 +94,29 @@ static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,in
     }
     g.details=!compact; g.square=0;
     return g;
+}
+/* Place a 10pt greeting only in unused header space. UIKit supplies resolved
+ * frames, including intrinsic text heights; never move the original elements.
+ * Prefer the bottom rail, then the widest unoccupied horizontal segment. */
+static inline WCCRect WCCExpandedGreeting(double width,const WCCRect *occupied,int count) {
+    WCCRect best=WCCR(16,73,0,10);
+    for (double y=73;y>=2;y-=1) {
+        double x=16, end=fmax(16,width-16);
+        while (x<end) {
+            double next=end, advance=x;
+            for (int i=0;i<count;i++) {
+                WCCRect r=occupied[i];
+                if (r.w<=0 || r.h<=0 || y+10<=r.y-2 || y>=r.y+r.h+2) continue;
+                if (r.x-2<=x && r.x+r.w+2>x) advance=fmax(advance,r.x+r.w+2);
+                else if (r.x-2>x) next=fmin(next,r.x-2);
+            }
+            if (advance>x) { x=advance; continue; }
+            if (next-x>best.w) best=WCCR(x,y,next-x,10);
+            x=next;
+        }
+        if (best.w>=width-32) break;
+    }
+    return best;
 }
 /* Hours are supplied by NSCalendar using the device's current time zone. */
 static inline int WCCGreetingPeriod(int hour) {

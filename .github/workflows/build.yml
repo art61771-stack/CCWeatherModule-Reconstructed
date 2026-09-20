@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.1.5 rootless
+name: CCWeatherModule 1.1.6 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -24,7 +24,9 @@ jobs:
           mkdir -p verification
           cc -Wall -Wextra -Werror evidence/runtime115.c -lm -o /tmp/runtime115
           /tmp/runtime115 | tee verification/runtime115.txt
-          python3 evidence/test115.py | tee verification/wiring115.txt
+          python3 evidence/test116.py | tee verification/wiring116.txt
+          cc -Wall -Wextra -Werror evidence/hourly116.c -o /tmp/hourly116
+          /tmp/hourly116 | tee verification/hourly116.txt
           clang -fobjc-arc -fblocks -I evidence/mock115 -framework Foundation evidence/host115.m -o /tmp/host115 2>&1 | tee verification/host115-build.txt
           for mode in modern legacy inherited getter-char reject-bool reject-return reject-argc reject-missing; do
             /tmp/host115 "$mode" 2>&1 | tee "verification/host115-${mode}.txt"
@@ -50,7 +52,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.1.5-rootless
+          name: CCWeatherModule-1.1.6-rootless
           path: |
             packages/*.deb
             verification/*

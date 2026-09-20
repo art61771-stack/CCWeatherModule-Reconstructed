@@ -4,6 +4,13 @@
 #import <ImageIO/ImageIO.h>
 #import <AVFoundation/AVFoundation.h>
 
+// FIFO serial preparation, independent of the number of visible players.
+// Waiting MP4 metadata has a timeout, so a broken asset cannot starve the tail.
+static dispatch_queue_t WCCPreparationQueue(void) {
+    static dispatch_queue_t queue; static dispatch_once_t once;
+    dispatch_once(&once, ^{ queue=dispatch_queue_create("com.simon.ccweather.prepare",DISPATCH_QUEUE_SERIAL); });
+    return queue;
+}
 static CGImageSourceRef WCCSource(NSString *path) {
     NSDictionary *a = [NSFileManager.defaultManager attributesOfItemAtPath:path error:nil];
     if (![a[NSFileType] isEqual:NSFileTypeRegular] || [a[NSFileSize] unsignedLongLongValue] > 8*1024*1024) return NULL;
@@ -71,6 +78,7 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
 - (void)dealloc { [self clear]; }
 - (void)didMoveToWindow { [super didMoveToWindow]; if (!self.window) { [_timer invalidate]; _timer = nil; [_player pause]; } else [self resume]; }
 - (void)setActive:(BOOL)active {
+    if (_active == active) return; // Never reset the GIF deadline on steady state.
     _active = active; [_timer invalidate]; _timer = nil;
     if (!active) [_player pause]; else [self resume];
 }
@@ -105,8 +113,14 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
     if ([path.pathExtension.lowercaseString isEqual:@"mp4"]) {
         AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:path] options:nil];
         __weak typeof(self) weak = self;
-        [asset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(WCCPreparationQueue(), ^{
+            __block BOOL current=NO;
+            dispatch_sync(dispatch_get_main_queue(), ^{ typeof(self) self=weak; current=self && generation==self->_generation; });
+            if (!current) return;
+            dispatch_semaphore_t done=dispatch_semaphore_create(0);
+            [asset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{ dispatch_semaphore_signal(done); }];
+            if (dispatch_semaphore_wait(done,dispatch_time(DISPATCH_TIME_NOW,10*NSEC_PER_SEC))) [asset cancelLoading];
+            dispatch_sync(dispatch_get_main_queue(), ^{
                 typeof(self) self = weak; if (!self || generation != self->_generation) return;
                 if ([asset statusOfValueForKey:@"tracks" error:nil] != AVKeyValueStatusLoaded || [asset statusOfValueForKey:@"duration" error:nil] != AVKeyValueStatusLoaded || [asset statusOfValueForKey:@"playable" error:nil] != AVKeyValueStatusLoaded || !asset.playable) { if (self.mediaFailed) self.mediaFailed(@"视频读取或解码失败（请检查 MP4 编码及文件权限）"); return; }
                 AVAssetTrack *video = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
@@ -129,9 +143,20 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
             });
         }];
     } else {
-        _source = WCCSource(path); _image.image = WCCFrame(_source, 0);
-        if (!_image.image && self.mediaFailed) self.mediaFailed(@"图片读取/解码失败，或超过尺寸/帧数限制；请刷新图库。");
-        [self notifyMedia]; [self resume];
+        __weak typeof(self) weak=self;
+        dispatch_async(WCCPreparationQueue(), ^{
+            __block BOOL current=NO;
+            dispatch_sync(dispatch_get_main_queue(), ^{ typeof(self) self=weak; current=self && generation==self->_generation; });
+            if (!current) return;
+            CGImageSourceRef source=WCCSource(path); UIImage *first=WCCFrame(source,0);
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                typeof(self) self=weak;
+                if (!self || generation != self->_generation) { if (source) CFRelease(source); return; }
+                self->_source=source; self->_image.image=first;
+                if (!first && self.mediaFailed) self.mediaFailed(@"图片读取/解码失败，或超过尺寸/帧数限制；请刷新图库。");
+                [self notifyMedia]; [self resume];
+            });
+        });
     }
 }
 @end

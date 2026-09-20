@@ -5,8 +5,45 @@
 #import "WCCMedia.h"
 #import "WCCRuntime.h"
 #import "WCCHostObserver.h"
+#import "WCCHourly.h"
+#import "WCCABI.h"
+#import <objc/runtime.h>
+#import <objc/message.h>
+#include <stdbool.h>
+// Only an explicit forecast daylight getter with exact ABI may refine its
+// condition. A date alone is not sunrise/sunset evidence; no 06-18 heuristic.
+static int WCCHourlyDaylight(id forecast) {
+    SEL sel=NSSelectorFromString(@"isDaylight");
+    Method method=class_getInstanceMethod(object_getClass(forecast),sel);
+    if (!method) return -1;
+    NSMethodSignature *s=[NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(method)];
+    if (s.numberOfArguments!=2) return -1;
+    const char *args[2]={[s getArgumentTypeAtIndex:0],[s getArgumentTypeAtIndex:1]};
+    @try {
+        if (WCCABICompatible(s.methodReturnType,"B",2,args,0,NULL)) return ((bool(*)(id,SEL))objc_msgSend)(forecast,sel)?1:0;
+        if (WCCABICompatible(s.methodReturnType,"c",2,args,0,NULL)) return ((signed char(*)(id,SEL))objc_msgSend)(forecast,sel)?1:0;
+    } @catch (NSException *exception) {}
+    return -1;
+}
+@interface WCCHourlyItem : UIView
+@property(nonatomic,strong) UIImageView *originalIcon;
+@property(nonatomic,strong) UILabel *timeLabel;
+@property(nonatomic,strong) UILabel *temperatureLabel;
+@property(nonatomic,strong) WCCMediaView *media;
+@property(nonatomic,copy) NSString *assetKey;
+@property(nonatomic,copy) NSString *cachedPath;
+@property(nonatomic,copy) NSString *cachedIdentity;
+@property(nonatomic,copy) NSString *boundIdentity;
+@property(nonatomic) BOOL animatedAsset;
+@end
+@implementation WCCHourlyItem
+@end
 static CGRect WCCCGRect(WCCRect r) { return CGRectMake(r.x,r.y,r.w,r.h); }
-@interface WCCContentViewController ()
+@interface WCCContentViewController () <UIScrollViewDelegate>
+@property(nonatomic,strong) NSMutableArray<WCCHourlyItem *> *hourlyItems;
+- (void)refreshHourlyMedia;
+- (void)cacheHourlyMediaPaths;
+- (void)clearHourlyItems;
 @property(nonatomic,strong) UILabel *greetingLabel;
 @property(nonatomic) WCCModuleSession moduleSession;
 @property(nonatomic,strong) NSArray *originalExpandedConstraints;
@@ -14,6 +51,7 @@ static CGRect WCCCGRect(WCCRect r) { return CGRectMake(r.x,r.y,r.w,r.h); }
 @property(nonatomic) WCCLayoutSize layoutSize;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
+@property(nonatomic) BOOL mediaSuspended;
 @property(nonatomic,copy) NSString *mediaAssetKey;
 @end
 
@@ -82,25 +120,29 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (WCCConsumeExpansion(&session,expanded)) [self drawGreeting];
     self.moduleSession=session;
     _isExpanded = expanded;
-    if (expanded) [self updateHourlyForecast];
+    if (expanded) [self updateHourlyForecast]; else [self clearHourlyItems];
     _hourlyContainer.alpha = expanded ? 1 : 0;
     [self.view setNeedsLayout];
 }
 - (void)didTransitionToExpandedContentMode:(BOOL)expanded { _isExpanded = expanded; }
-- (void)willBecomeActive { [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData]; }
+- (void)willBecomeActive { WCCDiagnosticCount(@"module.willBecomeActive"); [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData]; }
 - (void)consumeHostSession {
     WCCObserveHostForModule(self);
     WCCModuleSession session=self.moduleSession;
     if (WCCConsumeModuleHost(&session,WCCCurrentHostState())) {
+        WCCDiagnosticCount(@"module.generationConsumed");
         self.moduleSession=session; [self drawGreeting];
     }
 }
 - (void)hostVisibilityChanged:(NSNotification *)note {
+    WCCDiagnosticCount(@"module.notification");
     [self consumeHostSession];
     self.mediaVisible=WCCCurrentHostState().visible;
     self.customMedia.active=self.mediaVisible && !self.presentedViewController;
+    [self refreshHourlyMedia];
 }
 - (void)drawGreeting {
+    WCCDiagnosticCount(@"greeting.sample");
     NSCalendar *calendar = [NSCalendar currentCalendar];
     calendar.timeZone = NSTimeZone.localTimeZone;
     NSInteger hour = [calendar component:NSCalendarUnitHour fromDate:NSDate.date];
@@ -112,7 +154,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     int index=self.greetingState.index;
     // Always bind, including a session that began before UILabel creation.
     self.greetingLabel.text=[NSString stringWithFormat:@"%@，%@",[NSString stringWithUTF8String:WCCGreetingPrefix(index)],[NSString stringWithUTF8String:WCCGreetingSuffix(index)]];
-    self.greetingLabel.hidden=_isExpanded; self.greetingLabel.alpha=1;
+    self.greetingLabel.hidden=NO; self.greetingLabel.alpha=1;
 }
 - (void)endGreetingSession { WCCGreetingState state=self.greetingState; WCCEndGreeting(&state); self.greetingState=state; }
 - (void)loadView {
@@ -120,10 +162,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     view.visibilityChanged=^(BOOL visible) {
         typeof(self) self=weak; if (!self) return;
         if (visible) { [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; }
-        else if (!self.presentedViewController) {  self.mediaVisible=NO; self.customMedia.active=NO; }
+        else if (!self.presentedViewController) {  self.mediaVisible=NO; self.customMedia.active=NO; [self refreshHourlyMedia]; }
     }; self.view=view;
 }
 - (void)controlCenterWillPresent {
+    WCCDiagnosticCount(@"module.controlCenterWillPresent");
     // Module callback is NOT a whole-Control-Center presentation edge.
     [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData];
 }
@@ -174,10 +217,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _tempLabel.font = [UIFont systemFontOfSize:MAX(1,g.tempFont) weight:UIFontWeightLight];
     _cityLabel.font = [UIFont systemFontOfSize:MAX(1,g.cityFont) weight:UIFontWeightSemibold];
     _conditionLabel.font = _highLowLabel.font = [UIFont systemFontOfSize:MAX(1,g.detailFont) weight:UIFontWeightRegular];
+    self.greetingLabel.adjustsFontSizeToFitWidth=YES;
     self.greetingLabel.font = [UIFont systemFontOfSize:MAX(1,g.greetingFont) weight:UIFontWeightRegular];
     _tempLabel.textAlignment = NSTextAlignmentLeft;
     _highLowLabel.textAlignment = NSTextAlignmentLeft;
-    self.greetingLabel.hidden=_isExpanded; self.greetingLabel.alpha=1;
+    self.greetingLabel.hidden=NO; self.greetingLabel.alpha=1;
     [_headerView bringSubviewToFront:self.greetingLabel];
     [self bindGreetingText]; // Layout must never draw a new suffix.
     _hourlyContainer.frame = CGRectMake(0, g.headerHeight, size.width, MAX(0,size.height-g.headerHeight));
@@ -189,7 +233,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _headerView.frame=CGRectMake(0,0,size.width,85);
     _hourlyContainer.frame=CGRectMake(0,85,size.width,size.height-85);
     _hourlyContainer.hidden=NO;
-    self.greetingLabel.hidden=YES;
+    self.greetingLabel.hidden=NO;
+    self.greetingLabel.alpha=1;
+    self.greetingLabel.font=[UIFont systemFontOfSize:8 weight:UIFontWeightRegular];
+    self.greetingLabel.adjustsFontSizeToFitWidth=NO;
+    self.greetingLabel.textAlignment=NSTextAlignmentLeft;
+    self.greetingLabel.lineBreakMode=NSLineBreakByTruncatingTail;
     _precipLabel.hidden=_highLowLabel.hidden=NO;
     _iconView.transform=CGAffineTransformIdentity;
     _cityLabel.font=[UIFont systemFontOfSize:18 weight:UIFontWeightSemibold];
@@ -219,6 +268,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     }
     [NSLayoutConstraint activateConstraints:self.originalExpandedConstraints];
     [_headerView layoutIfNeeded];
+    WCCRect occupied[6]; int n=0;
+    for (UIView *v in @[_iconView,_cityLabel,_conditionLabel,_precipLabel,_tempLabel,_highLowLabel]) {
+        CGRect r=v.frame; occupied[n++]=WCCR(r.origin.x,r.origin.y,r.size.width,r.size.height);
+    }
+    self.greetingLabel.frame=WCCCGRect(WCCExpandedGreeting(size.width,occupied,n));
+    [self bindGreetingText];
     self.customMedia.frame=_iconView.bounds;
 }
 - (void)refreshWeatherData {
@@ -311,28 +366,28 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)handleTwoFingerDoubleTap:(UITapGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController) return;
-    self.customMedia.active = NO;
+    self.mediaSuspended=YES; self.customMedia.active = NO; [self refreshHourlyMedia];
     __weak typeof(self) weak = self;
-    [WCCSettings presentFrom:self completion:^{ [weak preferencesChanged]; }];
+    [WCCSettings presentFrom:self completion:^{ weak.mediaSuspended=NO; [weak preferencesChanged]; }];
 }
 - (void)showCustomNameAlert {
     if (self.presentedViewController) return;
-    self.customMedia.active = NO;
+    self.mediaSuspended=YES; self.customMedia.active = NO; [self refreshHourlyMedia];
     __weak typeof(self) weak = self;
-    [WCCSettings editLandmarkFrom:self completion:^{ [weak preferencesChanged]; }];
+    [WCCSettings editLandmarkFrom:self completion:^{ weak.mediaSuspended=NO; [weak preferencesChanged]; }];
 }
 - (void)preferencesChanged {
     _displayMode = MAX(0, MIN(2, [WCCPrefs() integerForKey:@"displayMode"]));
     _customLocationName = [WCCPrefs() stringForKey:@"landmark"];
     if (_displayMode == 2 && !_customLocationName.length) _displayMode = 0;
-    [self updateCityLabel]; [self updateWeatherIcon];
+    [self updateCityLabel]; [self updateWeatherIcon]; [self cacheHourlyMediaPaths]; [self refreshHourlyMedia];
     self.customMedia.active = self.mediaVisible && !self.presentedViewController;
 }
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = YES; [self preferencesChanged]; }
-- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)viewDidDisappear:(BOOL)animated { [super viewDidDisappear:animated]; }
-- (void)controlCenterDidDismiss {  self.mediaVisible = NO; self.customMedia.active = NO; }
-- (void)willResignActive { if (!self.presentedViewController)  self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)controlCenterDidDismiss {  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)willResignActive { if (!self.presentedViewController)  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 
 - (void)updateWeatherDisplay {
     if (!_weatherModel) return;
@@ -461,22 +516,97 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         _iconView.image = [UIImage systemImageNamed:@"cloud.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:42 weight:UIImageSymbolWeightRegular]];
     }
 }
+- (void)clearHourlyItems {
+    for (WCCHourlyItem *item in self.hourlyItems) {
+        item.media.active=NO; [item.media loadPath:nil]; [item removeFromSuperview];
+    }
+    [self.hourlyItems removeAllObjects]; _hourlyScrollView.contentSize=CGSizeZero;
+}
+- (void)cacheHourlyMediaPaths {
+    // Only configuration/forecast events touch the filesystem. Cache missing
+    // mappings too; layout and scrolling never resolve names or stat files.
+    BOOL enabled=[WCCPrefs() boolForKey:@"customIcon"];
+    NSMutableDictionary *resolved=[NSMutableDictionary dictionary];
+    for (WCCHourlyItem *item in self.hourlyItems) {
+        NSString *key=item.assetKey ?: @"";
+        NSArray *binding=resolved[key];
+        if (!binding) {
+            NSString *path=enabled && key.length ? WCCSafePath(WCCRoot(),WCCMappedName(key)) : nil;
+            struct stat st; NSString *identity=nil;
+            if (path && stat(path.fileSystemRepresentation,&st)==0 && S_ISREG(st.st_mode))
+                identity=[NSString stringWithFormat:@"%@:%llu:%llu:%lld:%lld:%ld:%lld:%ld",path,(unsigned long long)st.st_dev,(unsigned long long)st.st_ino,(long long)st.st_size,(long long)st.st_mtimespec.tv_sec,st.st_mtimespec.tv_nsec,(long long)st.st_ctimespec.tv_sec,st.st_ctimespec.tv_nsec];
+            binding=@[identity ? path : @"",identity ?: @""];
+            resolved[key]=binding;
+        }
+        item.cachedPath=[binding[0] length] ? binding[0] : nil;
+        item.cachedIdentity=[binding[1] length] ? binding[1] : nil;
+        NSString *extension=item.cachedPath.pathExtension.lowercaseString;
+        item.animatedAsset=[extension isEqual:@"gif"] || [extension isEqual:@"mp4"];
+    }
+}
+- (void)refreshHourlyMedia {
+    BOOL available=_isExpanded && self.mediaVisible && !self.mediaSuspended && self.view.window && !self.presentedViewController;
+    // Release obsolete/offscreen bindings first, then admit EVERY visible item.
+    // Preparation is serialized in WCCMedia; playback has no three-item quota.
+    NSMutableArray<WCCHourlyItem *> *admitted=[NSMutableArray array];
+    for (WCCHourlyItem *item in self.hourlyItems) {
+        BOOL visible=available && WCCHourlyIntersects(item.frame.origin.x,item.frame.size.width,_hourlyScrollView.contentOffset.x,_hourlyScrollView.bounds.size.width);
+        BOOL wanted=WCCHourlyAdmit(visible,item.cachedPath!=nil);
+        NSString *identity=wanted ? item.cachedIdentity : nil;
+        if (item.boundIdentity && ![item.boundIdentity isEqual:identity]) {
+            item.media.active=NO; [item.media loadPath:nil]; item.boundIdentity=nil;
+        }
+        if (wanted) [admitted addObject:item];
+    }
+    for (WCCHourlyItem *item in admitted) {
+        if (!item.boundIdentity) {
+            item.boundIdentity=item.cachedIdentity;
+            [item.media loadPath:item.cachedPath]; item.media.active=YES;
+        }
+    }
+}
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    if (_isExpanded) [self refreshHourlyMedia];
+}
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (scrollView==_hourlyScrollView) [self refreshHourlyMedia];
+}
 - (void)updateHourlyForecast {
+    if (!_isExpanded) { [self clearHourlyItems]; return; }
+    if (!self.hourlyItems) self.hourlyItems=[NSMutableArray array];
+    _hourlyScrollView.delegate=self;
     @try {
-        for (UIView *view in _hourlyScrollView.subviews) [view removeFromSuperview];
         NSArray *hours = [_currentCity hourlyForecasts];
-        if (!hours.count) return;
+        if (!hours.count) { [self clearHourlyItems]; return; }
         NSDateFormatter *formatter = [NSDateFormatter new]; formatter.locale = NSLocale.currentLocale;
         NSUInteger count = MIN(hours.count, 12);
+        NSArray<WCCHourlyItem *> *previous=[self.hourlyItems copy];
+        self.hourlyItems=[NSMutableArray array];
         for (NSUInteger i = 0; i < count; i++) {
-            UIView *item = [self createHourlyItemWithForecast:hours[i] isNow:i == 0 formatter:formatter];
-            item.frame = CGRectMake(12 + i * 55, 0, 55, 80); [_hourlyScrollView addSubview:item];
+            WCCHourlyItem *item=(WCCHourlyItem *)[self createHourlyItemWithForecast:hours[i] isNow:i == 0 formatter:formatter];
+            WCCHourlyItem *old=i<previous.count ? previous[i] : nil;
+            if (old && ((old.assetKey==nil && item.assetKey==nil) || [old.assetKey isEqual:item.assetKey])) {
+                old.timeLabel.text=item.timeLabel.text;
+                old.temperatureLabel.text=item.temperatureLabel.text;
+                old.originalIcon.image=item.originalIcon.image;
+                [self.hourlyItems removeLastObject]; [self.hourlyItems addObject:old]; item=old;
+            } else if (old) {
+                old.media.active=NO; [old.media loadPath:nil]; [old removeFromSuperview];
+            }
+            item.frame = CGRectMake(12 + i * 55, 0, 55, 80);
+            if (!item.superview) [_hourlyScrollView addSubview:item];
+        }
+        for (NSUInteger i=count;i<previous.count;i++) {
+            WCCHourlyItem *old=previous[i]; old.media.active=NO; [old.media loadPath:nil]; [old removeFromSuperview];
         }
         _hourlyScrollView.contentSize = CGSizeMake(24 + count * 55, 80);
     } @catch (NSException *exception) {}
+    [self cacheHourlyMediaPaths];
+    [_hourlyContainer layoutIfNeeded]; [self refreshHourlyMedia];
 }
 - (UIView *)createHourlyItemWithForecast:(id)forecast isNow:(BOOL)isNow formatter:(NSDateFormatter *)formatter {
-    UIView *item = [UIView new];
+    WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;
     @try {
         if (isNow) time.text = @"现在";
@@ -488,12 +618,23 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     UIImageView *icon = [UIImageView new]; icon.contentMode = UIViewContentModeScaleAspectFit; icon.tintColor = UIColor.whiteColor;
     @try {
         NSInteger code = [forecast conditionCode];
-        icon.image = [self systemWeatherImageForConditionCode:code] ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular]];
+        char basename[128]={0};
+        if (WCCHourlyAsset((int)code,WCCHourlyDaylight(forecast),basename,sizeof(basename))) item.assetKey=[NSString stringWithUTF8String:basename];
+        UIImage *native=item.assetKey ? [UIImage imageNamed:item.assetKey inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil] : nil;
+        if (!native && item.assetKey) native=[UIImage imageNamed:item.assetKey inBundle:[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/WeatherUI.framework"] compatibleWithTraitCollection:nil];
+        icon.image = native ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular]];
     } @catch (NSException *exception) {}
     icon.frame = CGRectMake(12, 22, 30, 30); [item addSubview:icon];
+    item.originalIcon=icon;
+    item.media=[[WCCMediaView alloc] initWithFrame:icon.frame]; [item addSubview:item.media];
+    __weak WCCHourlyItem *weakItem=item;
+    item.media.mediaChanged=^{ WCCHourlyItem *current=weakItem; current.originalIcon.hidden=current.media.hasMedia; };
+    item.media.mediaFailed=^(NSString *reason) { WCCHourlyItem *current=weakItem; current.originalIcon.hidden=NO; };
+    [self.hourlyItems addObject:item];
     UILabel *temperature = WCCLabel(15, UIFontWeightMedium, 1); temperature.textAlignment = NSTextAlignmentCenter;
     @try { temperature.text = [self temperatureString:[forecast temperature]]; }
     @catch (NSException *exception) { temperature.text = @"--"; }
+    item.timeLabel=time; item.temperatureLabel=temperature;
     temperature.frame = CGRectMake(0, 56, 55, 20); [item addSubview:temperature];
     return item;
 }
