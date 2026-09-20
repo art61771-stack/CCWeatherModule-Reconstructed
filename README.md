@@ -1,3 +1,9 @@
+# CCWeatherModule 1.1.4 — 原生按天气分类素材与全部横条布局
+
+当前实现与测试边界见 **RELEASE_1.1.4.md**。原生列表取代所有网页实现；按原天气 basename 逐类绑定，旧全局 icon 不再适用。三种横条均采用新布局。rootless arm64+arm64e，非原生 RootHide；iOS16.6 真机 NOT RUN。
+
+## 以下1.1.3及更早内容仅历史记录，不代表当前实现
+
 # CCWeatherModule 1.1.3 — 轻量动态图库、原生备用入口与天气网格
 
 当前版本说明见 `RELEASE_1.1.3.md`。旧版全量 base64 图库已替换为轻量 HTML + 可见最多两项异步媒体；网页进程失败自动进入原生列表，仅允许一次人工网页重试。生产可执行回归：`cc evidence/runtime113.c -lm -o /tmp/runtime113 && /tmp/runtime113`、`node evidence/gallery113.js`。这些不是 UIKit/CC 真机测试，目标 iOS16.6 实测仍 NOT RUN。

@@ -61,6 +61,27 @@ static inline WCCGeometry WCCComputeGeometry(double width,double height,int expa
     }
     return g;
 }
+/* Explicit cached module size: all single-row modules share adaptive rails. */
+static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,int expanded,int columns,int rows) {
+    WCCGeometry g=WCCComputeGeometry(width,height,expanded);
+    if (expanded || rows!=1 || columns<2 || columns>4) return g;
+    double w=fmax(0,width), h=fmax(0,height), s=fmin(h/76.,w/156.);
+    double p=12*s, right=w-p, usable=w-2*p;
+    int compact=w<210*s;
+    double leftWidth=(compact?51:65)*s, gap=(compact?4:8)*s, icon=(compact?24:32)*s;
+    // Flexible metadata rail grows with the actual bounds, not nominal column count.
+    double iconX=p+leftWidth+gap, textX=iconX+icon+gap, textWidth=right-textX;
+    g.temperature=WCCR(p,9*s,leftWidth,32*s);
+    g.highLow=compact?WCCR(0,0,0,0):WCCR(p,44*s,fmin(76*s,usable*.40),12*s);
+    g.icon=WCCR(iconX,8*s,icon,icon);
+    g.city=WCCR(textX,7*s,textWidth,16*s);
+    g.condition=WCCR(textX,26*s,textWidth,13*s);
+    g.precipitation=compact?WCCR(0,0,0,0):WCCR(right-fmin(112*s,usable*.52),44*s,fmin(112*s,usable*.52),12*s);
+    g.greeting=WCCR(p,h-17*s,w-2*p,12*s);
+    g.tempFont=(compact?27:29)*s; g.cityFont=(compact?11:13)*s; g.detailFont=(compact?9:10)*s; g.greetingFont=10*s;
+    g.details=!compact; g.square=0;
+    return g;
+}
 /* Hours are supplied by NSCalendar using the device's current time zone. */
 static inline int WCCGreetingPeriod(int hour) {
     if (hour<5) return 0;
@@ -71,33 +92,43 @@ static inline int WCCGreetingPeriod(int hour) {
     if (hour<22) return 5;
     return 0;
 }
-static const char * const WCCGreetings[6][3]={
-    {"夜深了，记得早点休息","愿你今夜好眠","放慢脚步，好好休息"},
-    {"早安，开启元气一天","清晨好，愿你心情晴朗","新的一天，慢慢出发"},
-    {"上午好，愿今天顺心","忙碌之余，记得喝水","愿好心情与你相伴"},
-    {"中午好，记得好好吃饭","午间歇一歇，补充能量","愿午后的你轻松自在"},
-    {"下午好，给自己一点放松","愿这份晴朗陪你到傍晚","忙里偷闲，喝杯水吧"},
-    {"晚上好，辛苦一天了","愿今晚有温柔的好心情","卸下一天疲惫，放松一下"}
+enum { WCCGreetingVariants=8, WCCGreetingCount=48 };
+static const char * const WCCGreetingPrefixes[6]={"夜深了","早安","上午好","中午好","下午好","晚上好"};
+static const char * const WCCGreetingSuffixes[6][8]={
+    {"记得早点休息","愿你今夜好眠","让思绪慢慢安静","给疲惫按下暂停","愿美梦如约而至","把烦恼留给昨天","为明天蓄满元气","享受这一刻宁静"},
+    {"开启元气一天","愿你心情晴朗","慢慢出发也很好","吃份早餐再忙吧","让晨光带来好运","今天也值得期待","把微笑带在身边","愿一路都有好事"},
+    {"愿今天顺心","忙碌之余喝点水","好心情与你相伴","一步一步慢慢来","给努力一点鼓励","记得舒展肩颈","愿灵感悄悄到来","让今天多点从容"},
+    {"记得好好吃饭","歇一歇补充能量","愿午后轻松自在","给自己片刻悠闲","让美食治愈忙碌","吃饱再向前出发","愿小憩带走疲惫","留一点时间放松"},
+    {"给自己一点放松","愿晴朗陪到傍晚","忙里偷闲喝杯水","让步调稍稍放缓","愿努力都有回响","看看窗外的风景","再忙也照顾自己","期待日落的小美好"},
+    {"辛苦一天了","愿今晚心情温柔","卸下疲惫放松吧","享受属于你的时光","和喜欢的人聊聊","给今天一个微笑","让晚风捎走烦恼","愿灯火带来安心"}
 };
 static inline int WCCPickGreeting(int hour,int previous,uint32_t randomValue) {
-    int base=WCCGreetingPeriod(hour)*3;
-    if (previous>=base && previous<base+3) {
-        int offset=(int)(randomValue%2);
+    int base=WCCGreetingPeriod(hour)*WCCGreetingVariants;
+    if (previous>=base && previous<base+WCCGreetingVariants) {
+        int offset=(int)(randomValue%(WCCGreetingVariants-1));
         if (offset>=previous-base) offset++;
         return base+offset;
     }
-    return base+(int)(randomValue%3);
+    return base+(int)(randomValue%WCCGreetingVariants);
 }
 typedef struct { int active, index; } WCCGreetingState;
 static inline int WCCBeginGreeting(WCCGreetingState *state,int hour,uint32_t randomValue) {
-    if (!state->active || state->index<0 || state->index>=18) {
+    if (!state->active || state->index<0 || state->index>=WCCGreetingCount) {
         state->index=WCCPickGreeting(hour,state->index,randomValue); state->active=1;
     }
     return state->index;
 }
+/* The host's presentation edge is authoritative even when no dismissal arrived. */
+static inline int WCCPresentGreeting(WCCGreetingState *state,int hour,uint32_t randomValue) {
+    state->active=0;
+    return WCCBeginGreeting(state,hour,randomValue);
+}
 static inline void WCCEndGreeting(WCCGreetingState *state) { state->active=0; }
-static inline const char *WCCGreetingText(int index) {
-    return index>=0 && index<18 ? WCCGreetings[index/3][index%3] : "愿你今天心情晴朗";
+static inline const char *WCCGreetingPrefix(int index) {
+    return index>=0 && index<WCCGreetingCount ? WCCGreetingPrefixes[index/WCCGreetingVariants] : "你好";
+}
+static inline const char *WCCGreetingSuffix(int index) {
+    return index>=0 && index<WCCGreetingCount ? WCCGreetingSuffixes[index/WCCGreetingVariants][index%WCCGreetingVariants] : "愿你今天心情晴朗";
 }
 /* No writes, chmod or deletion. Reject links escaping the actual canonical root. */
 typedef enum { WCCFileOK, WCCFileName, WCCFileRoot, WCCFileEscape,

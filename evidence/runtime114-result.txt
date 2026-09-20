@@ -1,0 +1,1 @@
+PASS: 610 production geometries, other sizes byte-identical; 20160 presentation edges without dismissal; 100800 stable events; 6 fixed prefixes / 48 distinct within-period suffixes. iOS16.6 UIKit host delivery NOT RUN.

@@ -1,4 +1,6 @@
 #import "WCCMedia.h"
+#import "WCCAssetKeys.h"
+#include <sys/stat.h>
 #import <ImageIO/ImageIO.h>
 #import <AVFoundation/AVFoundation.h>
 
@@ -36,7 +38,7 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
     AVQueuePlayer *_player;
     AVPlayerLooper *_looper;
     AVPlayerLayer *_layer;
-    NSString *_path;
+    NSString *_path, *_identity;
 }
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -49,7 +51,11 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
 - (BOOL)hasMedia { return _image.image != nil || (_layer.readyForDisplay && _player.status != AVPlayerStatusFailed && _looper.status != AVPlayerLooperStatusFailed); }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)self) {
-        dispatch_async(dispatch_get_main_queue(), ^{ [self notifyMedia]; });
+        NSUInteger generation=_generation;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!WCCMediaCallbackCurrent(generation,self->_generation,object==self->_layer || object==self->_player || object==self->_looper)) return;
+            [self notifyMedia];
+        });
     } else [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 }
 - (void)notifyMedia { if (self.mediaChanged) self.mediaChanged(); }
@@ -87,8 +93,15 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
     }];
 }
 - (void)loadPath:(NSString *)path {
-    // Reload even the same filename: Filza replacement must take effect on next presentation.
-    _path = [path copy]; NSUInteger generation = ++_generation; [self clear]; [self notifyMedia]; if (!path) return;
+    // Nanosecond stat identity: stable layout/weather refreshes preserve playback;
+    // in-place writes, atomic replacements and deletions invalidate the cache.
+    struct stat st; NSString *identity=nil;
+    if (path && stat(path.fileSystemRepresentation,&st)==0 && S_ISREG(st.st_mode))
+        identity=[NSString stringWithFormat:@"%@:%llu:%llu:%lld:%lld:%ld:%lld:%ld",path,(unsigned long long)st.st_dev,(unsigned long long)st.st_ino,(long long)st.st_size,(long long)st.st_mtimespec.tv_sec,st.st_mtimespec.tv_nsec,(long long)st.st_ctimespec.tv_sec,st.st_ctimespec.tv_nsec];
+    if (!identity) path=nil;
+    if ((!path && !_path) || ([_path isEqual:path] && [_identity isEqual:identity])) { [self notifyMedia]; [self resume]; return; }
+    _path=[path copy]; _identity=identity;
+    NSUInteger generation=++_generation; [self clear]; [self notifyMedia]; if (!path) return;
     if ([path.pathExtension.lowercaseString isEqual:@"mp4"]) {
         AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:path] options:nil];
         __weak typeof(self) weak = self;

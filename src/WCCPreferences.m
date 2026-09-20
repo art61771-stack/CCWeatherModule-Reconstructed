@@ -1,5 +1,6 @@
 #import "WCCPreferences.h"
 #import "WCCRuntime.h"
+#import "WCCAssetKeys.h"
 NSString * const WCCPreferencesChanged = @"WCCPreferencesChanged";
 NSUserDefaults *WCCPrefs(void) { static NSUserDefaults *p; static dispatch_once_t once; dispatch_once(&once, ^{ p = [[NSUserDefaults alloc] initWithSuiteName:@"com.simon.ccweathermodule.custom"]; }); return p; }
 NSArray<NSString *> *WCCSizeOptions(void) { return @[@"2x1", @"3x1", @"4x1", @"2x2", @"3x3"]; }
@@ -21,9 +22,16 @@ BOOL WCCSetSelectedSize(NSString *size) {
     return [WCCPrefs() synchronize];
 }
 WCCLayoutSize WCCEffectiveSize(void) {
-    if (![WCCPrefs() boolForKey:@"customSize"]) return (WCCLayoutSize){4, 1};
-    NSArray *parts = [WCCSelectedSize() componentsSeparatedByString:@"x"];
-    return (WCCLayoutSize){[parts[0] integerValue], [parts[1] integerValue]};
+    // One process-wide snapshot shared by container size and content geometry.
+    static WCCLayoutSize size; static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        size=(WCCLayoutSize){4,1};
+        if ([WCCPrefs() boolForKey:@"customSize"]) {
+            NSArray *parts=[WCCSelectedSize() componentsSeparatedByString:@"x"];
+            size=(WCCLayoutSize){[parts[0] integerValue],[parts[1] integerValue]};
+        }
+    });
+    return size;
 }
 BOOL WCCAllowedRoot(NSString *path) {
     if (![path isKindOfClass:NSString.class] || !path.isAbsolutePath) return NO;
@@ -49,3 +57,31 @@ NSString *WCCCheckedPath(NSString *root, NSString *name, NSString **reason) {
     return nil;
 }
 NSString *WCCSafePath(NSString *root, NSString *name) { return WCCCheckedPath(root, name, NULL); }
+
+// Old `icon` is deliberately neither read nor migrated: keep files, require explicit binding.
+NSString *WCCAssetKey(NSInteger code, BOOL night) {
+    char key[128]; WCCAssetBasename((int)code, night, key, sizeof(key));
+    return [NSString stringWithUTF8String:key];
+}
+NSArray<NSString *> *WCCAssetKeys(void) {
+    static NSArray *keys; static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        NSMutableOrderedSet *set=[NSMutableOrderedSet orderedSet];
+        for (NSInteger code=0; code<48; code++) for (NSInteger night=0; night<2; night++) [set addObject:WCCAssetKey(code,night)];
+        keys=set.array;
+    }); return keys;
+}
+NSString *WCCMappedNameForKey(NSDictionary *mappings, NSString *key) {
+    if (![key isKindOfClass:NSString.class] || ![WCCAssetKeys() containsObject:key] || ![mappings isKindOfClass:NSDictionary.class]) return nil;
+    id name=mappings[key]; return [name isKindOfClass:NSString.class] && [name length] ? name : nil;
+}
+NSString *WCCMappedName(NSString *key) { return WCCMappedNameForKey([WCCPrefs() objectForKey:@"weatherIconMappings"],key); }
+BOOL WCCSetMappedName(NSString *key, NSString *name) {
+    if (![key isKindOfClass:NSString.class] || ![WCCAssetKeys() containsObject:key]) return NO;
+    if (name && !WCCSafePath(WCCRoot(),name)) return NO;
+    id stored=[WCCPrefs() objectForKey:@"weatherIconMappings"];
+    NSMutableDictionary *map=[stored isKindOfClass:NSDictionary.class] ? [stored mutableCopy] : [NSMutableDictionary dictionary];
+    if (name) map[key]=name; else [map removeObjectForKey:key];
+    [WCCPrefs() setObject:map forKey:@"weatherIconMappings"];
+    return [WCCPrefs() synchronize];
+}

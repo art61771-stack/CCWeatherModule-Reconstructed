@@ -11,3 +11,9 @@ FOUNDATION_EXPORT NSString *WCCCheckedPath(NSString *root, NSString *name, NSStr
 FOUNDATION_EXPORT NSString *WCCSafePath(NSString *root, NSString *name);
 FOUNDATION_EXPORT BOOL WCCAllowedRoot(NSString *path);
 FOUNDATION_EXPORT NSString * const WCCPreferencesChanged;
+
+FOUNDATION_EXPORT NSString *WCCAssetKey(NSInteger code, BOOL night);
+FOUNDATION_EXPORT NSArray<NSString *> *WCCAssetKeys(void);
+FOUNDATION_EXPORT NSString *WCCMappedNameForKey(NSDictionary *mappings, NSString *key);
+FOUNDATION_EXPORT NSString *WCCMappedName(NSString *key);
+FOUNDATION_EXPORT BOOL WCCSetMappedName(NSString *key, NSString *name);

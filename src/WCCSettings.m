@@ -43,6 +43,40 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
 @end
 
+// Compact original-asset category page. No localized-condition substring matching.
+@interface WCCWeatherMappings : UITableViewController <UIPopoverPresentationControllerDelegate>
+@property(nonatomic,copy) void (^onDone)(void);
+@end
+@implementation WCCWeatherMappings
+- (void)viewDidLoad {
+    [super viewDidLoad]; self.title=@"选择原天气图标";
+    self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
+}
+- (void)viewWillAppear:(BOOL)animated { [super viewWillAppear:animated]; [self.tableView reloadData]; }
+- (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
+- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return WCCAssetKeys().count; }
+- (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section { return @"先选原天气名称，再选任意文件名的素材；仅替换该类天气。左滑清除该类绑定，不删除文件。旧版全局选图不再应用，须逐类重新绑定。总开关独立控制。"; }
+- (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
+    UITableViewCell *cell=[table dequeueReusableCellWithIdentifier:@"weather"] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"weather"];
+    NSString *key=WCCAssetKeys()[index.row], *name=WCCMappedName(key);
+    cell.textLabel.text=key; cell.detailTextLabel.numberOfLines=2;
+    cell.detailTextLabel.text=name ? [NSString stringWithFormat:@"%@%@ · 左滑清除",name,WCCSafePath(WCCRoot(),name)?@"":@"（失效，使用原图）"] : @"未绑定 · 使用原天气图标";
+    cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; return cell;
+}
+- (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)index {
+    [table deselectRowAtIndexPath:index animated:YES];
+    WCCGallery *gallery=[WCCGallery new]; gallery.targetKey=WCCAssetKeys()[index.row];
+    [self.navigationController pushViewController:gallery animated:YES];
+}
+- (BOOL)tableView:(UITableView *)table canEditRowAtIndexPath:(NSIndexPath *)index { return WCCMappedName(WCCAssetKeys()[index.row])!=nil; }
+- (NSString *)tableView:(UITableView *)table titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)index { return @"清除绑定"; }
+- (void)tableView:(UITableView *)table commitEditingStyle:(UITableViewCellEditingStyle)style forRowAtIndexPath:(NSIndexPath *)index {
+    if (style==UITableViewCellEditingStyleDelete) { WCCSetMappedName(WCCAssetKeys()[index.row],nil); WCCSave(); [table reloadData]; }
+}
+@end
+
 @implementation WCCSettings
 + (void)presentFrom:(UIViewController *)p completion:(void (^)(void))completion {
     UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。");
@@ -102,16 +136,16 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 }
 + (void)iconsFrom:(UIViewController *)p completion:(void (^)(void))completion {
     BOOL enabled = [WCCPrefs() boolForKey:@"customIcon"];
-    UIAlertController *a = WCCAlert(@"自定义图标", @"关闭立即恢复天气原图。PNG/JPG/JPEG/GIF/MP4 请直接放入 /var/mobile/Documents/CCWeatherModule/Icons（不扫描子目录）。导入后打开图库并点右上角刷新；读取失败和过滤原因会显示在图库中。");
+    UIAlertController *a = WCCAlert(@"自定义图标", @"按实时天气及昼夜分别替换原资源图标；关闭立即恢复原图。旧版全局选图请按天气重新绑定，文件保持不变。PNG/JPG/JPEG/GIF/MP4 请直接放入 /var/mobile/Documents/CCWeatherModule/Icons（不扫描子目录）。导入后打开图库并点右上角刷新；读取失败和过滤原因会显示在图库中。");
     WCCAction(a, enabled ? @"关闭自定义图标" : @"开启自定义图标", ^{
         [WCCPrefs() setBool:!enabled forKey:@"customIcon"]; WCCSave(); WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; });
     });
-    WCCAction(a, @"浏览 HTML 动态图库", ^{ WCCAfterAlert(p, ^{
+    WCCAction(a, @"按天气名称管理绑定", ^{ WCCAfterAlert(p, ^{
         NSError *error = nil;
         if (![NSFileManager.defaultManager createDirectoryAtPath:WCCRoot() withIntermediateDirectories:YES attributes:nil error:&error]) {
             [self pathFailure:WCCRoot() reason:error.localizedDescription from:p completion:completion]; return;
         }
-        WCCSettingsGallery *gallery = [WCCSettingsGallery new];
+        WCCWeatherMappings *gallery = [[WCCWeatherMappings alloc] initWithStyle:UITableViewStylePlain];
         gallery.onDone = ^{ [self iconsFrom:p completion:completion]; };
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:gallery];
         nav.modalPresentationStyle = UIModalPresentationPopover;

@@ -1,5 +1,6 @@
 // Generated from arm64 dictionary construction, jump table and pointer table.
 #import "WCCContentViewController.h"
+#import "WCCPreferences.h"
 @implementation WCCContentViewController (RecoveredConditionTables)
 - (NSString *)localizedConditionForCode:(NSInteger)code {
     NSArray *table = @[
@@ -109,57 +110,6 @@
 }
 - (NSString *)imageNameForConditionCode:(NSInteger)code {
     BOOL night = _currentCity && [_currentCity respondsToSelector:@selector(isDay)] && ![_currentCity isDay];
-    NSArray *table = @[
-        @"龙卷风", // 0
-        @"龙卷风", // 1
-        @"龙卷风", // 2
-        @"雷阵雨", // 3
-        @"雷阵雨", // 4
-        @"雨夹雪", // 5
-        @"雨夹雪", // 6
-        @"雨夹雪", // 7
-        @"中雨", // 8
-        @"小雨-%@", // 9
-        @"中雨", // 10
-        @"中雨", // 11
-        @"中雨", // 12
-        @"小雪-%@", // 13
-        @"小雪-%@", // 14
-        @"中雪", // 15
-        @"中雪", // 16
-        @"冰雹", // 17
-        @"雨夹雪", // 18
-        @"浮尘", // 19
-        @"雾", // 20
-        @"轻度雾霾", // 21
-        @"中度雾霾", // 22
-        @"大风", // 23
-        @"大风", // 24
-        @"寒冷", // 25
-        @"阴天", // 26
-        @"多云-夜间", // 27
-        @"多云-%@", // 28
-        @"多云-夜间", // 29
-        @"多云-%@", // 30
-        @"晴天-夜间", // 31
-        @"晴天-白天", // 32
-        @"晴天-夜间", // 33
-        @"晴天-白天", // 34
-        @"雨夹雪", // 35
-        @"炎热", // 36
-        @"雷阵雨", // 37
-        @"雷阵雨", // 38
-        @"雷阵雨", // 39
-        @"中雨", // 40
-        @"大雪", // 41
-        @"小雪-%@", // 42
-        @"大雪", // 43
-        @"多云-%@", // 44
-        @"雷阵雨", // 45
-        @"小雪-%@", // 46
-        @"雷阵雨", // 47
-    ];
-    NSString *name = code >= 0 && code < 48 ? table[code] : @"多云-%@";
-    return [NSString stringWithFormat:name, night ? @"夜间" : @"白天"];
+    return WCCAssetKey(code, night);
 }
 @end

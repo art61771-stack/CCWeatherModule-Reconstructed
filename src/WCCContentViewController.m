@@ -8,8 +8,10 @@ static CGRect WCCCGRect(WCCRect r) { return CGRectMake(r.x,r.y,r.w,r.h); }
 @interface WCCContentViewController ()
 @property(nonatomic,strong) UILabel *greetingLabel;
 @property(nonatomic) WCCGreetingState greetingState;
+@property(nonatomic) WCCLayoutSize layoutSize;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
+@property(nonatomic,copy) NSString *mediaAssetKey;
 @end
 
 @interface WCCVisibilityView : UIView
@@ -36,6 +38,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (instancetype)init {
     if ((self = [super init])) {
         _isInitialized = NO; _isExpanded = NO; _displayMode = 0; _greetingState = (WCCGreetingState){0,-1};
+        _layoutSize = WCCEffectiveSize();
         _customLocationName = nil;
         _isInitialized = [self initializeWeatherModel];
     }
@@ -84,9 +87,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     calendar.timeZone = NSTimeZone.localTimeZone;
     NSInteger hour = [calendar component:NSCalendarUnitHour fromDate:NSDate.date];
     WCCGreetingState state=self.greetingState;
-    int index=WCCBeginGreeting(&state,(int)hour,arc4random_uniform(6)); self.greetingState=state;
-    // Always bind text, even when session started before UILabel creation.
-    self.greetingLabel.text=[NSString stringWithUTF8String:WCCGreetingText(index)];
+    WCCBeginGreeting(&state,(int)hour,arc4random_uniform(840)); self.greetingState=state;
+    [self bindGreetingText];
+}
+- (void)bindGreetingText {
+    int index=self.greetingState.index;
+    // Always bind, including a session that began before UILabel creation.
+    self.greetingLabel.text=[NSString stringWithFormat:@"%@，%@",[NSString stringWithUTF8String:WCCGreetingPrefix(index)],[NSString stringWithUTF8String:WCCGreetingSuffix(index)]];
     self.greetingLabel.hidden=NO; self.greetingLabel.alpha=1;
 }
 - (void)endGreetingSession { WCCGreetingState state=self.greetingState; WCCEndGreeting(&state); self.greetingState=state; }
@@ -98,7 +105,16 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         else if (!self.presentedViewController) { [self endGreetingSession]; self.mediaVisible=NO; self.customMedia.active=NO; }
     }; self.view=view;
 }
-- (void)controlCenterWillPresent { [self beginGreetingSession]; self.mediaVisible = YES; [self preferencesChanged]; [self refreshWeatherData]; }
+- (void)controlCenterWillPresent {
+    // CCUIContentModuleContentViewController host contract: v@:, no arguments.
+    // Unlike 1.1.3, presentation is an edge, not an idempotent active check.
+    // A persistently mounted CC window or missed dismiss cannot retain old suffixes.
+    NSCalendar *calendar=NSCalendar.currentCalendar; calendar.timeZone=NSTimeZone.localTimeZone;
+    int hour=(int)[calendar component:NSCalendarUnitHour fromDate:NSDate.date];
+    WCCGreetingState state=self.greetingState;
+    WCCPresentGreeting(&state,hour,arc4random_uniform(840)); self.greetingState=state;
+    [self bindGreetingText]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(preferencesChanged) name:WCCPreferencesChanged object:nil];
@@ -121,7 +137,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     CGSize size = self.view.bounds.size;
-    WCCGeometry g = WCCComputeGeometry(size.width, size.height, _isExpanded);
+    WCCGeometry g = WCCComputeModuleGeometry(size.width, size.height, _isExpanded, (int)self.layoutSize.width, (int)self.layoutSize.height);
+    BOOL rightAligned = !_isExpanded && self.layoutSize.width>=2 && self.layoutSize.width<=4 && self.layoutSize.height==1;
+    _cityLabel.textAlignment = _conditionLabel.textAlignment = _precipLabel.textAlignment = self.greetingLabel.textAlignment = rightAligned ? NSTextAlignmentRight : NSTextAlignmentLeft;
     _headerView.transform = CGAffineTransformIdentity;
     _headerView.frame = CGRectMake(0, 0, size.width, g.headerHeight);
     _iconView.transform = CGAffineTransformIdentity;
@@ -141,7 +159,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _highLowLabel.textAlignment = NSTextAlignmentLeft;
     self.greetingLabel.hidden=NO; self.greetingLabel.alpha=1;
     [_headerView bringSubviewToFront:self.greetingLabel];
-    if (self.view.window) [self beginGreetingSession];
+    [self bindGreetingText]; // Layout must never draw a new suffix.
     _hourlyContainer.frame = CGRectMake(0, g.headerHeight, size.width, MAX(0,size.height-g.headerHeight));
     _hourlyContainer.hidden = !_isExpanded;
 }
@@ -181,7 +199,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _highLowLabel = WCCLabel(13, UIFontWeightRegular, .7);
     _tempLabel.textAlignment = _highLowLabel.textAlignment = NSTextAlignmentRight;
     self.greetingLabel = WCCLabel(11, UIFontWeightRegular, .82);
-    self.greetingLabel.text=[NSString stringWithUTF8String:WCCGreetingText(self.greetingState.index)];
+    [self bindGreetingText];
     self.greetingLabel.accessibilityIdentifier=@"weather.greeting";
     _headerView.clipsToBounds = YES;
     for (UIView *view in @[_iconView, _cityLabel, _conditionLabel, _precipLabel, _tempLabel, _highLowLabel, self.greetingLabel]) {
@@ -204,7 +222,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     self.customMedia.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [_iconView addSubview:self.customMedia];
     __weak typeof(self) weak = self;
-    self.customMedia.mediaChanged = ^{ [weak updateWeatherIcon]; };
+    self.customMedia.mediaChanged = ^{ [weak renderWeatherIcon]; };
 }
 - (void)setupHourlyContainer {
     _hourlyContainer = [UIView new]; _hourlyContainer.backgroundColor = UIColor.clearColor;
@@ -250,8 +268,6 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _customLocationName = [WCCPrefs() stringForKey:@"landmark"];
     if (_displayMode == 2 && !_customLocationName.length) _displayMode = 0;
     [self updateCityLabel]; [self updateWeatherIcon];
-    NSString *path = [WCCPrefs() boolForKey:@"customIcon"] ? WCCSafePath(WCCRoot(), [WCCPrefs() stringForKey:@"icon"]) : nil;
-    [self.customMedia loadPath:path];
     self.customMedia.active = self.mediaVisible && !self.presentedViewController;
 }
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self beginGreetingSession]; self.mediaVisible = YES; [self preferencesChanged]; }
@@ -264,7 +280,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (!_weatherModel) return;
     @try {
         _currentCity = [[_weatherModel forecastModel] city];
-        if (!_currentCity) return;
+        if (!_currentCity) { [self updateWeatherIcon]; return; }
+        [self updateWeatherIcon];
         [self updateCityLabel];
         if ([_currentCity temperature] || [[_currentCity dayForecasts] count]) {
             _conditionLabel.text = [self conditionStringForCode:[_currentCity conditionCode]];
@@ -275,6 +292,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         } else {
             _conditionLabel.text = @"加载中..."; _tempLabel.text = @"--°";
             _highLowLabel.text = @"-- / --"; _precipLabel.text = @"";
+            [self updateWeatherIcon];
         }
     } @catch (NSException *exception) {}
 }
@@ -365,6 +383,16 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     } @catch (NSException *exception) { return nil; }
 }
 - (void)updateWeatherIcon {
+    NSString *key = _currentCity ? [self imageNameForConditionCode:[_currentCity conditionCode]] : nil;
+    if (![self.mediaAssetKey isEqual:key]) {
+        [self.customMedia loadPath:nil]; self.mediaAssetKey=key;
+    }
+    NSString *path = [WCCPrefs() boolForKey:@"customIcon"] ? WCCSafePath(WCCRoot(), WCCMappedName(key)) : nil;
+    [self.customMedia loadPath:path];
+    self.customMedia.active = self.mediaVisible && !self.presentedViewController && path != nil;
+    [self renderWeatherIcon];
+}
+- (void)renderWeatherIcon {
     self.customMedia.hidden = ![WCCPrefs() boolForKey:@"customIcon"];
     if (!self.customMedia.hidden && self.customMedia.hasMedia) { _iconView.image = nil; return; }
     NSInteger code = [_currentCity conditionCode];
