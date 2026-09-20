@@ -4,7 +4,6 @@ Description: 控制中心的天气模块。 显示当前天气、温度和每小
 Maintainer: simon
 Author: simon
 Section: Tweaks
-Depends: mobilesubstrate, firmware (>= 14.0)
+Depends: mobilesubstrate, com.opa334.ccsupport, firmware (>= 14.0)
 Architecture: iphoneos-arm64
-Version: 1.0.4
-Installed-Size: 356
+Version: 1.1.0

@@ -1,0 +1,46 @@
+name: CCWeatherModule 1.1.0 rootless
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: brew install ldid dpkg
+      - name: Setup Theos and private SDK
+        run: |
+          git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+          git clone --depth 1 https://github.com/theos/sdks.git /tmp/theos-sdks
+          cp -R /tmp/theos-sdks/*.sdk "$HOME/theos/sdks/"
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+      - name: Build and inspect
+        shell: bash
+        run: |
+          set -euo pipefail
+          make package FINALPACKAGE=1 2>&1 | tee build.log
+          mkdir -p verification
+          DEB=$(find packages -name '*.deb' | head -1)
+          dpkg-deb -I "$DEB" | tee verification/control.txt
+          dpkg-deb -c "$DEB" | tee verification/contents.txt
+          dpkg-deb -e "$DEB" /tmp/wcc-control
+          for s in preinst postinst prerm postrm config; do test ! -e /tmp/wcc-control/$s; done
+          dpkg-deb -x "$DEB" /tmp/wcc-payload
+          BIN=/tmp/wcc-payload/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule
+          lipo -info "$BIN" | tee verification/architectures.txt
+          otool -L "$BIN" | tee verification/linkage.txt
+          ldid -e "$BIN" > verification/entitlements.xml
+          shasum -a 256 "$DEB" | tee verification/SHA256SUMS
+          xcrun simctl list runtimes > verification/simulator-runtimes.txt
+          echo 'iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: CCWeatherModule-1.1.0-rootless
+          path: |
+            packages/*.deb
+            verification/*
+            build.log
+          if-no-files-found: error

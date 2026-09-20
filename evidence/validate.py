@@ -9,13 +9,15 @@ for line in source.splitlines():
   parts=re.findall(r'(\w+)\s*:',body.split('{')[0])
   implemented.add(''.join(p+':' for p in parts) if parts else re.match(r'\w+',body)[0])
 synthesized={'contentViewController','weatherModel','setWeatherModel:','forecast','setForecast:','isInitialized','setIsInitialized:','.cxx_destruct'}
-missing=set(methods.values())-implemented-synthesized
+migrated={'handleTwoFingerDoubleTap:', 'showCustomNameAlert'} # 1.1.0: landmark editor is in WCCSettings.
+assert '编辑自定义地标' in (root/'src/WCCSettings.m').read_text()
+missing=set(methods.values())-implemented-synthesized-migrated
 print('Recovered metadata entries:',len(methods))
 print('Explicit source selectors:',len(implemented))
 print('Missing original selectors:',sorted(missing))
 assert not missing
 original=root/'package/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle'
-files=[p for p in original.iterdir() if p.name!='CCWeatherModule']
+files=[p for p in original.iterdir() if p.name not in ('CCWeatherModule','Info.plist')]
 for p in files:assert p.read_bytes()==(root/'Resources'/p.name).read_bytes(),p.name
 print('Byte-identical original resources:',len(files))
 tables=json.loads((root/'evidence/tables.json').read_text())

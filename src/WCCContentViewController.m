@@ -1,5 +1,12 @@
 #import "WCCContentViewController.h"
 #import <dlfcn.h>
+#import "WCCPreferences.h"
+#import "WCCSettings.h"
+#import "WCCMedia.h"
+@interface WCCContentViewController ()
+@property(nonatomic,strong) WCCMediaView *customMedia;
+@property(nonatomic) BOOL mediaVisible;
+@end
 
 // The original passes @YES through performSelector:withObject:, not a BOOL ABI call.
 static void WCCEnable(id object, SEL selector) {
@@ -47,6 +54,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     } @catch (NSException *exception) { return NO; }
 }
 - (void)dealloc {
+    [NSNotificationCenter.defaultCenter removeObserver:self];
     @try { if (_weatherModel) [_weatherModel removeObserver:self]; }
     @catch (NSException *exception) {}
 }
@@ -59,12 +67,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)didTransitionToExpandedContentMode:(BOOL)expanded { _isExpanded = expanded; }
 - (void)willBecomeActive { [self refreshWeatherData]; }
-- (void)controlCenterWillPresent { [self refreshWeatherData]; }
+- (void)controlCenterWillPresent { self.mediaVisible = YES; [self preferencesChanged]; [self refreshWeatherData]; }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(preferencesChanged) name:WCCPreferencesChanged object:nil];
     self.view.backgroundColor = UIColor.clearColor;
     [self setupHeaderView]; [self setupHourlyContainer];
-    [self updateWeatherDisplay]; [self forceCityUpdate];
+    [self preferencesChanged]; [self updateWeatherDisplay]; [self forceCityUpdate];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^{ [self refreshWeatherData]; });
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{ [self refreshWeatherData]; });
 }
@@ -81,8 +90,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     CGSize size = self.view.bounds.size;
-    _headerView.frame = CGRectMake(0, 0, size.width, 85);
-    _hourlyContainer.frame = CGRectMake(0, 85, size.width, size.height - 85);
+    _headerView.frame = CGRectMake(0, 0, size.width, MIN(85, size.height));
+    BOOL compact = size.width < 220;
+    _conditionLabel.hidden = compact; _precipLabel.hidden = compact; _highLowLabel.hidden = compact;
+    _tempLabel.font = [UIFont systemFontOfSize:compact ? 23 : 38 weight:UIFontWeightLight];
+    _cityLabel.font = [UIFont systemFontOfSize:compact ? 11 : 18 weight:UIFontWeightSemibold];
+    _hourlyContainer.frame = CGRectMake(0, 85, size.width, MAX(0, size.height - 85));
 }
 - (void)refreshWeatherData {
     if (!_weatherModel) return;
@@ -130,6 +143,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         [_iconView.heightAnchor constraintEqualToConstant:55],
         [_cityLabel.leadingAnchor constraintEqualToAnchor:_iconView.trailingAnchor constant:18],
         [_cityLabel.topAnchor constraintEqualToAnchor:_headerView.topAnchor constant:12],
+        [_cityLabel.trailingAnchor constraintLessThanOrEqualToAnchor:_tempLabel.leadingAnchor constant:-4],
         [_conditionLabel.leadingAnchor constraintEqualToAnchor:_cityLabel.leadingAnchor],
         [_conditionLabel.topAnchor constraintEqualToAnchor:_cityLabel.bottomAnchor constant:2],
         [_precipLabel.leadingAnchor constraintEqualToAnchor:_cityLabel.leadingAnchor],
@@ -141,10 +155,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     ]];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     tap.numberOfTapsRequired = 2; tap.numberOfTouchesRequired = 1;
-    [_headerView addGestureRecognizer:tap];
-    UITapGestureRecognizer *two = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerDoubleTap:)];
-    two.numberOfTapsRequired = 2; two.numberOfTouchesRequired = 2;
-    [_headerView addGestureRecognizer:two]; _headerView.userInteractionEnabled = YES;
+    [self.view addGestureRecognizer:tap];
+    _headerView.userInteractionEnabled = YES;
+    self.customMedia = [[WCCMediaView alloc] initWithFrame:_iconView.bounds];
+    self.customMedia.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [_iconView addSubview:self.customMedia];
+    __weak typeof(self) weak = self;
+    self.customMedia.mediaChanged = ^{ [weak updateWeatherIcon]; };
 }
 - (void)setupHourlyContainer {
     _hourlyContainer = [UIView new]; _hourlyContainer.backgroundColor = UIColor.clearColor;
@@ -165,30 +182,25 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     ]];
 }
 - (void)handleDoubleTap:(UITapGestureRecognizer *)gesture {
-    _displayMode = (_displayMode + 1) % 3;
+    if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController) return;
+    self.customMedia.active = NO;
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:[WCCSettings new]];
+    nav.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:nav animated:YES completion:nil];
+}
+- (void)preferencesChanged {
+    _displayMode = MAX(0, MIN(2, [WCCPrefs() integerForKey:@"displayMode"]));
+    _customLocationName = [WCCPrefs() stringForKey:@"landmark"];
     if (_displayMode == 2 && !_customLocationName.length) _displayMode = 0;
-    [self updateCityLabel];
+    [self updateCityLabel]; [self updateWeatherIcon];
+    NSString *path = [WCCPrefs() boolForKey:@"customIcon"] ? WCCSafePath(WCCRoot(), [WCCPrefs() stringForKey:@"icon"]) : nil;
+    [self.customMedia loadPath:path];
+    self.customMedia.active = self.mediaVisible && !self.presentedViewController;
 }
-- (void)handleTwoFingerDoubleTap:(UITapGestureRecognizer *)gesture { [self showCustomNameAlert]; }
-- (void)showCustomNameAlert {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"自定义地标名称" message:@"输入您想显示的地标名称" preferredStyle:UIAlertControllerStyleAlert];
-    [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
-        field.placeholder = @"例如：我的家"; field.text = self->_customLocationName;
-        field.clearButtonMode = UITextFieldViewModeWhileEditing;
-    }];
-    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        NSString *name = [alert.textFields.firstObject.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
-        if (name.length) {
-            self->_customLocationName = name;
-            self->_displayMode = 2;
-            [self updateCityLabel];
-        }
-    }]];
-    UIViewController *presenter = self;
-    while (presenter.presentedViewController) presenter = presenter.presentedViewController;
-    [presenter presentViewController:alert animated:YES completion:nil];
-}
+- (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; self.mediaVisible = YES; [self preferencesChanged]; }
+- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)controlCenterDidDismiss { self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)willResignActive { self.mediaVisible = NO; self.customMedia.active = NO; }
 
 - (void)updateWeatherDisplay {
     if (!_weatherModel) return;
@@ -295,6 +307,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     } @catch (NSException *exception) { return nil; }
 }
 - (void)updateWeatherIcon {
+    self.customMedia.hidden = ![WCCPrefs() boolForKey:@"customIcon"];
+    if (!self.customMedia.hidden && self.customMedia.hasMedia) { _iconView.image = nil; return; }
     NSInteger code = [_currentCity conditionCode];
     if ([_currentCity temperature]) {
         UIImage *image = [self systemWeatherImageForConditionCode:code];

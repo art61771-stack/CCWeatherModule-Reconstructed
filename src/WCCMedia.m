@@ -1,0 +1,108 @@
+#import "WCCMedia.h"
+#import <ImageIO/ImageIO.h>
+#import <AVFoundation/AVFoundation.h>
+
+static CGImageSourceRef WCCSource(NSString *path) {
+    NSDictionary *a = [NSFileManager.defaultManager attributesOfItemAtPath:path error:nil];
+    if (![a[NSFileType] isEqual:NSFileTypeRegular] || [a[NSFileSize] unsignedLongLongValue] > 8*1024*1024) return NULL;
+    CGImageSourceRef s = CGImageSourceCreateWithURL((__bridge CFURLRef)[NSURL fileURLWithPath:path], NULL);
+    if (!s) return NULL;
+    NSDictionary *p = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(s, 0, NULL));
+    NSUInteger w = [p[(__bridge NSString *)kCGImagePropertyPixelWidth] unsignedIntegerValue];
+    NSUInteger h = [p[(__bridge NSString *)kCGImagePropertyPixelHeight] unsignedIntegerValue];
+    if (!w || !h || w > 8192 || h > 8192 || w*h > 32000000 || CGImageSourceGetCount(s) > 120) { CFRelease(s); return NULL; }
+    return s;
+}
+static UIImage *WCCFrame(CGImageSourceRef s, NSUInteger i) {
+    if (!s) return nil;
+    CGImageRef im = CGImageSourceCreateThumbnailAtIndex(s, i, (__bridge CFDictionaryRef)@{
+        (__bridge NSString *)kCGImageSourceCreateThumbnailFromImageAlways:@YES,
+        (__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform:@YES,
+        (__bridge NSString *)kCGImageSourceShouldCacheImmediately:@YES,
+        (__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize:@256});
+    if (!im) return nil;
+    UIImage *result = [UIImage imageWithCGImage:im]; CGImageRelease(im); return result;
+}
+UIImage *WCCDecode(NSString *path) {
+    CGImageSourceRef s = WCCSource(path); UIImage *im = WCCFrame(s, 0); if (s) CFRelease(s); return im;
+}
+NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? UIImagePNGRepresentation(im) : nil; }
+
+@implementation WCCMediaView {
+    UIImageView *_image;
+    CGImageSourceRef _source;
+    NSUInteger _frame, _generation;
+    NSTimer *_timer;
+    AVQueuePlayer *_player;
+    AVPlayerLooper *_looper;
+    AVPlayerLayer *_layer;
+    NSString *_path;
+}
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
+        self.userInteractionEnabled = NO;
+        _image = [[UIImageView alloc] initWithFrame:self.bounds];
+        _image.contentMode = UIViewContentModeScaleAspectFit; _image.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self addSubview:_image];
+    } return self;
+}
+- (BOOL)hasMedia { return _image.image != nil || _player != nil; }
+- (void)notifyMedia { if (self.mediaChanged) self.mediaChanged(); }
+- (void)layoutSubviews { [super layoutSubviews]; _layer.frame = self.bounds; }
+- (void)clear {
+    [_timer invalidate]; _timer = nil; [_player pause]; [_looper disableLooping];
+    [_player removeAllItems]; _looper = nil; _player = nil; [_layer removeFromSuperlayer]; _layer = nil;
+    if (_source) { CFRelease(_source); _source = NULL; } _image.image = nil; _frame = 0;
+}
+- (void)dealloc { [self clear]; }
+- (void)didMoveToWindow { [super didMoveToWindow]; if (!self.window) { [_timer invalidate]; _timer = nil; [_player pause]; } else [self resume]; }
+- (void)setActive:(BOOL)active {
+    _active = active; [_timer invalidate]; _timer = nil;
+    if (!active) [_player pause]; else [self resume];
+}
+- (void)resume {
+    if (!_active || !self.window) return;
+    if (_player) [_player play];
+    if (!_source || CGImageSourceGetCount(_source) < 2 || _timer) return;
+    NSDictionary *props = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(_source, _frame, NULL));
+    NSDictionary *gif = props[(__bridge NSString *)kCGImagePropertyGIFDictionary];
+    NSNumber *delay = gif[(__bridge NSString *)kCGImagePropertyGIFUnclampedDelayTime] ?: gif[(__bridge NSString *)kCGImagePropertyGIFDelayTime];
+    NSTimeInterval duration = MAX(.05, MIN(2.0, delay ? delay.doubleValue : .1));
+    __weak typeof(self) weak = self;
+    _timer = [NSTimer scheduledTimerWithTimeInterval:duration repeats:NO block:^(NSTimer *t) {
+        typeof(self) self = weak; if (!self) return; self->_timer = nil;
+        if (!self->_source || !self->_active || !self.window) return;
+        self->_frame = (self->_frame + 1) % CGImageSourceGetCount(self->_source);
+        self->_image.image = WCCFrame(self->_source, self->_frame); [self resume];
+    }];
+}
+- (void)loadPath:(NSString *)path {
+    // Reload even the same filename: Filza replacement must take effect on next presentation.
+    _path = [path copy]; NSUInteger generation = ++_generation; [self clear]; [self notifyMedia]; if (!path) return;
+    if ([path.pathExtension.lowercaseString isEqual:@"mp4"]) {
+        AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:path] options:nil];
+        __weak typeof(self) weak = self;
+        [asset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                typeof(self) self = weak; if (!self || generation != self->_generation) return;
+                if ([asset statusOfValueForKey:@"tracks" error:nil] != AVKeyValueStatusLoaded || !asset.playable) return;
+                AVAssetTrack *video = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
+                CGSize size = video.naturalSize; double duration = CMTimeGetSeconds(asset.duration);
+                if (!video || !isfinite(duration) || duration <= 0 || duration > 30 || fabs(size.width) > 1920 || fabs(size.height) > 1920) return;
+                // Compose video only: no audio track and no audio session activation.
+                AVMutableComposition *composition = [AVMutableComposition composition];
+                AVMutableCompositionTrack *track = [composition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+                if (![track insertTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration) ofTrack:video atTime:kCMTimeZero error:nil]) return;
+                track.preferredTransform = video.preferredTransform;
+                AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:composition];
+                self->_player = [AVQueuePlayer new]; self->_player.muted = YES;
+                self->_looper = [AVPlayerLooper playerLooperWithPlayer:self->_player templateItem:item];
+                self->_layer = [AVPlayerLayer playerLayerWithPlayer:self->_player]; self->_layer.videoGravity = AVLayerVideoGravityResizeAspect;
+                self->_layer.frame = self.bounds; [self.layer addSublayer:self->_layer]; [self notifyMedia]; [self resume];
+            });
+        }];
+    } else {
+        _source = WCCSource(path); _image.image = WCCFrame(_source, 0); [self notifyMedia]; [self resume];
+    }
+}
+@end
