@@ -1,5 +1,7 @@
 name: CCWeatherModule 1.1.0 rootless
 on:
+  push:
+    branches: [feature/1.1.0-custom-icons-size]
   workflow_dispatch:
 permissions:
   contents: read
