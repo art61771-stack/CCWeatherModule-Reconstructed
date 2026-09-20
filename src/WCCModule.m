@@ -11,16 +11,14 @@ static void WCCLoadWeatherFrameworks(void) {
     });
 }
 // CCSupport DynamicSizeModule ABI: two NSUInteger fields, orientation is int.
-typedef struct { NSUInteger width; NSUInteger height; } WCCLayoutSize;
 @implementation WCCModule
 - (WCCLayoutSize)moduleSizeForOrientation:(int)orientation {
-    static NSUInteger columns;
+    // Snapshot BOTH axes until manual respring: never mix new module geometry
+    // with the current Control Center layout cache. Respring resets this cache.
+    static WCCLayoutSize size;
     static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        NSInteger requested = [WCCPrefs() integerForKey:@"columns"];
-        columns = [WCCPrefs() boolForKey:@"customSize"] && requested >= 2 && requested <= 4 ? requested : 4;
-    });
-    return (WCCLayoutSize){columns, 1};
+    dispatch_once(&once, ^{ size = WCCEffectiveSize(); });
+    return size;
 }
 - (instancetype)init {
     if ((self = [super init])) {

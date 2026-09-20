@@ -1,12 +1,15 @@
-# CCWeatherModule 1.1.0 — 自定义主图标与尺寸
+# CCWeatherModule 1.1.1 — 方形尺寸与交互修复
 
-双击模块打开设置；地标显示模式和名称编辑已迁入设置。保留天气与展开后的小时预报。
+单指双击模块切换附近/城市；双指同时双击打开紧凑居中系统弹窗设置。设置按图标、尺寸、地标分层，保留全部功能；HTML 图库使用有完成按钮的居中 popover，不强制全屏。保留天气与展开后的小时预报。
+
+1.1.1 此次仅本地源码修改，未上传、未触发 CI、未编译或真机验证。静态回归：`python3 evidence/test_111.py`。
 
 - 素材目录：`/var/mobile/Documents/CCWeatherModule/Icons`，首次进入设置创建；提供 Filza 入口。
 - 支持 PNG/JPG、GIF 和 MP4。HTML 安全图库显示缩略图，点击选择后顶部原生播放并应用；可关闭自定义图标恢复天气图。
 - 文件最大 8MB；图片最大 8192 边长/3200万像素，GIF 最多120帧，解码缩至256px；视频最大30秒/1920px。
 - MP4 用仅视频轨道的 composition 静音循环，不调用 AVAudioSession；离屏暂停。不中断其他音频的实际设备验证仍待执行。
-- 尺寸开关支持2×1、3×1、4×1，关闭恢复4×1。使用 CCSupport `moduleSizeForOrientation:(int)`，返回两个 NSUInteger 字段结构体，启动时快照；更改后需手动注销 SpringBoard。
+- 尺寸开关支持2×1、3×1、4×1、2×2、3×3（列宽×行高），默认关闭，关闭恢复4×1。`moduleSize` 存储白名单字符串，旧版 `columns` 偏好映射为单行。CCSupport `moduleSizeForOrientation:(int)` 实际返回两个 NSUInteger 字段，宽高同时在首次查询快照；更改后手动注销 SpringBoard 重建模块及控制中心布局缓存，不自动注销、不删除系统偏好。
+- Filza 入口先创建目录，使用严格路径 URL 编码，优先 SpringBoard `openURL:withCompletionHandler:`，无私有接口时用公开打开 API。创建失败、打开失败/回调超时均提供可见错误和复制路径入口（需控制中心仍可呈现界面）。
 - 构建为 **rootless `/var/jb`、arm64 + arm64e**，不是原生 RootHide 包。iPhone 14 Pro Max / iOS16.6 RootHide 安装兼容性尚未验证，不应直接宣称兼容。
 - 不含 preinst/postinst/prerm/postrm/config 维护脚本。不自动注销。
 - iOS16 模拟器和目标真机测试：**NOT RUN**；不以 iOS18 模拟器冒充。

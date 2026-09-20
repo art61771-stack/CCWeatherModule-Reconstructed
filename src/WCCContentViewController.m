@@ -168,7 +168,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     ]];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     tap.numberOfTapsRequired = 2; tap.numberOfTouchesRequired = 1;
+    UITapGestureRecognizer *settingsTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerDoubleTap:)];
+    settingsTap.numberOfTapsRequired = 2; settingsTap.numberOfTouchesRequired = 2;
+    [tap requireGestureRecognizerToFail:settingsTap];
     [self.view addGestureRecognizer:tap];
+    [self.view addGestureRecognizer:settingsTap];
     _headerView.userInteractionEnabled = YES;
     self.customMedia = [[WCCMediaView alloc] initWithFrame:_iconView.bounds];
     self.customMedia.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -196,10 +200,24 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)handleDoubleTap:(UITapGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController) return;
+    // Single-finger double tap retains the original nearby/city toggle.
+    _displayMode = _displayMode == 0 ? 1 : 0;
+    [WCCPrefs() setInteger:_displayMode forKey:@"displayMode"];
+    [WCCPrefs() synchronize];
+    [NSNotificationCenter.defaultCenter postNotificationName:WCCPreferencesChanged object:nil];
+    [self updateCityLabel];
+}
+- (void)handleTwoFingerDoubleTap:(UITapGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController) return;
     self.customMedia.active = NO;
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:[WCCSettings new]];
-    nav.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentViewController:nav animated:YES completion:nil];
+    __weak typeof(self) weak = self;
+    [WCCSettings presentFrom:self completion:^{ [weak preferencesChanged]; }];
+}
+- (void)showCustomNameAlert {
+    if (self.presentedViewController) return;
+    self.customMedia.active = NO;
+    __weak typeof(self) weak = self;
+    [WCCSettings editLandmarkFrom:self completion:^{ [weak preferencesChanged]; }];
 }
 - (void)preferencesChanged {
     _displayMode = MAX(0, MIN(2, [WCCPrefs() integerForKey:@"displayMode"]));

@@ -1,7 +1,5 @@
-name: CCWeatherModule 1.1.0 rootless
+name: CCWeatherModule 1.1.1 rootless
 on:
-  push:
-    branches: [feature/1.1.0-custom-icons-size]
   workflow_dispatch:
 permissions:
   contents: read
@@ -40,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.1.0-rootless
+          name: CCWeatherModule-1.1.1-rootless
           path: |
             packages/*.deb
             verification/*

@@ -9,8 +9,8 @@ for line in source.splitlines():
   parts=re.findall(r'(\w+)\s*:',body.split('{')[0])
   implemented.add(''.join(p+':' for p in parts) if parts else re.match(r'\w+',body)[0])
 synthesized={'contentViewController','weatherModel','setWeatherModel:','forecast','setForecast:','isInitialized','setIsInitialized:','.cxx_destruct'}
-migrated={'handleTwoFingerDoubleTap:', 'showCustomNameAlert'} # 1.1.0: landmark editor is in WCCSettings.
-assert '编辑自定义地标' in (root/'src/WCCSettings.m').read_text()
+migrated=set() # 1.1.1 retains original gesture/editor selectors as alert entry points.
+assert '+ (void)editLandmarkFrom:' in (root/'src/WCCSettings.m').read_text()
 missing=set(methods.values())-implemented-synthesized-migrated
 print('Recovered metadata entries:',len(methods))
 print('Explicit source selectors:',len(implemented))
