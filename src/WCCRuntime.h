@@ -64,7 +64,8 @@ static inline WCCGeometry WCCComputeGeometry(double width,double height,int expa
 /* Explicit cached module size: all single-row modules share adaptive rails. */
 static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,int expanded,int columns,int rows) {
     WCCGeometry g=WCCComputeGeometry(width,height,expanded);
-    if (expanded || rows!=1 || columns<2 || columns>4) return g;
+    if (expanded) { g.headerHeight=85; g.greeting=WCCR(0,0,0,0); return g; }
+    if (rows!=1 || columns<2 || columns>4) return g;
     double w=fmax(0,width), h=fmax(0,height), s=fmin(h/76.,w/156.);
     double p=12*s, right=w-p, usable=w-2*p;
     int compact=w<210*s;
@@ -79,6 +80,15 @@ static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,in
     g.precipitation=compact?WCCR(0,0,0,0):WCCR(right-fmin(112*s,usable*.52),44*s,fmin(112*s,usable*.52),12*s);
     g.greeting=WCCR(p,h-17*s,w-2*p,12*s);
     g.tempFont=(compact?27:29)*s; g.cityFont=(compact?11:13)*s; g.detailFont=(compact?9:10)*s; g.greetingFont=10*s;
+    if (columns==3) {
+        // Only 3x1: compact icon+left-aligned city/weather, no far-right text rail.
+        double x=p+leftWidth+6*s, tx=x+30*s+6*s;
+        g.icon=WCCR(x,9*s,30*s,30*s);
+        g.city=WCCR(tx,7*s,fmin(94*s,w-p-tx),16*s);
+        g.condition=WCCR(tx,26*s,fmin(94*s,w-p-tx),13*s);
+        g.precipitation=WCCR(tx,44*s,w-p-tx,12*s);
+        g.tempFont=31*s;
+    }
     g.details=!compact; g.square=0;
     return g;
 }
@@ -118,7 +128,7 @@ static inline int WCCBeginGreeting(WCCGreetingState *state,int hour,uint32_t ran
     }
     return state->index;
 }
-/* The host's presentation edge is authoritative even when no dismissal arrived. */
+/* Caller must first consume a new host generation or explicit expansion edge. */
 static inline int WCCPresentGreeting(WCCGreetingState *state,int hour,uint32_t randomValue) {
     state->active=0;
     return WCCBeginGreeting(state,hour,randomValue);

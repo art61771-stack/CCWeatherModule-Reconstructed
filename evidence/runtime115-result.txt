@@ -1,0 +1,4 @@
+PASS: production host begin/present/dismiss state adapter; 1000 close/reopen, 20000 duplicate module deliveries, 2000 expand/collapse changes, cancelled presentation/dismissal, 305 geometries. UIKit runtime NOT RUN.
+PASS: original 1.0.4 expanded anchor list + hourly container + hourly item implementation identical; event adapter wired; no broad hook/timer; module callback does not force a draw; gestures/native media preserved.
+PASS: generated layout115.svg from compiled production geometry (all five sizes); expanded anchor illustration explicitly approximate.
+PASS recovered 48 resource templates exactly; Settings->target Gallery->validated mapping->live Controller->media; legacy ignored; fallback; stat cache and asynchronous guards. Static assertions, not device playback.

@@ -1,3 +1,11 @@
+# CCWeatherModule 1.1.5 — 3×1紧凑布局与宿主会话问候
+
+当前说明见 RELEASE_1.1.5.md。仅重新紧凑化3×1折叠布局，展开恢复1.0.4重建版约束和小时预报，无新增问候行。CC宿主会话监听采用严格ABI、主线程、弱引用、原IMP链及继承隔离；保留展开/收回换句。天气映射与原生图库不变。
+
+当前CI执行 runtime115.c、test115.py、host115.m八独立模式、114映射C/ObjC/接线回归；runtime114与test114_wiring等旧布局/事件断言仅归档，不冒充当前通过。macOS Foundation runtime测试不等于UIKit或iOS16实机。rootless /var/jb，arm64+arm64e，非原生RootHide；iOS16.6真机 NOT RUN。
+
+## 以下1.1.4及更早内容仅历史记录，不代表当前实现
+
 # CCWeatherModule 1.1.4 — 原生按天气分类素材与全部横条布局
 
 当前实现与测试边界见 **RELEASE_1.1.4.md**。原生列表取代所有网页实现；按原天气 basename 逐类绑定，旧全局 icon 不再适用。三种横条均采用新布局。rootless arm64+arm64e，非原生 RootHide；iOS16.6 真机 NOT RUN。
