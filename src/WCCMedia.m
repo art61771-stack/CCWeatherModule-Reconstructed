@@ -141,7 +141,7 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
                 [self->_looper addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];
                 self->_layer.frame = self.bounds; [self.layer addSublayer:self->_layer]; [self notifyMedia]; [self resume];
             });
-        }];
+        });
     } else {
         __weak typeof(self) weak=self;
         dispatch_async(WCCPreparationQueue(), ^{
