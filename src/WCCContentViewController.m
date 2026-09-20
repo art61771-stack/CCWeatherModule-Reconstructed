@@ -36,6 +36,9 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 - (void)scheduleHourlyLayoutValidation;
 - (void)layoutMainCustomMedia;
 - (void)mainIconScaleChanged;
+- (void)resetRegionTransforms;
+- (void)applyRegionPositions;
+- (void)regionPositionChanged;
 - (void)refreshHourlyMedia;
 - (void)cacheHourlyMediaPaths;
 - (void)clearHourlyItems;
@@ -188,6 +191,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(hostVisibilityChanged:) name:WCCHostVisibilityChanged object:self];
     [self consumeHostSession];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(preferencesChanged) name:WCCPreferencesChanged object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(regionPositionChanged) name:WCCRegionPositionChanged object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(mainIconScaleChanged) name:WCCMainIconScaleChanged object:nil];
     self.view.backgroundColor = UIColor.clearColor;
     [self setupHeaderView]; [self setupHourlyContainer];
@@ -207,6 +211,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
+    [self resetRegionTransforms];
     CGSize size = self.view.bounds.size;
     WCCGeometry g = WCCComputeModuleGeometry(size.width, size.height, _isExpanded, (int)self.layoutSize.width, (int)self.layoutSize.height);
     if (_isExpanded) {
@@ -540,6 +545,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self renderWeatherIcon];
 }
 - (void)renderWeatherIcon {
+    [self layoutMainCustomMedia];
     self.customMedia.hidden = ![WCCPrefs() boolForKey:@"customIcon"];
     if (!self.customMedia.hidden && self.customMedia.hasMedia) { _iconView.image = nil; return; }
     NSInteger code = [_currentCity conditionCode];
@@ -606,28 +612,66 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     }
     self.hourlyRefreshing=NO;
 }
+// These methods never query weather, draw greetings, bind/load media or touch hours.
+- (NSArray<NSArray<UIView *> *> *)positionRegions {
+    return @[@[_tempLabel,_highLowLabel],@[_iconView],
+             @[_cityLabel,_conditionLabel,_precipLabel],@[self.greetingLabel]];
+}
+- (void)resetRegionTransforms {
+    for (NSArray<UIView *> *group in [self positionRegions])
+        for (UIView *view in group) view.transform=CGAffineTransformIdentity;
+}
+- (void)applyRegionPositions {
+    [self resetRegionTransforms];
+    // Position preferences affect only the collapsed main page. Never discard them.
+    if (_isExpanded) return;
+    NSInteger region=0;
+    for (NSArray<UIView *> *group in [self positionRegions]) {
+        // Icon uses the same unscaled slot but combines offset and scale once.
+        if (region==1) { region++; continue; }
+        CGRect baseline=CGRectNull;
+        for (UIView *view in group) if (!view.hidden && !CGRectIsEmpty(view.frame))
+            baseline=CGRectIsNull(baseline)?view.frame:CGRectUnion(baseline,view.frame);
+        if (!CGRectIsNull(baseline)) {
+            WCCRect delta=WCCRegionTranslation(WCCR(baseline.origin.x,baseline.origin.y,baseline.size.width,baseline.size.height),
+                _headerView.bounds.size.width,_headerView.bounds.size.height,WCCRegionOffset(region*2),WCCRegionOffset(region*2+1));
+            for (UIView *view in group) view.transform=CGAffineTransformMakeTranslation(delta.x,delta.y);
+        }
+        region++;
+    }
+}
+- (void)regionPositionChanged {
+    if (!NSThread.isMainThread) { dispatch_async(dispatch_get_main_queue(),^{ [self regionPositionChanged]; }); return; }
+    if (!self.isViewLoaded) return;
+    [self applyRegionPositions];
+    [self layoutMainCustomMedia];
+}
 - (void)mainIconScaleChanged {
     // Scale-only notifications never recache bindings or restart hourly media.
     [self layoutMainCustomMedia];
 }
 - (void)layoutMainCustomMedia {
-    CGRect icon=_iconView.frame;
-    CGFloat clearance=MAX(0,MIN(MIN(CGRectGetMinX(icon),CGRectGetMinY(icon)),
-        MIN(_headerView.bounds.size.width-CGRectGetMaxX(icon),_headerView.bounds.size.height-CGRectGetMaxY(icon)))-2);
-    for (UIView *label in @[_cityLabel,_conditionLabel,_precipLabel,_tempLabel,_highLowLabel,self.greetingLabel]) {
-        if (label.hidden || CGRectIsEmpty(label.frame)) continue;
-        CGRect r=label.frame;
-        CGFloat dx=MAX(MAX(CGRectGetMinX(r)-CGRectGetMaxX(icon),CGRectGetMinX(icon)-CGRectGetMaxX(r)),0);
-        CGFloat dy=MAX(MAX(CGRectGetMinY(r)-CGRectGetMaxY(icon),CGRectGetMinY(icon)-CGRectGetMaxY(r)),0);
-        clearance=MIN(clearance,MAX(0,MAX(dx,dy)-2));
-    }
-    WCCRect frame=WCCScaledMainIcon(WCCR(0,0,icon.size.width,icon.size.height),WCCMainIconPercent(),clearance);
+    if (!self.isViewLoaded || !_iconView) return;
+    // Never read a scaled frame as baseline, or resize an Auto Layout slot.
+    // Identity recovers the original 118 center/bounds in both display modes.
+    _iconView.transform=CGAffineTransformIdentity;
+    CGRect slot=_iconView.frame;
+    WCCRect target=WCCMainIconTarget(WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
+        _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,
+        WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercent());
+    CGFloat sx=slot.size.width>0?target.w/slot.size.width:1;
+    CGFloat sy=slot.size.height>0?target.h/slot.size.height:1;
     self.customMedia.transform=CGAffineTransformIdentity;
     self.customMedia.autoresizingMask=UIViewAutoresizingNone;
-    self.customMedia.frame=WCCCGRect(frame);
+    self.customMedia.frame=_iconView.bounds;
+    // Native image, PNG/GIF/MP4 and failed-media fallback share this transform.
+    _iconView.transform=CGAffineTransformMake(sx,0,0,sy,
+        target.x+target.w/2-CGRectGetMidX(slot),target.y+target.h/2-CGRectGetMidY(slot));
 }
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    // Auto Layout has resolved original expanded constraints before translation.
+    [self applyRegionPositions];
     [self layoutMainCustomMedia];
     if (_isExpanded) [self refreshHourlyMedia];
 }

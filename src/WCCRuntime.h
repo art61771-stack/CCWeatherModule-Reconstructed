@@ -125,6 +125,21 @@ static inline WCCGeometry WCCBalanceMeasuredStrip(WCCGeometry g,double width,dou
     g.greeting.x=x;
     return g;
 }
+/* Absolute translations of baseline unions. Zero is always identity, including
+ * legacy geometry already exceeding a boundary. Oversize baseline unions may
+ * move only within their existing overflow; never shrink text or icon frames. */
+static inline double WCCNormalizeRegionOffset(double value) {
+    return isfinite(value) && value>=-40 && value<=40 ? round(value) : 0;
+}
+static inline double WCCRegionAxis(double origin,double length,double bound,double request) {
+    request=WCCNormalizeRegionOffset(request);
+    double lower=fmin(0,-origin), upper=fmax(0,bound-origin-length);
+    return fmax(lower,fmin(upper,request));
+}
+static inline WCCRect WCCRegionTranslation(WCCRect baseline,double width,double height,double x,double y) {
+    return WCCR(WCCRegionAxis(baseline.x,baseline.w,width,x),
+                WCCRegionAxis(baseline.y,baseline.h,height,y),0,0);
+}
 /* Persisted percentage: the real numeric midpoint is 100, with five-point steps. */
 static inline double WCCNormalizeIconPercent(double value) {
     if (!isfinite(value) || value<50 || value>150) return 100;
@@ -139,6 +154,19 @@ static inline WCCRect WCCScaledMainIcon(WCCRect original,double percent,double c
     scale=fmin(scale,safe);
     return WCCR((original.w-original.w*scale)/2,(original.h-original.h*scale)/2,
                 original.w*scale,original.h*scale);
+}
+/* Shared native/custom/fallback target from the UNSCALED layout slot.
+ * Position is collapsed-only. Scale applies in both modes, around one center.
+ * Boundary clearance is independent of other regions' preferences. At 100%
+ * retain 118 geometry even when that baseline already touches a boundary. */
+static inline WCCRect WCCMainIconTarget(WCCRect baseline,double width,double height,
+                                      int expanded,double x,double y,double percent) {
+    WCCRect d=expanded?WCCR(0,0,0,0):WCCRegionTranslation(baseline,width,height,x,y);
+    baseline.x+=d.x; baseline.y+=d.y;
+    double clearance=fmax(0,fmin(fmin(baseline.x,baseline.y),
+        fmin(width-baseline.x-baseline.w,height-baseline.y-baseline.h)));
+    WCCRect local=WCCScaledMainIcon(baseline,percent,clearance);
+    return WCCR(baseline.x+local.x,baseline.y+local.y,local.w,local.h);
 }
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.

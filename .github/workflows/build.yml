@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.1.8 rootless
+name: CCWeatherModule 1.1.9 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -20,6 +20,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p verification
+          sh evidence/run119-foundation.sh 2>&1 | tee verification/foundation119.txt
+          python3 evidence/test119.py | tee verification/production119.txt
           make package FINALPACKAGE=1 2>&1 | tee build.log
           mkdir -p verification
           cc -Wall -Wextra -Werror evidence/runtime115.c -lm -o /tmp/runtime115
@@ -55,11 +58,11 @@ jobs:
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo 'iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+          echo 'UIKit119Tests: NOT RUN (no executable iOS16 XCTest target); no iOS17/18 substitute. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.1.8-rootless
+          name: CCWeatherModule-1.1.9-rootless
           path: |
             packages/*.deb
             verification/*

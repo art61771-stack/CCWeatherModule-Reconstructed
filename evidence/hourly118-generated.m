@@ -196,6 +196,7 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
     }
     self.hourlyRefreshing=NO;
 }
+// These methods never query weather, draw greetings, bind/load media or touch hours.
 - (void)scheduleHourlyLayoutValidation {
     NSUInteger generation=++self.hourlyLayoutGeneration;
     __weak typeof(self) weak=self;

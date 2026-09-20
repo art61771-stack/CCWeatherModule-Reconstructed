@@ -1,6 +1,7 @@
 #import "WCCSettings.h"
 #import "WCCPreferences.h"
 #import "WCCGallery.h"
+#import "WCCRegionSettings.h"
 #import <objc/message.h>
 #include <math.h>
 
@@ -52,22 +53,26 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 @end
 @implementation WCCIconScaleController
 - (void)viewDidLoad {
-    [super viewDidLoad]; self.title=@"图标大小";
+    [super viewDidLoad]; self.title=@"主图标大小";
     self.view.backgroundColor=UIColor.systemBackgroundColor;
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
     self.valueLabel=[UILabel new]; self.valueLabel.font=[UIFont monospacedDigitSystemFontOfSize:22 weight:UIFontWeightMedium]; self.valueLabel.textAlignment=NSTextAlignmentCenter;
     self.slider=[UISlider new]; self.slider.minimumValue=50; self.slider.maximumValue=150;
-    self.slider.value=WCCMainIconPercent(); self.slider.enabled=[WCCPrefs() boolForKey:@"customIcon"];
-    self.slider.accessibilityLabel=@"主自定义天气图标大小";
+    self.slider.value=WCCMainIconPercent(); self.slider.enabled=YES;
+    self.slider.accessibilityLabel=@"主图标大小";
     [self.slider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
     UILabel *range=[UILabel new]; range.text=@"小 50%        默认 100%        大 150%"; range.font=[UIFont systemFontOfSize:12]; range.textAlignment=NSTextAlignmentCenter;
     UILabel *note=[UILabel new]; note.numberOfLines=0; note.font=[UIFont systemFontOfSize:13]; note.textColor=UIColor.secondaryLabelColor;
-    note.text=@"仅调整主自定义图标（含展开头部），不改变原天气图标或小时图标。100% 与 1.1.7 相同；每步 5%。为避免遮字或越界，实际显示可能低于设置比例。关闭总开关仅禁用调节，保留数值。";
+    note.text=@"原系统天气主图、自定义 PNG/GIF/MP4 及失败回退原图共用大小与中心，关闭自定义图标仍可调节。作用于折叠主页面及展开头部，小时图标固定 30pt 不受影响。100% 为 1.1.8 原始大小；50–150%，每步 5%。边界处会限幅。八个区域位置偏移仅作用折叠页面，与本设置不同。";
     UIStackView *stack=[[UIStackView alloc] initWithArrangedSubviews:@[self.valueLabel,self.slider,range,note]];
     stack.axis=UILayoutConstraintAxisVertical; stack.spacing=14; stack.translatesAutoresizingMaskIntoConstraints=NO; [self.view addSubview:stack];
     [NSLayoutConstraint activateConstraints:@[[stack.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:20],[stack.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-20],[stack.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:18]]];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(syncScale) name:WCCRegionPositionChanged object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(syncScale) name:WCCMainIconScaleChanged object:nil];
     [self showValue];
 }
+- (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
+- (void)syncScale { self.slider.value=WCCMainIconPercent(); [self showValue]; }
 - (void)showValue {
     self.valueLabel.text=[NSString stringWithFormat:@"设置 %.0f%%",self.slider.value];
     self.slider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",self.slider.value];
@@ -136,6 +141,16 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 @implementation WCCSettings
 + (void)presentFrom:(UIViewController *)p completion:(void (^)(void))completion {
     UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。");
+    WCCAction(a, @"区域位置 / 配置方案", ^{ WCCAfterAlert(p, ^{
+        WCCRegionSettings *page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+        page.onDone=^{ [self presentFrom:p completion:completion]; };
+        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
+        nav.modalPresentationStyle=UIModalPresentationPopover; nav.preferredContentSize=CGSizeMake(340,480);
+        UIPopoverPresentationController *pop=nav.popoverPresentationController;
+        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
+        pop.permittedArrowDirections=0; pop.delegate=page;
+        if(p.view.window && !p.presentedViewController)[p presentViewController:nav animated:YES completion:nil];
+    }); });
     WCCAction(a, @"自定义图标", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
     WCCAction(a, @"模块尺寸（列 × 行）", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); });
     WCCAction(a, @"地标显示", ^{ WCCAfterAlert(p, ^{ [self modesFrom:p completion:completion]; }); });
@@ -196,7 +211,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     WCCAction(a, enabled ? @"关闭自定义图标" : @"开启自定义图标", ^{
         [WCCPrefs() setBool:!enabled forKey:@"customIcon"]; WCCSave(); WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; });
     });
-    WCCAction(a, @"图标大小", ^{ WCCAfterAlert(p, ^{
+    WCCAction(a, @"主图标大小", ^{ WCCAfterAlert(p, ^{
         WCCIconScaleController *page=[WCCIconScaleController new];
         page.onDone=^{ [self iconsFrom:p completion:completion]; };
         UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];

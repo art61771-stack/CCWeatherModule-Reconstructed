@@ -1,8 +1,37 @@
 #import "WCCPreferences.h"
+#import <CoreFoundation/CoreFoundation.h>
+#import <dispatch/dispatch.h>
 #import "WCCRuntime.h"
 #import "WCCAssetKeys.h"
 NSString * const WCCPreferencesChanged = @"WCCPreferencesChanged";
 NSString * const WCCMainIconScaleChanged = @"WCCMainIconScaleChanged";
+NSString * const WCCRegionPositionChanged = @"WCCRegionPositionChanged";
+NSArray<NSString *> *WCCRegionPositionKeys(void) {
+    return @[@"temperatureOffsetX",@"temperatureOffsetY",@"mainIconOffsetX",@"mainIconOffsetY",
+             @"informationOffsetX",@"informationOffsetY",@"greetingOffsetX",@"greetingOffsetY"];
+}
+double WCCRegionOffset(NSInteger index) {
+    if (index<0 || index>=8) return 0;
+    id value=[WCCPrefs() objectForKey:WCCRegionPositionKeys()[index]];
+    return [value isKindOfClass:NSNumber.class] ? WCCNormalizeRegionOffset([value doubleValue]) : 0;
+}
+static BOOL WCCSaveRegionOffsets(void) {
+    BOOL saved=[WCCPrefs() synchronize];
+    void (^notify)(void)=^{ [NSNotificationCenter.defaultCenter postNotificationName:WCCRegionPositionChanged object:nil]; };
+    if (NSThread.isMainThread) notify(); else dispatch_async(dispatch_get_main_queue(),notify);
+    return saved;
+}
+BOOL WCCSetRegionOffset(NSInteger index,double value) {
+    if (index<0 || index>=8) return NO;
+    [WCCPrefs() setDouble:WCCNormalizeRegionOffset(value) forKey:WCCRegionPositionKeys()[index]];
+    return WCCSaveRegionOffsets();
+}
+BOOL WCCResetRegionOffsets(NSInteger region) {
+    if (region < -1 || region>3) return NO;
+    for (NSInteger i=0;i<8;i++) if (region==-1 || i/2==region)
+        [WCCPrefs() removeObjectForKey:WCCRegionPositionKeys()[i]];
+    return WCCSaveRegionOffsets();
+}
 double WCCMainIconPercent(void) {
     id value=[WCCPrefs() objectForKey:@"mainCustomIconPercent"];
     return [value isKindOfClass:NSNumber.class] ? WCCNormalizeIconPercent([value doubleValue]) : 100;
@@ -13,7 +42,37 @@ BOOL WCCSetMainIconPercent(double value) {
     [NSNotificationCenter.defaultCenter postNotificationName:WCCMainIconScaleChanged object:nil];
     return saved;
 }
-NSUserDefaults *WCCPrefs(void) { static NSUserDefaults *p; static dispatch_once_t once; dispatch_once(&once, ^{ p = [[NSUserDefaults alloc] initWithSuiteName:@"com.simon.ccweathermodule.custom"]; }); return p; }
+static NSString *WCCPreferenceSuite=@"com.simon.ccweathermodule.custom";
+static NSUserDefaults *WCCPreferenceStore;
+#ifdef WCC_TESTING
+static BOOL WCCCommitFailure;
+void WCCTestUsePreferences(NSString *suite) { WCCPreferenceSuite=[suite copy]; WCCPreferenceStore=nil; }
+void WCCTestFailCommit(BOOL fail) { WCCCommitFailure=fail; }
+#endif
+NSUserDefaults *WCCPrefs(void) {
+    if (!WCCPreferenceStore) WCCPreferenceStore=[[NSUserDefaults alloc] initWithSuiteName:WCCPreferenceSuite];
+    return WCCPreferenceStore;
+}
+BOOL WCCCommitSliderValues(NSDictionary *values) {
+    if (!NSThread.isMainThread || ![values isKindOfClass:NSDictionary.class] || values.count!=9) return NO;
+    NSArray *keys=[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"];
+    for (NSUInteger i=0;i<keys.count;i++) {
+        id v=values[keys[i]];
+        if (![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID()) return NO;
+        double n=[v doubleValue];
+        if (!isfinite(n) || n<(i==8?50:-40) || n>(i==8?150:40) || n!=(i==8?WCCNormalizeIconPercent(n):WCCNormalizeRegionOffset(n))) return NO;
+    }
+    NSUserDefaults *prefs=WCCPrefs();
+    NSDictionary *before=[prefs persistentDomainForName:WCCPreferenceSuite] ?: @{};
+    NSMutableDictionary *after=[before mutableCopy]; [after addEntriesFromDictionary:values];
+    [prefs setPersistentDomain:after forName:WCCPreferenceSuite];
+    BOOL saved=[prefs synchronize];
+#ifdef WCC_TESTING
+    if (WCCCommitFailure) saved=NO;
+#endif
+    if (!saved) { [prefs setPersistentDomain:before forName:WCCPreferenceSuite]; [prefs synchronize]; return NO; }
+    return YES;
+}
 NSArray<NSString *> *WCCSizeOptions(void) { return @[@"2x1", @"3x1", @"4x1", @"2x2", @"3x3"]; }
 NSString *WCCSelectedSize(void) {
     id size = [WCCPrefs() objectForKey:@"moduleSize"];

@@ -6,12 +6,23 @@ FOUNDATION_EXPORT NSString *WCCSelectedSize(void);
 FOUNDATION_EXPORT BOOL WCCSetSelectedSize(NSString *size);
 FOUNDATION_EXPORT WCCLayoutSize WCCEffectiveSize(void);
 FOUNDATION_EXPORT NSUserDefaults *WCCPrefs(void);
+FOUNDATION_EXPORT BOOL WCCCommitSliderValues(NSDictionary *values);
+#ifdef WCC_TESTING
+FOUNDATION_EXPORT void WCCTestUsePreferences(NSString *suite);
+FOUNDATION_EXPORT void WCCTestFailCommit(BOOL fail);
+#endif
 FOUNDATION_EXPORT NSString *WCCRoot(void);
 FOUNDATION_EXPORT NSString *WCCCheckedPath(NSString *root, NSString *name, NSString **reason);
 FOUNDATION_EXPORT NSString *WCCSafePath(NSString *root, NSString *name);
 FOUNDATION_EXPORT BOOL WCCAllowedRoot(NSString *path);
 FOUNDATION_EXPORT NSString * const WCCPreferencesChanged;
 FOUNDATION_EXPORT NSString * const WCCMainIconScaleChanged;
+FOUNDATION_EXPORT NSString * const WCCRegionPositionChanged;
+FOUNDATION_EXPORT NSArray<NSString *> *WCCRegionPositionKeys(void);
+FOUNDATION_EXPORT double WCCRegionOffset(NSInteger index);
+FOUNDATION_EXPORT BOOL WCCSetRegionOffset(NSInteger index, double value);
+// -1 resets all eight keys; 0...3 resets only one region.
+FOUNDATION_EXPORT BOOL WCCResetRegionOffsets(NSInteger region);
 FOUNDATION_EXPORT double WCCMainIconPercent(void);
 FOUNDATION_EXPORT BOOL WCCSetMainIconPercent(double value);
 

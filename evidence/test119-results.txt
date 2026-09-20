@@ -1,0 +1,10 @@
+PASS 119 production geometry: five sizes, zero defaults, limits, repeated layouts, collapsed/expanded restore, shared native/custom/fallback target
+PASS 119 source wiring; no weather/hourly/media reload or greeting draw on slider events
+NOT RUN: Foundation configuration executable and UIKit/iOS runtime (Apple SDK unavailable locally)
+PASS 118 source linkage; Objective-C executable requires macOS Foundation; iOS16 NOT RUN
+118 production geometry/scale/layout gate: PASS (portable C; UIKit/device NOT RUN)
+PASS: production host begin/present/dismiss state adapter; 1000 close/reopen, 20000 duplicate module deliveries, 2000 expand/collapse changes, cancelled presentation/dismissal, 305 geometries. UIKit runtime NOT RUN.
+PASS: all 23 categories / 96 code-night combinations have original bundle PNGs
+PASS: native category navigation/clear/targetKey + original-only thumbnail + diagnostic removal + observer ABI/weak/original/session wiring; slider and first-visible gate retained
+NOT RUN: UIKit rendering, iOS host runtime, macOS Foundation host115 executable; no network/CI
+PASS production hourly: 96 explicit daylight mappings, 48 unknown-daylight fallbacks, strict getter ABI, all visible items admitted including 6+ animations; no fixed playback quota, stale-generation rejection. UIKit / iOS16.6 NOT RUN.
