@@ -1,8 +1,14 @@
-# CCWeatherModule 1.1.1 — 方形尺寸与交互修复
+# CCWeatherModule 1.1.2 — 图库诊断、动态预览、问候语与自适应布局
 
 单指双击模块切换附近/城市；双指同时双击打开紧凑居中系统弹窗设置。设置按图标、尺寸、地标分层，保留全部功能；HTML 图库使用有完成按钮的居中 popover，不强制全屏。保留天气与展开后的小时预报。
 
-1.1.1 此次仅本地源码修改，未上传、未触发 CI、未编译或真机验证。静态回归：`python3 evidence/test_111.py`。
+1.1.2 回归：`python3 evidence/test_112.py`（生产 C 几何/问候/文件校验和 Objective-C 接线断言）。CI 和下载校验结果以独立交付目录的 run/jobs、artifact-verification、local-verification 和 github-state 证据为准；源码说明不构成真机验收。
+
+- 图库固定读取真实 Icons 路径，显示枚举错误、规范路径与逐文件过滤原因；预览预算耗尽不终止条目枚举。
+- HTML 内嵌原始 GIF bytes（image/gif）和 MP4 bytes（video/mp4），配置 inline/autoplay/muted/loop 与 media-src data；不是将 PNG 缩略图冒充动画。8MB 总预览预算之外显示“点击顶部预览”，点击后由原生媒体视图解码播放。iOS WebKit 实际自动播放行为尚需真机确认。
+- 按设备本地时区分六时段随机中文问候语；同次 CC 会话不重复抽取，相邻会话避免同一句。
+- 五尺寸按实际 bounds 同步布局媒体与文字；3×1、4×1、方形及展开布局保留高低温和降水，2×1 紧凑折叠布局省略这两行，展开可见；没有全局删除天气字段。问候语采用次级字体。
+- 源码来自 1.1.1 父提交，发布仅写入独立 1.1.2 分支；main 和历史分支保持不变。
 
 - 素材目录：`/var/mobile/Documents/CCWeatherModule/Icons`，首次进入设置创建；提供 Filza 入口。
 - 支持 PNG/JPG、GIF 和 MP4。HTML 安全图库显示缩略图，点击选择后顶部原生播放并应用；可关闭自定义图标恢复天气图。

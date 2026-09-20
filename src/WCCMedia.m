@@ -95,14 +95,15 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
         [asset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 typeof(self) self = weak; if (!self || generation != self->_generation) return;
-                if ([asset statusOfValueForKey:@"tracks" error:nil] != AVKeyValueStatusLoaded || !asset.playable) return;
+                if ([asset statusOfValueForKey:@"tracks" error:nil] != AVKeyValueStatusLoaded || [asset statusOfValueForKey:@"duration" error:nil] != AVKeyValueStatusLoaded || [asset statusOfValueForKey:@"playable" error:nil] != AVKeyValueStatusLoaded || !asset.playable) { if (self.mediaFailed) self.mediaFailed(@"视频读取或解码失败（请检查 MP4 编码及文件权限）"); return; }
                 AVAssetTrack *video = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
                 CGSize size = video.naturalSize; double duration = CMTimeGetSeconds(asset.duration);
-                if (!video || !isfinite(duration) || duration <= 0 || duration > 30 || fabs(size.width) > 1920 || fabs(size.height) > 1920) return;
+                if (!video || !isfinite(duration) || duration <= 0 || duration > 30 || fabs(size.width) > 1920 || fabs(size.height) > 1920) { if (self.mediaFailed) self.mediaFailed(@"视频无有效画面，或超过30秒/1920px限制"); return; }
                 // Compose video only: no audio track and no audio session activation.
                 AVMutableComposition *composition = [AVMutableComposition composition];
                 AVMutableCompositionTrack *track = [composition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-                if (![track insertTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration) ofTrack:video atTime:kCMTimeZero error:nil]) return;
+                NSError *compositionError = nil;
+                if (![track insertTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration) ofTrack:video atTime:kCMTimeZero error:&compositionError]) { if (self.mediaFailed) self.mediaFailed(compositionError.localizedDescription ?: @"视频轨道读取失败"); return; }
                 track.preferredTransform = video.preferredTransform;
                 AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:composition];
                 self->_player = [AVQueuePlayer new]; self->_player.muted = YES;
@@ -115,7 +116,9 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
             });
         }];
     } else {
-        _source = WCCSource(path); _image.image = WCCFrame(_source, 0); [self notifyMedia]; [self resume];
+        _source = WCCSource(path); _image.image = WCCFrame(_source, 0);
+        if (!_image.image && self.mediaFailed) self.mediaFailed(@"图片读取/解码失败，或超过尺寸/帧数限制；请刷新图库。");
+        [self notifyMedia]; [self resume];
     }
 }
 @end

@@ -102,7 +102,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 }
 + (void)iconsFrom:(UIViewController *)p completion:(void (^)(void))completion {
     BOOL enabled = [WCCPrefs() boolForKey:@"customIcon"];
-    UIAlertController *a = WCCAlert(@"自定义图标", @"关闭立即恢复天气原图。PNG/JPG/GIF/MP4 素材通过 Filza 导入；原有安全大小限制保持不变。");
+    UIAlertController *a = WCCAlert(@"自定义图标", @"关闭立即恢复天气原图。PNG/JPG/JPEG/GIF/MP4 请直接放入 /var/mobile/Documents/CCWeatherModule/Icons（不扫描子目录）。导入后打开图库并点右上角刷新；读取失败和过滤原因会显示在图库中。");
     WCCAction(a, enabled ? @"关闭自定义图标" : @"开启自定义图标", ^{
         [WCCPrefs() setBool:!enabled forKey:@"customIcon"]; WCCSave(); WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; });
     });

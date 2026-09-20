@@ -1,4 +1,5 @@
 #import "WCCPreferences.h"
+#import "WCCRuntime.h"
 NSString * const WCCPreferencesChanged = @"WCCPreferencesChanged";
 NSUserDefaults *WCCPrefs(void) { static NSUserDefaults *p; static dispatch_once_t once; dispatch_once(&once, ^{ p = [[NSUserDefaults alloc] initWithSuiteName:@"com.simon.ccweathermodule.custom"]; }); return p; }
 NSArray<NSString *> *WCCSizeOptions(void) { return @[@"2x1", @"3x1", @"4x1", @"2x2", @"3x3"]; }
@@ -28,16 +29,23 @@ BOOL WCCAllowedRoot(NSString *path) {
     if (![path isKindOfClass:NSString.class] || !path.isAbsolutePath) return NO;
     NSString *p = path.stringByStandardizingPath.stringByResolvingSymlinksInPath;
     NSString *base = @"/var/mobile/Documents".stringByResolvingSymlinksInPath;
-    return [p hasPrefix:[base stringByAppendingString:@"/"]];
+    NSString *icons = [base stringByAppendingPathComponent:@"CCWeatherModule/Icons"];
+    // Permit the platform /var alias, not a user symlink redirect outside Icons.
+    return [p isEqual:icons];
 }
-NSString *WCCRoot(void) { NSString *p = [WCCPrefs() stringForKey:@"root"] ?: @"/var/mobile/Documents/CCWeatherModule/Icons"; return WCCAllowedRoot(p) ? p.stringByStandardizingPath.stringByResolvingSymlinksInPath : @"/var/mobile/Documents/CCWeatherModule/Icons"; }
-NSString *WCCSafePath(NSString *root, NSString *name) {
-    if (!WCCAllowedRoot(root) || ![name isKindOfClass:NSString.class] || !name.length || ![name.lastPathComponent isEqual:name] || [name isEqual:@"."] || [name isEqual:@".."]) return nil;
-    NSString *base = root.stringByStandardizingPath.stringByResolvingSymlinksInPath;
-    NSString *p = [[base stringByAppendingPathComponent:name] stringByResolvingSymlinksInPath];
-    if (![p.stringByDeletingLastPathComponent isEqual:base]) return nil;
-    if (![@[@"png",@"jpg",@"jpeg",@"gif",@"mp4"] containsObject:p.pathExtension.lowercaseString]) return nil;
-    NSDictionary *a = [NSFileManager.defaultManager attributesOfItemAtPath:p error:nil];
-    if (![a[NSFileType] isEqual:NSFileTypeRegular] || [a[NSFileSize] unsignedLongLongValue] > 8*1024*1024) return nil;
-    return p;
+NSString *WCCRoot(void) {
+    // One public import location; stale legacy `root` preferences must not redirect the gallery.
+    return @"/var/mobile/Documents/CCWeatherModule/Icons";
 }
+NSString *WCCCheckedPath(NSString *root, NSString *name, NSString **reason) {
+    if (reason) *reason = nil;
+    if (!WCCAllowedRoot(root)) { if (reason) *reason = @"素材目录不在约定位置（或目录符号链接指向外部）"; return nil; }
+    char resolved[PATH_MAX];
+    WCCFileResult result = WCCValidateFile(root.fileSystemRepresentation,
+        [name isKindOfClass:NSString.class] ? name.fileSystemRepresentation : NULL, resolved, sizeof(resolved));
+    if (result == WCCFileOK) return [NSFileManager.defaultManager stringWithFileSystemRepresentation:resolved length:strlen(resolved)];
+    NSArray *reasons = @[@"", @"文件名无效", @"目录不存在或无法读取", @"符号链接越出素材目录", @"不支持的扩展名（支持 PNG/JPG/JPEG/GIF/MP4）", @"文件不存在、链接失效或无法取得属性", @"不是普通文件（不递归子目录）", @"空文件", @"文件超过8MB", @"文件读取失败，请检查权限"];
+    if (reason) *reason = reasons[result];
+    return nil;
+}
+NSString *WCCSafePath(NSString *root, NSString *name) { return WCCCheckedPath(root, name, NULL); }

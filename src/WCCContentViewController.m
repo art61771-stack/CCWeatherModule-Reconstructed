@@ -3,13 +3,14 @@
 #import "WCCPreferences.h"
 #import "WCCSettings.h"
 #import "WCCMedia.h"
+#import "WCCRuntime.h"
+static CGRect WCCCGRect(WCCRect r) { return CGRectMake(r.x,r.y,r.w,r.h); }
 @interface WCCContentViewController ()
+@property(nonatomic,strong) UILabel *greetingLabel;
+@property(nonatomic) NSInteger greetingIndex;
+@property(nonatomic) BOOL greetingSession;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
-@property(nonatomic,strong) NSLayoutConstraint *iconWidth;
-@property(nonatomic,strong) NSLayoutConstraint *cityLeading;
-@property(nonatomic,strong) NSLayoutConstraint *cityTrailing;
-@property(nonatomic,strong) NSLayoutConstraint *tempTop;
 @end
 
 // The original passes @YES through performSelector:withObject:, not a BOOL ABI call.
@@ -28,7 +29,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 @implementation WCCContentViewController
 - (instancetype)init {
     if ((self = [super init])) {
-        _isInitialized = NO; _isExpanded = NO; _displayMode = 0;
+        _isInitialized = NO; _isExpanded = NO; _displayMode = 0; _greetingIndex = -1;
         _customLocationName = nil;
         _isInitialized = [self initializeWeatherModel];
     }
@@ -68,10 +69,20 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _isExpanded = expanded;
     if (expanded) [self updateHourlyForecast];
     _hourlyContainer.alpha = expanded ? 1 : 0;
+    [self.view setNeedsLayout];
 }
 - (void)didTransitionToExpandedContentMode:(BOOL)expanded { _isExpanded = expanded; }
 - (void)willBecomeActive { [self refreshWeatherData]; }
-- (void)controlCenterWillPresent { self.mediaVisible = YES; [self preferencesChanged]; [self refreshWeatherData]; }
+- (void)beginGreetingSession {
+    if (self.greetingSession) return;
+    self.greetingSession = YES;
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    calendar.timeZone = NSTimeZone.localTimeZone;
+    NSInteger hour = [calendar component:NSCalendarUnitHour fromDate:NSDate.date];
+    self.greetingIndex = WCCPickGreeting((int)hour, (int)self.greetingIndex, arc4random_uniform(6));
+    self.greetingLabel.text = [NSString stringWithUTF8String:WCCGreetingText((int)self.greetingIndex)];
+}
+- (void)controlCenterWillPresent { [self beginGreetingSession]; self.mediaVisible = YES; [self preferencesChanged]; [self refreshWeatherData]; }
 - (void)viewDidLoad {
     [super viewDidLoad];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(preferencesChanged) name:WCCPreferencesChanged object:nil];
@@ -94,16 +105,25 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     CGSize size = self.view.bounds.size;
-    _headerView.frame = CGRectMake(0, 0, size.width, MIN(85, size.height));
-    BOOL compact = size.width < 220;
-    self.iconWidth.constant = compact ? 38 : 55;
-    self.cityLeading.constant = compact ? 8 : 18;
-    self.tempTop.constant = compact ? 36 : 10;
-    self.cityTrailing.active = !compact;
-    _conditionLabel.hidden = compact; _precipLabel.hidden = compact; _highLowLabel.hidden = compact;
-    _tempLabel.font = [UIFont systemFontOfSize:compact ? 23 : 38 weight:UIFontWeightLight];
-    _cityLabel.font = [UIFont systemFontOfSize:compact ? 11 : 18 weight:UIFontWeightSemibold];
-    _hourlyContainer.frame = CGRectMake(0, 85, size.width, MAX(0, size.height - 85));
+    WCCGeometry g = WCCComputeGeometry(size.width, size.height, _isExpanded);
+    _headerView.transform = CGAffineTransformIdentity;
+    _headerView.frame = CGRectMake(0, 0, size.width, g.headerHeight);
+    _iconView.transform = CGAffineTransformIdentity;
+    _iconView.frame = WCCCGRect(g.icon);
+    self.customMedia.transform = CGAffineTransformIdentity;
+    self.customMedia.frame = _iconView.bounds;
+    _cityLabel.frame = WCCCGRect(g.city); _tempLabel.frame = WCCCGRect(g.temperature);
+    _conditionLabel.frame = WCCCGRect(g.condition); _highLowLabel.frame = WCCCGRect(g.highLow);
+    _precipLabel.frame = WCCCGRect(g.precipitation); self.greetingLabel.frame = WCCCGRect(g.greeting);
+    _precipLabel.hidden = !g.details; _highLowLabel.hidden = !g.details;
+    _precipLabel.font = [UIFont systemFontOfSize:MAX(1,g.detailFont) weight:UIFontWeightRegular];
+    _tempLabel.font = [UIFont systemFontOfSize:MAX(1,g.tempFont) weight:UIFontWeightLight];
+    _cityLabel.font = [UIFont systemFontOfSize:MAX(1,g.cityFont) weight:UIFontWeightSemibold];
+    _conditionLabel.font = _highLowLabel.font = [UIFont systemFontOfSize:MAX(1,g.detailFont) weight:UIFontWeightRegular];
+    self.greetingLabel.font = [UIFont systemFontOfSize:MAX(1,g.greetingFont) weight:UIFontWeightRegular];
+    _highLowLabel.textAlignment = g.square ? NSTextAlignmentLeft : NSTextAlignmentRight;
+    _hourlyContainer.frame = CGRectMake(0, g.headerHeight, size.width, MAX(0,size.height-g.headerHeight));
+    _hourlyContainer.hidden = !_isExpanded;
 }
 - (void)refreshWeatherData {
     if (!_weatherModel) return;
@@ -140,32 +160,17 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _tempLabel = WCCLabel(38, UIFontWeightLight, 1);
     _highLowLabel = WCCLabel(13, UIFontWeightRegular, .7);
     _tempLabel.textAlignment = _highLowLabel.textAlignment = NSTextAlignmentRight;
-    for (UIView *view in @[_iconView, _cityLabel, _conditionLabel, _precipLabel, _tempLabel, _highLowLabel]) {
-        view.translatesAutoresizingMaskIntoConstraints = NO;
+    self.greetingLabel = WCCLabel(11, UIFontWeightRegular, .65);
+    if (self.greetingIndex >= 0) self.greetingLabel.text = [NSString stringWithUTF8String:WCCGreetingText((int)self.greetingIndex)];
+    _headerView.clipsToBounds = YES;
+    for (UIView *view in @[_iconView, _cityLabel, _conditionLabel, _precipLabel, _tempLabel, _highLowLabel, self.greetingLabel]) {
         [_headerView addSubview:view];
+        if ([view isKindOfClass:UILabel.class]) {
+            UILabel *label = (UILabel *)view;
+            label.numberOfLines = 1; label.adjustsFontSizeToFitWidth = YES;
+            label.minimumScaleFactor = .65; label.lineBreakMode = NSLineBreakByTruncatingTail;
+        }
     }
-    self.iconWidth = [_iconView.widthAnchor constraintEqualToConstant:55];
-    self.cityLeading = [_cityLabel.leadingAnchor constraintEqualToAnchor:_iconView.trailingAnchor constant:18];
-    self.cityTrailing = [_cityLabel.trailingAnchor constraintLessThanOrEqualToAnchor:_tempLabel.leadingAnchor constant:-4];
-    self.tempTop = [_tempLabel.topAnchor constraintEqualToAnchor:_headerView.topAnchor constant:10];
-    [NSLayoutConstraint activateConstraints:@[
-        [_cityLabel.trailingAnchor constraintLessThanOrEqualToAnchor:_headerView.trailingAnchor constant:-12],
-        [_iconView.leadingAnchor constraintEqualToAnchor:_headerView.leadingAnchor constant:16],
-        [_iconView.centerYAnchor constraintEqualToAnchor:_headerView.centerYAnchor],
-        self.iconWidth,
-        [_iconView.heightAnchor constraintEqualToConstant:55],
-        self.cityLeading,
-        [_cityLabel.topAnchor constraintEqualToAnchor:_headerView.topAnchor constant:12],
-        self.cityTrailing,
-        [_conditionLabel.leadingAnchor constraintEqualToAnchor:_cityLabel.leadingAnchor],
-        [_conditionLabel.topAnchor constraintEqualToAnchor:_cityLabel.bottomAnchor constant:2],
-        [_precipLabel.leadingAnchor constraintEqualToAnchor:_cityLabel.leadingAnchor],
-        [_precipLabel.topAnchor constraintEqualToAnchor:_conditionLabel.bottomAnchor constant:2],
-        [_tempLabel.trailingAnchor constraintEqualToAnchor:_headerView.trailingAnchor constant:-16],
-        [_tempLabel.topAnchor constraintEqualToAnchor:_headerView.topAnchor constant:10],
-        [_highLowLabel.trailingAnchor constraintEqualToAnchor:_tempLabel.trailingAnchor],
-        [_highLowLabel.topAnchor constraintEqualToAnchor:_tempLabel.bottomAnchor constant:0]
-    ]];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     tap.numberOfTapsRequired = 2; tap.numberOfTouchesRequired = 1;
     UITapGestureRecognizer *settingsTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerDoubleTap:)];
@@ -228,9 +233,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self.customMedia loadPath:path];
     self.customMedia.active = self.mediaVisible && !self.presentedViewController;
 }
-- (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; self.mediaVisible = YES; [self preferencesChanged]; }
+- (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self beginGreetingSession]; self.mediaVisible = YES; [self preferencesChanged]; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; }
-- (void)controlCenterDidDismiss { self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)controlCenterDidDismiss { self.greetingSession = NO; self.mediaVisible = NO; self.customMedia.active = NO; }
 - (void)willResignActive { self.mediaVisible = NO; self.customMedia.active = NO; }
 
 - (void)updateWeatherDisplay {

@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.1.1 rootless
+name: CCWeatherModule 1.1.2 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.1.1-rootless
+          name: CCWeatherModule-1.1.2-rootless
           path: |
             packages/*.deb
             verification/*
