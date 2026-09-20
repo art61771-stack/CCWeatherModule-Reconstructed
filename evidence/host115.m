@@ -64,6 +64,7 @@ int main(int argc,char **argv) { @autoreleasepool {
  __weak UIViewController *weakModule=module;
  __block int observed=0;
  int notifications=0;
+ uint64_t gen=0;
  @autoreleasepool {
  id token=[NSNotificationCenter.defaultCenter addObserverForName:WCCHostVisibilityChanged object:module queue:nil usingBlock:^(NSNotification *n){ assert(NSThread.isMainThread); observed++;notices++;WCCObserveHostForModule(weakModule); }];
  WCCObserveHostForModule(module);
