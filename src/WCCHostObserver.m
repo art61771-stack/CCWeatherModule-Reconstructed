@@ -15,13 +15,13 @@ static void diagnosticValue(NSString *name,id value) {
 }
 NSString *WCCDiagnosticExport(void) {
     if (!NSThread.isMainThread || !diagnosticsEnabled()) return @"诊断未开启；请开启后关闭/下拉控制中心3次再导出。";
-    NSDictionary *report=@{@"version":@"1.1.6",@"scope":@"local aggregate only; iOS16.6 execution must be verified on target",@"counts":diagnosticCounts ?: @{},@"abi":diagnosticABI ?: @{}};
+    NSDictionary *report=@{@"version":@"1.1.7",@"scope":@"local aggregate only; iOS16.6 execution must be verified on target",@"counts":diagnosticCounts ?: @{},@"abi":diagnosticABI ?: @{}};
     NSData *data=[NSJSONSerialization dataWithJSONObject:report options:NSJSONWritingPrettyPrinted error:nil];
     NSString *text=[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSString *directory=@"/var/mobile/Documents/CCWeatherModule";
     [NSFileManager.defaultManager createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
-    BOOL saved=[data writeToFile:[directory stringByAppendingPathComponent:@"host-diagnostics-116.json"] atomically:YES];
-    return [NSString stringWithFormat:@"%@\n\n%@",saved?@"已写入 /var/mobile/Documents/CCWeatherModule/host-diagnostics-116.json":@"文件写入失败；以下聚合数据仍可复制",text ?: @"导出失败"];
+    BOOL saved=[data writeToFile:[directory stringByAppendingPathComponent:@"host-diagnostics-117.json"] atomically:YES];
+    return [NSString stringWithFormat:@"%@\n\n%@",saved?@"已写入 /var/mobile/Documents/CCWeatherModule/host-diagnostics-117.json":@"文件写入失败；以下聚合数据仍可复制",text ?: @"导出失败"];
 }
 #import <objc/runtime.h>
 #import <objc/message.h>

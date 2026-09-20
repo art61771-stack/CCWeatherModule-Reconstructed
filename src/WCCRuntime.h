@@ -95,6 +95,34 @@ static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,in
     g.details=!compact; g.square=0;
     return g;
 }
+/* 3x1 only: UIKit measures actual strings with the final production fonts.
+ * Center the visible weather group, not the old oversized label frames.
+ * The icon is centered on the metadata rail (city through precipitation),
+ * independent of the greeting. Oversized text is fitted within bounded rails.
+ */
+static inline WCCGeometry WCCBalanceMeasuredStrip(WCCGeometry g,double width,double height,
+        double temperatureWidth,double highLowWidth,double cityWidth,
+        double conditionWidth,double precipitationWidth,double greetingWidth) {
+    double w=fmax(0,width), s=fmin(fmax(0,height)/76.,w/156.);
+    double p=12*s, available=fmax(0,w-2*p), icon=g.icon.w;
+    double inner=6*s, gap=30*s;
+    double budget=fmax(0,available-icon-inner-gap);
+    double left=fmax(temperatureWidth,g.details?highLowWidth:0);
+    double right=fmax(cityWidth,fmax(conditionWidth,g.details?precipitationWidth:0));
+    left=fmin(fmax(0,left),budget*.42);
+    right=fmin(fmax(0,right),fmax(0,budget-left));
+    double total=left+gap+icon+inner+right, x=(w-total)/2;
+    g.temperature.x=g.highLow.x=x; g.temperature.w=g.highLow.w=left;
+    g.icon.x=x+left+gap;
+    double tx=g.icon.x+icon+inner;
+    g.city.x=g.condition.x=g.precipitation.x=tx;
+    g.city.w=g.condition.w=g.precipitation.w=right;
+    double bottom=g.details ? g.precipitation.y+g.precipitation.h : g.condition.y+g.condition.h;
+    g.icon.y=(g.city.y+bottom-g.icon.h)/2;
+    g.greeting.w=fmin(available,fmax(0,greetingWidth));
+    g.greeting.x=(w-g.greeting.w)/2;
+    return g;
+}
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.
  * Prefer the bottom rail, then the widest unoccupied horizontal segment. */

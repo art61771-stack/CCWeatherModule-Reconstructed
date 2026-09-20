@@ -7,4 +7,4 @@ Section: Tweaks
 Icon: https://i.imgs.ovh/2026/09/20/17d0953ee53152da8e61955e8bcf444a.png
 Depends: mobilesubstrate, com.opa334.ccsupport, firmware (>= 14.0)
 Architecture: iphoneos-arm64
-Version: 1.1.6
+Version: 1.1.7

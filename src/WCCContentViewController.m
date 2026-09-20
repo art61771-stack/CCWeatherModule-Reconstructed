@@ -10,21 +10,8 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <stdbool.h>
-// Only an explicit forecast daylight getter with exact ABI may refine its
-// condition. A date alone is not sunrise/sunset evidence; no 06-18 heuristic.
-static int WCCHourlyDaylight(id forecast) {
-    SEL sel=NSSelectorFromString(@"isDaylight");
-    Method method=class_getInstanceMethod(object_getClass(forecast),sel);
-    if (!method) return -1;
-    NSMethodSignature *s=[NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(method)];
-    if (s.numberOfArguments!=2) return -1;
-    const char *args[2]={[s getArgumentTypeAtIndex:0],[s getArgumentTypeAtIndex:1]};
-    @try {
-        if (WCCABICompatible(s.methodReturnType,"B",2,args,0,NULL)) return ((bool(*)(id,SEL))objc_msgSend)(forecast,sel)?1:0;
-        if (WCCABICompatible(s.methodReturnType,"c",2,args,0,NULL)) return ((signed char(*)(id,SEL))objc_msgSend)(forecast,sel)?1:0;
-    } @catch (NSException *exception) {}
-    return -1;
-}
+// Hourly replacements use the exact original bundled-image resolver below.
+// No additional forecast getter (or device-clock daylight guess) gates mapping.
 @interface WCCHourlyItem : UIView
 @property(nonatomic,strong) UIImageView *originalIcon;
 @property(nonatomic,strong) UILabel *timeLabel;
@@ -39,6 +26,9 @@ static int WCCHourlyDaylight(id forecast) {
 @implementation WCCHourlyItem
 @end
 static CGRect WCCCGRect(WCCRect r) { return CGRectMake(r.x,r.y,r.w,r.h); }
+static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
+    return ceil([(label.text ?: @"") sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:MAX(1,size) weight:weight]}].width);
+}
 @interface WCCContentViewController () <UIScrollViewDelegate>
 @property(nonatomic,strong) NSMutableArray<WCCHourlyItem *> *hourlyItems;
 - (void)refreshHourlyMedia;
@@ -197,6 +187,16 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     WCCGeometry g = WCCComputeModuleGeometry(size.width, size.height, _isExpanded, (int)self.layoutSize.width, (int)self.layoutSize.height);
     if (_isExpanded) {
         [self layoutOriginalExpanded:size]; return;
+    }
+    if (self.layoutSize.width==3 && self.layoutSize.height==1) {
+        [self bindGreetingText];
+        g=WCCBalanceMeasuredStrip(g,size.width,size.height,
+            WCCTextWidth(_tempLabel,g.tempFont,UIFontWeightLight),
+            WCCTextWidth(_highLowLabel,g.detailFont,UIFontWeightRegular),
+            WCCTextWidth(_cityLabel,g.cityFont,UIFontWeightSemibold),
+            WCCTextWidth(_conditionLabel,g.detailFont,UIFontWeightRegular),
+            WCCTextWidth(_precipLabel,g.detailFont,UIFontWeightRegular),
+            WCCTextWidth(self.greetingLabel,g.greetingFont,UIFontWeightRegular));
     }
     [NSLayoutConstraint deactivateConstraints:self.originalExpandedConstraints ?: @[]];
     for (UIView *v in @[_iconView,_cityLabel,_conditionLabel,_precipLabel,_tempLabel,_highLowLabel]) v.translatesAutoresizingMaskIntoConstraints=YES;
@@ -488,8 +488,17 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     return [self sfSymbolForConditionCode:code];
 }
 - (UIImage *)systemWeatherImageForConditionCode:(NSInteger)code {
+    return [self systemWeatherImageForConditionCode:code selectedAssetKey:NULL];
+}
+// Single production selection point for native image AND its replacement key.
+// Preserve original104 resolver semantics, including its current-city day/night
+// choice for ambiguous templates; this is resource parity, not a claim of a
+// newly determined future-hour astronomical daylight value.
+- (UIImage *)systemWeatherImageForConditionCode:(NSInteger)code selectedAssetKey:(NSString * __autoreleasing *)selectedKey {
+    if (selectedKey) *selectedKey=nil;
     @try {
         NSString *name = [self imageNameForConditionCode:code];
+        if (selectedKey && code>=0 && code<48) *selectedKey=name;
         UIImage *image = [UIImage imageNamed:name inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
         if (image) return image;
         return [UIImage imageNamed:name inBundle:[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/WeatherUI.framework"] compatibleWithTraitCollection:nil];
@@ -540,6 +549,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         }
         item.cachedPath=[binding[0] length] ? binding[0] : nil;
         item.cachedIdentity=[binding[1] length] ? binding[1] : nil;
+        WCCDiagnosticCount(!enabled ? @"hourly.mapping.disabled" : !key.length ? @"hourly.mapping.noKey" : item.cachedPath ? @"hourly.mapping.ready" : @"hourly.mapping.unavailable");
         NSString *extension=item.cachedPath.pathExtension.lowercaseString;
         item.animatedAsset=[extension isEqual:@"gif"] || [extension isEqual:@"mp4"];
     }
@@ -560,6 +570,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     }
     for (WCCHourlyItem *item in admitted) {
         if (!item.boundIdentity) {
+            WCCDiagnosticCount(@"hourly.visible.admitted");
             item.boundIdentity=item.cachedIdentity;
             [item.media loadPath:item.cachedPath]; item.media.active=YES;
         }
@@ -606,6 +617,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [_hourlyContainer layoutIfNeeded]; [self refreshHourlyMedia];
 }
 - (UIView *)createHourlyItemWithForecast:(id)forecast isNow:(BOOL)isNow formatter:(NSDateFormatter *)formatter {
+    WCCDiagnosticCount(@"hourly.enumerated");
     WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;
     @try {
@@ -618,18 +630,18 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     UIImageView *icon = [UIImageView new]; icon.contentMode = UIViewContentModeScaleAspectFit; icon.tintColor = UIColor.whiteColor;
     @try {
         NSInteger code = [forecast conditionCode];
-        char basename[128]={0};
-        if (WCCHourlyAsset((int)code,WCCHourlyDaylight(forecast),basename,sizeof(basename))) item.assetKey=[NSString stringWithUTF8String:basename];
-        UIImage *native=item.assetKey ? [UIImage imageNamed:item.assetKey inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil] : nil;
-        if (!native && item.assetKey) native=[UIImage imageNamed:item.assetKey inBundle:[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/WeatherUI.framework"] compatibleWithTraitCollection:nil];
+        NSString *selectedKey=nil;
+        UIImage *native=[self systemWeatherImageForConditionCode:code selectedAssetKey:&selectedKey];
+        item.assetKey=selectedKey; // record this item's actual original resource, never the main icon's key
+        WCCDiagnosticCount(selectedKey ? @"hourly.key.selected" : @"hourly.key.unknownCode");
         icon.image = native ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular]];
     } @catch (NSException *exception) {}
     icon.frame = CGRectMake(12, 22, 30, 30); [item addSubview:icon];
     item.originalIcon=icon;
     item.media=[[WCCMediaView alloc] initWithFrame:icon.frame]; [item addSubview:item.media];
     __weak WCCHourlyItem *weakItem=item;
-    item.media.mediaChanged=^{ WCCHourlyItem *current=weakItem; current.originalIcon.hidden=current.media.hasMedia; };
-    item.media.mediaFailed=^(NSString *reason) { WCCHourlyItem *current=weakItem; current.originalIcon.hidden=NO; };
+    item.media.mediaChanged=^{ WCCHourlyItem *current=weakItem; current.originalIcon.hidden=current.media.hasMedia; if (current.media.hasMedia) WCCDiagnosticCount(@"hourly.load.success"); };
+    item.media.mediaFailed=^(NSString *reason) { WCCHourlyItem *current=weakItem; current.originalIcon.hidden=NO; WCCDiagnosticCount(@"hourly.load.failed"); };
     [self.hourlyItems addObject:item];
     UILabel *temperature = WCCLabel(15, UIFontWeightMedium, 1); temperature.textAlignment = NSTextAlignmentCenter;
     @try { temperature.text = [self temperatureString:[forecast temperature]]; }
