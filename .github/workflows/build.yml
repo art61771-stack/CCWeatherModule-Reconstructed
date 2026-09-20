@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.1.2 rootless
+name: CCWeatherModule 1.1.3 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -22,6 +22,9 @@ jobs:
           set -euo pipefail
           make package FINALPACKAGE=1 2>&1 | tee build.log
           mkdir -p verification
+          cc evidence/runtime113.c -lm -o /tmp/runtime113
+          /tmp/runtime113 | tee verification/runtime113.txt
+          node evidence/gallery113.js | tee verification/gallery113.txt
           DEB=$(find packages -name '*.deb' | head -1)
           dpkg-deb -I "$DEB" | tee verification/control.txt
           dpkg-deb -c "$DEB" | tee verification/contents.txt
@@ -38,7 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.1.2-rootless
+          name: CCWeatherModule-1.1.3-rootless
           path: |
             packages/*.deb
             verification/*

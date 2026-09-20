@@ -1,3 +1,9 @@
+# CCWeatherModule 1.1.3 — 轻量动态图库、原生备用入口与天气网格
+
+当前版本说明见 `RELEASE_1.1.3.md`。旧版全量 base64 图库已替换为轻量 HTML + 可见最多两项异步媒体；网页进程失败自动进入原生列表，仅允许一次人工网页重试。生产可执行回归：`cc evidence/runtime113.c -lm -o /tmp/runtime113 && /tmp/runtime113`、`node evidence/gallery113.js`。这些不是 UIKit/CC 真机测试，目标 iOS16.6 实测仍 NOT RUN。
+
+## 以下为1.1.2历史说明（不代表当前实现）
+
 # CCWeatherModule 1.1.2 — 图库诊断、动态预览、问候语与自适应布局
 
 单指双击模块切换附近/城市；双指同时双击打开紧凑居中系统弹窗设置。设置按图标、尺寸、地标分层，保留全部功能；HTML 图库使用有完成按钮的居中 popover，不强制全屏。保留天气与展开后的小时预报。

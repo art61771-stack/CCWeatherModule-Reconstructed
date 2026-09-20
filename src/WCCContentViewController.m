@@ -7,10 +7,16 @@
 static CGRect WCCCGRect(WCCRect r) { return CGRectMake(r.x,r.y,r.w,r.h); }
 @interface WCCContentViewController ()
 @property(nonatomic,strong) UILabel *greetingLabel;
-@property(nonatomic) NSInteger greetingIndex;
-@property(nonatomic) BOOL greetingSession;
+@property(nonatomic) WCCGreetingState greetingState;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
+@end
+
+@interface WCCVisibilityView : UIView
+@property(nonatomic,copy) void (^visibilityChanged)(BOOL visible);
+@end
+@implementation WCCVisibilityView
+- (void)didMoveToWindow { [super didMoveToWindow]; if (self.visibilityChanged) self.visibilityChanged(self.window!=nil); }
 @end
 
 // The original passes @YES through performSelector:withObject:, not a BOOL ABI call.
@@ -29,7 +35,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 @implementation WCCContentViewController
 - (instancetype)init {
     if ((self = [super init])) {
-        _isInitialized = NO; _isExpanded = NO; _displayMode = 0; _greetingIndex = -1;
+        _isInitialized = NO; _isExpanded = NO; _displayMode = 0; _greetingState = (WCCGreetingState){0,-1};
         _customLocationName = nil;
         _isInitialized = [self initializeWeatherModel];
     }
@@ -72,15 +78,25 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self.view setNeedsLayout];
 }
 - (void)didTransitionToExpandedContentMode:(BOOL)expanded { _isExpanded = expanded; }
-- (void)willBecomeActive { [self refreshWeatherData]; }
+- (void)willBecomeActive { [self beginGreetingSession]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData]; }
 - (void)beginGreetingSession {
-    if (self.greetingSession) return;
-    self.greetingSession = YES;
     NSCalendar *calendar = [NSCalendar currentCalendar];
     calendar.timeZone = NSTimeZone.localTimeZone;
     NSInteger hour = [calendar component:NSCalendarUnitHour fromDate:NSDate.date];
-    self.greetingIndex = WCCPickGreeting((int)hour, (int)self.greetingIndex, arc4random_uniform(6));
-    self.greetingLabel.text = [NSString stringWithUTF8String:WCCGreetingText((int)self.greetingIndex)];
+    WCCGreetingState state=self.greetingState;
+    int index=WCCBeginGreeting(&state,(int)hour,arc4random_uniform(6)); self.greetingState=state;
+    // Always bind text, even when session started before UILabel creation.
+    self.greetingLabel.text=[NSString stringWithUTF8String:WCCGreetingText(index)];
+    self.greetingLabel.hidden=NO; self.greetingLabel.alpha=1;
+}
+- (void)endGreetingSession { WCCGreetingState state=self.greetingState; WCCEndGreeting(&state); self.greetingState=state; }
+- (void)loadView {
+    WCCVisibilityView *view=[WCCVisibilityView new]; __weak typeof(self) weak=self;
+    view.visibilityChanged=^(BOOL visible) {
+        typeof(self) self=weak; if (!self) return;
+        if (visible) { [self beginGreetingSession]; self.mediaVisible=YES; [self preferencesChanged]; }
+        else if (!self.presentedViewController) { [self endGreetingSession]; self.mediaVisible=NO; self.customMedia.active=NO; }
+    }; self.view=view;
 }
 - (void)controlCenterWillPresent { [self beginGreetingSession]; self.mediaVisible = YES; [self preferencesChanged]; [self refreshWeatherData]; }
 - (void)viewDidLoad {
@@ -121,7 +137,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _cityLabel.font = [UIFont systemFontOfSize:MAX(1,g.cityFont) weight:UIFontWeightSemibold];
     _conditionLabel.font = _highLowLabel.font = [UIFont systemFontOfSize:MAX(1,g.detailFont) weight:UIFontWeightRegular];
     self.greetingLabel.font = [UIFont systemFontOfSize:MAX(1,g.greetingFont) weight:UIFontWeightRegular];
-    _highLowLabel.textAlignment = g.square ? NSTextAlignmentLeft : NSTextAlignmentRight;
+    _tempLabel.textAlignment = NSTextAlignmentLeft;
+    _highLowLabel.textAlignment = NSTextAlignmentLeft;
+    self.greetingLabel.hidden=NO; self.greetingLabel.alpha=1;
+    [_headerView bringSubviewToFront:self.greetingLabel];
+    if (self.view.window) [self beginGreetingSession];
     _hourlyContainer.frame = CGRectMake(0, g.headerHeight, size.width, MAX(0,size.height-g.headerHeight));
     _hourlyContainer.hidden = !_isExpanded;
 }
@@ -160,8 +180,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _tempLabel = WCCLabel(38, UIFontWeightLight, 1);
     _highLowLabel = WCCLabel(13, UIFontWeightRegular, .7);
     _tempLabel.textAlignment = _highLowLabel.textAlignment = NSTextAlignmentRight;
-    self.greetingLabel = WCCLabel(11, UIFontWeightRegular, .65);
-    if (self.greetingIndex >= 0) self.greetingLabel.text = [NSString stringWithUTF8String:WCCGreetingText((int)self.greetingIndex)];
+    self.greetingLabel = WCCLabel(11, UIFontWeightRegular, .82);
+    self.greetingLabel.text=[NSString stringWithUTF8String:WCCGreetingText(self.greetingState.index)];
+    self.greetingLabel.accessibilityIdentifier=@"weather.greeting";
     _headerView.clipsToBounds = YES;
     for (UIView *view in @[_iconView, _cityLabel, _conditionLabel, _precipLabel, _tempLabel, _highLowLabel, self.greetingLabel]) {
         [_headerView addSubview:view];
@@ -235,8 +256,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self beginGreetingSession]; self.mediaVisible = YES; [self preferencesChanged]; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; }
-- (void)controlCenterDidDismiss { self.greetingSession = NO; self.mediaVisible = NO; self.customMedia.active = NO; }
-- (void)willResignActive { self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)viewDidDisappear:(BOOL)animated { [super viewDidDisappear:animated]; if (!self.presentedViewController) [self endGreetingSession]; }
+- (void)controlCenterDidDismiss { [self endGreetingSession]; self.mediaVisible = NO; self.customMedia.active = NO; }
+- (void)willResignActive { if (!self.presentedViewController) [self endGreetingSession]; self.mediaVisible = NO; self.customMedia.active = NO; }
 
 - (void)updateWeatherDisplay {
     if (!_weatherModel) return;

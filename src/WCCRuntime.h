@@ -23,44 +23,40 @@ static inline WCCRect WCCR(double x,double y,double w,double h) {
     return (WCCRect){x,y,fmax(0,w),fmax(0,h)};
 }
 static inline WCCGeometry WCCComputeGeometry(double width,double height,int expanded) {
-    double w=fmax(0,width), h=fmax(0,height);
-    WCCGeometry g={0};
-    g.headerHeight=expanded ? fmin(h,94) : h;
-    double hh=g.headerHeight;
-    g.square=!expanded && hh>=w*.72;
+    double w=fmax(0,width), h=fmax(0,height); WCCGeometry g={0};
+    g.headerHeight=expanded?fmin(h,112):h;
+    double hh=g.headerHeight; g.square=!expanded && hh>=w*.72;
     if (g.square) {
-        double s=fmin(w/156.,hh/156.), pad=12*s, icon=54*s;
-        g.icon=WCCR(pad,12*s,icon,icon);
-        g.temperature=WCCR(pad+icon+6*s,18*s,w-2*pad-icon-6*s,40*s);
-        g.city=WCCR(pad,70*s,w-2*pad,18*s);
-        g.condition=WCCR(pad,90*s,w-2*pad,14*s);
-        g.highLow=WCCR(pad,106*s,w-2*pad,14*s);
-        g.precipitation=WCCR(pad,122*s,w-2*pad,13*s);
-        g.greeting=WCCR(pad,hh-18*s,w-2*pad,12*s);
-        g.cityFont=16*s; g.tempFont=32*s; g.detailFont=12*s; g.greetingFont=11*s;
-        g.details=1;
+        double s=fmin(w/156.,hh/156.), p=12*s;
+        g.city=WCCR(p,10*s,w-2*p,18*s);
+        g.temperature=WCCR(p,34*s,w-2*p-58*s,44*s);
+        g.icon=WCCR(w-p-52*s,32*s,52*s,52*s);
+        g.condition=WCCR(p,86*s,w-2*p,15*s);
+        g.highLow=WCCR(p,103*s,w-2*p,14*s);
+        g.precipitation=WCCR(p,120*s,w-2*p,13*s);
+        g.greeting=WCCR(p,hh-18*s,w-2*p,13*s);
+        g.cityFont=14*s;g.tempFont=39*s;g.detailFont=11*s;g.greetingFont=10*s;g.details=1;
     } else {
-        double s=fmin(hh/76.,w/156.), pad=10*s, gap=7*s;
-        double icon=fmin(48*s,w*.22), x=pad+icon+gap;
-        double temp=fmin(78*s,w*.27), right=w-pad-temp;
-        g.icon=WCCR(pad,(hh-icon)/2,icon,icon);
-        g.city=WCCR(x,hh*.12,right-gap-x,19*s);
-        g.temperature=WCCR(right,hh*.10,temp,34*s);
-        g.condition=WCCR(x,hh*.40,right-gap-x,15*s);
-        g.greeting=WCCR(x,hh*.70,w-pad-x,15*s);
-        g.highLow=WCCR(0,0,0,0); g.precipitation=WCCR(0,0,0,0);
-        g.cityFont=14*s; g.tempFont=28*s; g.detailFont=11*s; g.greetingFont=10*s;
-        g.details=0;
-        if (w>=220 || expanded) {
-            // Weather owns the first three rows; greeting remains secondary.
-            g.city=WCCR(x,hh*.06,w-pad-x,16*s);
-            g.condition=WCCR(x,hh*.31,right-gap-x,14*s);
-            g.temperature=WCCR(right,hh*.28,temp,20*s);
-            g.highLow=WCCR(x,hh*.55,(w-pad-x)*.46,12*s);
-            g.precipitation=WCCR(x+(w-pad-x)*.48,hh*.55,(w-pad-x)*.52,12*s);
-            g.greeting=WCCR(x,hh*.79,w-pad-x,11*s);
-            g.tempFont=23*s; g.greetingFont=9*s;
-            g.details=1;
+        double s=fmin(hh/76.,w/156.), p=10*s;
+        g.details=w>=220 || expanded;
+        g.cityFont=13*s; g.tempFont=31*s; g.detailFont=10*s; g.greetingFont=10*s;
+        if (!g.details) {
+            // Compact: two weather columns plus a dedicated full-width greeting rail.
+            g.city=WCCR(p,6*s,w-2*p,16*s);
+            g.temperature=WCCR(p,23*s,57*s,30*s);
+            g.icon=WCCR(w-p-28*s,23*s,28*s,28*s);
+            g.condition=WCCR(p+60*s,29*s,w-2*p-91*s,17*s);
+            g.greeting=WCCR(p,hh-18*s,w-2*p,13*s);
+        } else {
+            // Temperature owns the left; metadata forms a separate right-hand grid.
+            double left=p+65*s, icon=36*s, x=left+icon+10*s, avail=w-p-x;
+            g.temperature=WCCR(p,10*s,62*s,34*s);
+            g.icon=WCCR(left,7*s,icon,icon);
+            g.city=WCCR(x,6*s,avail,17*s);
+            g.condition=WCCR(x,25*s,avail,14*s);
+            g.highLow=WCCR(p,45*s,(w-2*p)*.58,12*s);
+            g.precipitation=WCCR(p+(w-2*p)*.62,45*s,(w-2*p)*.38,12*s);
+            g.greeting=WCCR(p,hh-17*s,w-2*p,12*s);
         }
     }
     return g;
@@ -92,8 +88,16 @@ static inline int WCCPickGreeting(int hour,int previous,uint32_t randomValue) {
     }
     return base+(int)(randomValue%3);
 }
+typedef struct { int active, index; } WCCGreetingState;
+static inline int WCCBeginGreeting(WCCGreetingState *state,int hour,uint32_t randomValue) {
+    if (!state->active || state->index<0 || state->index>=18) {
+        state->index=WCCPickGreeting(hour,state->index,randomValue); state->active=1;
+    }
+    return state->index;
+}
+static inline void WCCEndGreeting(WCCGreetingState *state) { state->active=0; }
 static inline const char *WCCGreetingText(int index) {
-    return WCCGreetings[index/3][index%3];
+    return index>=0 && index<18 ? WCCGreetings[index/3][index%3] : "愿你今天心情晴朗";
 }
 /* No writes, chmod or deletion. Reject links escaping the actual canonical root. */
 typedef enum { WCCFileOK, WCCFileName, WCCFileRoot, WCCFileEscape,
