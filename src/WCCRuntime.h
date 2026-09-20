@@ -96,7 +96,7 @@ static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,in
     return g;
 }
 /* 3x1 only: UIKit measures actual strings with the final production fonts.
- * Center the visible weather group, not the old oversized label frames.
+ * Keep symmetric modest margins and align greeting with the left temperature.
  * The icon is centered on the metadata rail (city through precipitation),
  * independent of the greeting. Oversized text is fitted within bounded rails.
  */
@@ -111,17 +111,34 @@ static inline WCCGeometry WCCBalanceMeasuredStrip(WCCGeometry g,double width,dou
     double right=fmax(cityWidth,fmax(conditionWidth,g.details?precipitationWidth:0));
     left=fmin(fmax(0,left),budget*.42);
     right=fmin(fmax(0,right),fmax(0,budget-left));
-    double total=left+gap+icon+inner+right, x=(w-total)/2;
+    // Keep balanced, modest outside margins; distribute surplus BETWEEN groups.
+    // Real font widths above bound each rail, rather than centering the whole cluster.
+    double x=p;
     g.temperature.x=g.highLow.x=x; g.temperature.w=g.highLow.w=left;
-    g.icon.x=x+left+gap;
+    g.icon.x=fmax(x+left+gap,w-p-right-inner-icon);
     double tx=g.icon.x+icon+inner;
     g.city.x=g.condition.x=g.precipitation.x=tx;
     g.city.w=g.condition.w=g.precipitation.w=right;
     double bottom=g.details ? g.precipitation.y+g.precipitation.h : g.condition.y+g.condition.h;
     g.icon.y=(g.city.y+bottom-g.icon.h)/2;
     g.greeting.w=fmin(available,fmax(0,greetingWidth));
-    g.greeting.x=(w-g.greeting.w)/2;
+    g.greeting.x=x;
     return g;
+}
+/* Persisted percentage: the real numeric midpoint is 100, with five-point steps. */
+static inline double WCCNormalizeIconPercent(double value) {
+    if (!isfinite(value) || value<50 || value>150) return 100;
+    return round(value/5)*5;
+}
+/* Centered main-media rectangle; callers supply clearance around the original
+ * system frame. No transform accumulation; hourly media never calls this. */
+static inline WCCRect WCCScaledMainIcon(WCCRect original,double percent,double clearance) {
+    double scale=WCCNormalizeIconPercent(percent)/100.;
+    double side=fmax(original.w,original.h);
+    double safe=side>0 ? 1+2*fmax(0,clearance)/side : 1;
+    scale=fmin(scale,safe);
+    return WCCR((original.w-original.w*scale)/2,(original.h-original.h*scale)/2,
+                original.w*scale,original.h*scale);
 }
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.

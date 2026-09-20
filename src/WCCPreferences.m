@@ -2,6 +2,17 @@
 #import "WCCRuntime.h"
 #import "WCCAssetKeys.h"
 NSString * const WCCPreferencesChanged = @"WCCPreferencesChanged";
+NSString * const WCCMainIconScaleChanged = @"WCCMainIconScaleChanged";
+double WCCMainIconPercent(void) {
+    id value=[WCCPrefs() objectForKey:@"mainCustomIconPercent"];
+    return [value isKindOfClass:NSNumber.class] ? WCCNormalizeIconPercent([value doubleValue]) : 100;
+}
+BOOL WCCSetMainIconPercent(double value) {
+    [WCCPrefs() setDouble:WCCNormalizeIconPercent(value) forKey:@"mainCustomIconPercent"];
+    BOOL saved=[WCCPrefs() synchronize];
+    [NSNotificationCenter.defaultCenter postNotificationName:WCCMainIconScaleChanged object:nil];
+    return saved;
+}
 NSUserDefaults *WCCPrefs(void) { static NSUserDefaults *p; static dispatch_once_t once; dispatch_once(&once, ^{ p = [[NSUserDefaults alloc] initWithSuiteName:@"com.simon.ccweathermodule.custom"]; }); return p; }
 NSArray<NSString *> *WCCSizeOptions(void) { return @[@"2x1", @"3x1", @"4x1", @"2x2", @"3x3"]; }
 NSString *WCCSelectedSize(void) {

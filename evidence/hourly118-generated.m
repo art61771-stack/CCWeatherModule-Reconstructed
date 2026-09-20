@@ -10,17 +10,32 @@ static NSString *loadedName;
 @property CGRect bounds;
 @property BOOL hidden;
 @property id window;
+@property(copy) void(^onLayout)(void);
+-(void)layoutIfNeeded;
+-(void)layoutSubviews;
+-(void)didMoveToWindow;
 -(instancetype)initWithFrame:(CGRect)f;
 -(void)addSubview:(id)v;
 @end
 @implementation UIView
 -(instancetype)initWithFrame:(CGRect)f { if((self=[super init]))self.frame=f;return self; }
 -(void)addSubview:(id)v {}
+-(void)layoutIfNeeded { if(self.onLayout)self.onLayout(); }
+-(void)layoutSubviews {}
+-(void)didMoveToWindow {}
 @end
 @interface UIScrollView:UIView
 @property CGPoint contentOffset;
 @end
 @implementation UIScrollView @end
+@interface WCCHourlyScrollView : UIScrollView
+@property(nonatomic,copy) void (^geometryReady)(void);
+@end
+@implementation WCCHourlyScrollView
+- (void)layoutSubviews { [super layoutSubviews]; if (self.geometryReady) self.geometryReady(); }
+- (void)didMoveToWindow { [super didMoveToWindow]; if (self.geometryReady) self.geometryReady(); }
+@end
+
 @interface UILabel:UIView
 @property NSString *text;
 @property int textAlignment;
@@ -84,13 +99,21 @@ static UILabel *WCCLabel(double s,int w,double a){return [UILabel new];}
 @end
 @implementation Forecast @end
 static NSString *WCCAssetKey(NSInteger code,BOOL night){char b[128];WCCAssetBasename((int)code,night,b,sizeof b);return @(b);}
+static NSMutableArray *pending;
+static void enqueue(id q,void(^b)(void)){[pending addObject:[b copy]];}
+static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(void(^b)(void) in a)b();}
+#define dispatch_async(q,b) enqueue(nil,b)
 @interface Harness:NSObject {
 @public City *_currentCity;
 @public BOOL _isExpanded;
 @public UIScrollView *_hourlyScrollView;
+@public UIView *_hourlyContainer;
 }
 @property NSMutableArray *hourlyItems;
-@property BOOL mediaVisible,mediaSuspended;
+@property BOOL mediaVisible,mediaSuspended,hourlyRefreshing;
+@property NSUInteger hourlyLayoutGeneration;
+-(void)scheduleHourlyLayoutValidation;
+-(void)didTransitionToExpandedContentMode:(BOOL)expanded;
 @property UIView *view;
 @property id presentedViewController;
 -(UIView*)createHourlyItemWithForecast:(id)f isNow:(BOOL)n formatter:(NSDateFormatter*)fmt;
@@ -115,7 +138,6 @@ static NSString *WCCAssetKey(NSInteger code,BOOL night){char b[128];WCCAssetBase
     } @catch (NSException *exception) { return nil; }
 }
 - (UIView *)createHourlyItemWithForecast:(id)forecast isNow:(BOOL)isNow formatter:(NSDateFormatter *)formatter {
-    
     WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;
     @try {
@@ -131,7 +153,6 @@ static NSString *WCCAssetKey(NSInteger code,BOOL night){char b[128];WCCAssetBase
         NSString *selectedKey=nil;
         UIImage *native=[self systemWeatherImageForConditionCode:code selectedAssetKey:&selectedKey];
         item.assetKey=selectedKey; // record this item's actual original resource, never the main icon's key
-        
         icon.image = native ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular]];
     } @catch (NSException *exception) {}
     icon.frame = CGRectMake(12, 22, 30, 30); [item addSubview:icon];
@@ -149,7 +170,11 @@ static NSString *WCCAssetKey(NSInteger code,BOOL night){char b[128];WCCAssetBase
     return item;
 }
 - (void)refreshHourlyMedia {
-    BOOL available=_isExpanded && self.mediaVisible && !self.mediaSuspended && self.view.window && !self.presentedViewController;
+    if (self.hourlyRefreshing) return;
+    self.hourlyRefreshing=YES;
+    BOOL available=WCCHourlyLayoutReady(_isExpanded,self.mediaVisible,self.mediaSuspended,
+        self.view.window!=nil,_hourlyScrollView.window!=nil,self.presentedViewController!=nil,
+        _hourlyScrollView.bounds.size.width,_hourlyScrollView.bounds.size.height);
     // Release obsolete/offscreen bindings first, then admit EVERY visible item.
     // Preparation is serialized in WCCMedia; playback has no three-item quota.
     NSMutableArray<WCCHourlyItem *> *admitted=[NSMutableArray array];
@@ -164,16 +189,34 @@ static NSString *WCCAssetKey(NSInteger code,BOOL night){char b[128];WCCAssetBase
     }
     for (WCCHourlyItem *item in admitted) {
         if (!item.boundIdentity) {
-            
             item.boundIdentity=item.cachedIdentity;
-            [item.media loadPath:item.cachedPath]; item.media.active=YES;
+            [item.media loadPath:item.cachedPath];
         }
+        item.media.active=YES;
     }
+    self.hourlyRefreshing=NO;
+}
+- (void)scheduleHourlyLayoutValidation {
+    NSUInteger generation=++self.hourlyLayoutGeneration;
+    __weak typeof(self) weak=self;
+    // One event-driven next-turn check, never a retry loop or delayed timer.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        typeof(self) self=weak;
+        if (!self || generation!=self.hourlyLayoutGeneration || !self->_isExpanded) return;
+        [self.view layoutIfNeeded]; [self->_hourlyContainer layoutIfNeeded];
+        [self refreshHourlyMedia];
+    });
+}
+- (void)didTransitionToExpandedContentMode:(BOOL)expanded {
+    _isExpanded = expanded;
+    if (expanded) { [self.view layoutIfNeeded]; [self refreshHourlyMedia]; [self scheduleHourlyLayoutValidation]; }
+    else { ++self.hourlyLayoutGeneration; [self refreshHourlyMedia]; }
 }
 @end
 int main(void){@autoreleasepool{
  Harness *h=[Harness new]; h->_currentCity=[City new];h.hourlyItems=[NSMutableArray array];
- h->_hourlyScrollView=[UIScrollView new];h->_hourlyScrollView.bounds=CGRectMake(0,0,200,80);
+ pending=[NSMutableArray array];h->_hourlyContainer=[UIView new];
+ h->_hourlyScrollView=[WCCHourlyScrollView new];h->_hourlyScrollView.window=[NSObject new];h->_hourlyScrollView.bounds=CGRectMake(0,0,200,80);
  h.view=[UIView new];h.view.window=[NSObject new];h.mediaVisible=YES;h->_isExpanded=YES;
  for(int night=0;night<2;night++)for(int code=0;code<48;code++){
   h->_currentCity.isDay=!night;Forecast*f=[Forecast new];f.conditionCode=code;
@@ -197,5 +240,25 @@ int main(void){@autoreleasepool{
  assert(((WCCHourlyItem*)h.hourlyItems[0]).media.active);
  h.mediaVisible=NO;[h refreshHourlyMedia];for(WCCHourlyItem*i in h.hourlyItems)assert(!i.media.active);
  Forecast*unknown=[Forecast new];unknown.conditionCode=99;WCCHourlyItem*u=(id)[h createHourlyItemWithForecast:unknown isNow:NO formatter:[NSDateFormatter new]];assert(!u.assetKey && u.originalIcon.image);
+ // Actual production scroll callbacks: zero bounds/no window -> final 400pt first layout.
+ [h.hourlyItems removeAllObjects];h.mediaVisible=YES;
+ __weak Harness*weak=h;((WCCHourlyScrollView*)h->_hourlyScrollView).geometryReady=^{[weak refreshHourlyMedia];};
+ h->_hourlyScrollView.window=nil;h->_hourlyScrollView.bounds=CGRectZero;
+ for(int j=0;j<9;j++){Forecast*f=[Forecast new];f.conditionCode=9;WCCHourlyItem*i=(id)[h createHourlyItemWithForecast:f isNow:NO formatter:[NSDateFormatter new]];i.frame=CGRectMake(j*55,0,55,80);i.cachedPath=@"fixture.gif";i.cachedIdentity=@"same";}
+ h->_hourlyScrollView.contentOffset=CGPointZero;
+ [h->_hourlyScrollView layoutSubviews];for(WCCHourlyItem*i in h.hourlyItems)assert(i.media.loads==0);
+ h->_hourlyScrollView.window=[NSObject new];[h->_hourlyScrollView didMoveToWindow];for(WCCHourlyItem*i in h.hourlyItems)assert(i.media.loads==0);
+ h->_hourlyScrollView.bounds=CGRectMake(0,0,400,80);[h->_hourlyScrollView layoutSubviews];
+ for(int j=0;j<9;j++){WCCHourlyItem*i=h.hourlyItems[j];assert(i.media.active==(j<8));assert(i.media.loads==(j<8));}
+ [h->_hourlyScrollView layoutSubviews];for(int j=0;j<8;j++)assert(((WCCHourlyItem*)h.hourlyItems[j]).media.loads==1);
+ // Synchronous media callback reentry must not recurse/reload.
+ WCCHourlyItem*first=h.hourlyItems[0];first.cachedIdentity=@"new";first.media.mediaChanged=^{[weak refreshHourlyMedia];};[h refreshHourlyMedia];assert(first.media.loads==3&&!h.hourlyRefreshing);
+ __block int layouts=0;h.view.onLayout=^{layouts++;};
+ [h scheduleHourlyLayoutValidation];[h scheduleHourlyLayoutValidation];assert(pending.count==2);drain();assert(layouts==1&&pending.count==0);
+ [h scheduleHourlyLayoutValidation];[h didTransitionToExpandedContentMode:NO];drain();assert(layouts==1);
+ [h didTransitionToExpandedContentMode:YES];assert(layouts==2);drain();assert(layouts==3);
+ // Controller lifetime is weak in pending blocks; scroll callback also weak.
+ [h scheduleHourlyLayoutValidation];h=nil;assert(!weak);drain();
+ puts("PASS 118 exact production scroll layout/window + refresh + transition + queued generation: zero bounds/no window, eight visible without scroll, same identity, synchronous reentry, cancellation, weak lifetime. Stub preparation only; decoder generation verified separately.");
  puts("PASS exact production ObjC resolver + hourly creation + admission: 96 resource selections, no daylight getter, five partial/full visible static items, reuse, offscreen release/return, parent gate, unknown fallback. UIKit/decoder/iOS16 NOT RUN.");
 }return 0;}

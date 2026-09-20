@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.1.7 rootless
+name: CCWeatherModule 1.1.8 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -24,19 +24,19 @@ jobs:
           mkdir -p verification
           cc -Wall -Wextra -Werror evidence/runtime115.c -lm -o /tmp/runtime115
           /tmp/runtime115 | tee verification/runtime115.txt
-          python3 evidence/test117.py --generate | tee verification/wiring117.txt
-          python3 evidence/regression117.py | tee verification/regression117.txt
-          clang -fobjc-arc -fblocks -framework Foundation -framework CoreGraphics evidence/hourly117-generated.m -o /tmp/hourly117
-          /tmp/hourly117 | tee verification/hourly117.txt
-          cc -Wall -Wextra -Werror evidence/layout117.c -lm -o /tmp/layout117
-          /tmp/layout117 | tee verification/layout117.txt
-          python3 evidence/preview117.py
-          git diff --exit-code -- evidence/hourly117-generated.m evidence/preview117.svg
+          python3 evidence/test118.py --generate | tee verification/wiring117.txt
+          python3 evidence/regression118.py | tee verification/regression118.txt
+          clang -fobjc-arc -fblocks -framework Foundation -framework CoreGraphics evidence/hourly118-generated.m -o /tmp/hourly118
+          /tmp/hourly118 | tee verification/hourly118.txt
+          cc -Wall -Wextra -Werror evidence/layout118.c -lm -o /tmp/layout118
+          /tmp/layout118 | tee verification/layout118.txt
+          python3 evidence/test118_ui.py | tee verification/ui118.txt
+          git diff --exit-code -- evidence/hourly118-generated.m
           cc -Wall -Wextra -Werror evidence/hourly116.c -o /tmp/hourly116
           /tmp/hourly116 | tee verification/hourly116.txt
-          clang -fobjc-arc -fblocks -I evidence/mock115 -framework Foundation evidence/host115.m -o /tmp/host115 2>&1 | tee verification/host115-build.txt
+          clang -fobjc-arc -fblocks -I evidence/mock115 -framework Foundation evidence/host118.m -o /tmp/host118 2>&1 | tee verification/host118-build.txt
           for mode in modern legacy inherited getter-char reject-bool reject-return reject-argc reject-missing; do
-            /tmp/host115 "$mode" 2>&1 | tee "verification/host115-${mode}.txt"
+            /tmp/host118 "$mode" 2>&1 | tee "verification/host118-${mode}.txt"
           done
           cc evidence/mapping114.c -o /tmp/mapping114
           /tmp/mapping114 | tee verification/mapping114.txt
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.1.7-rootless
+          name: CCWeatherModule-1.1.8-rootless
           path: |
             packages/*.deb
             verification/*

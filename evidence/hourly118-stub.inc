@@ -10,17 +10,32 @@ static NSString *loadedName;
 @property CGRect bounds;
 @property BOOL hidden;
 @property id window;
+@property(copy) void(^onLayout)(void);
+-(void)layoutIfNeeded;
+-(void)layoutSubviews;
+-(void)didMoveToWindow;
 -(instancetype)initWithFrame:(CGRect)f;
 -(void)addSubview:(id)v;
 @end
 @implementation UIView
 -(instancetype)initWithFrame:(CGRect)f { if((self=[super init]))self.frame=f;return self; }
 -(void)addSubview:(id)v {}
+-(void)layoutIfNeeded { if(self.onLayout)self.onLayout(); }
+-(void)layoutSubviews {}
+-(void)didMoveToWindow {}
 @end
 @interface UIScrollView:UIView
 @property CGPoint contentOffset;
 @end
 @implementation UIScrollView @end
+@interface WCCHourlyScrollView : UIScrollView
+@property(nonatomic,copy) void (^geometryReady)(void);
+@end
+@implementation WCCHourlyScrollView
+- (void)layoutSubviews { [super layoutSubviews]; if (self.geometryReady) self.geometryReady(); }
+- (void)didMoveToWindow { [super didMoveToWindow]; if (self.geometryReady) self.geometryReady(); }
+@end
+
 @interface UILabel:UIView
 @property NSString *text;
 @property int textAlignment;
@@ -84,13 +99,21 @@ static UILabel *WCCLabel(double s,int w,double a){return [UILabel new];}
 @end
 @implementation Forecast @end
 static NSString *WCCAssetKey(NSInteger code,BOOL night){char b[128];WCCAssetBasename((int)code,night,b,sizeof b);return @(b);}
+static NSMutableArray *pending;
+static void enqueue(id q,void(^b)(void)){[pending addObject:[b copy]];}
+static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(void(^b)(void) in a)b();}
+#define dispatch_async(q,b) enqueue(nil,b)
 @interface Harness:NSObject {
 @public City *_currentCity;
 @public BOOL _isExpanded;
 @public UIScrollView *_hourlyScrollView;
+@public UIView *_hourlyContainer;
 }
 @property NSMutableArray *hourlyItems;
-@property BOOL mediaVisible,mediaSuspended;
+@property BOOL mediaVisible,mediaSuspended,hourlyRefreshing;
+@property NSUInteger hourlyLayoutGeneration;
+-(void)scheduleHourlyLayoutValidation;
+-(void)didTransitionToExpandedContentMode:(BOOL)expanded;
 @property UIView *view;
 @property id presentedViewController;
 -(UIView*)createHourlyItemWithForecast:(id)f isNow:(BOOL)n formatter:(NSDateFormatter*)fmt;

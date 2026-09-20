@@ -11,6 +11,9 @@ FOUNDATION_EXPORT NSString *WCCCheckedPath(NSString *root, NSString *name, NSStr
 FOUNDATION_EXPORT NSString *WCCSafePath(NSString *root, NSString *name);
 FOUNDATION_EXPORT BOOL WCCAllowedRoot(NSString *path);
 FOUNDATION_EXPORT NSString * const WCCPreferencesChanged;
+FOUNDATION_EXPORT NSString * const WCCMainIconScaleChanged;
+FOUNDATION_EXPORT double WCCMainIconPercent(void);
+FOUNDATION_EXPORT BOOL WCCSetMainIconPercent(double value);
 
 FOUNDATION_EXPORT NSString *WCCAssetKey(NSInteger code, BOOL night);
 FOUNDATION_EXPORT NSArray<NSString *> *WCCAssetKeys(void);

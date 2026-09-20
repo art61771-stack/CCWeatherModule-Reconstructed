@@ -1,8 +1,8 @@
 #import "WCCSettings.h"
 #import "WCCPreferences.h"
 #import "WCCGallery.h"
-#import "WCCHostObserver.h"
 #import <objc/message.h>
+#include <math.h>
 
 static void WCCSave(void) {
     [WCCPrefs() synchronize];
@@ -44,6 +44,44 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
 @end
 
+// A real UIKit page, never a slider inserted into UIAlertController internals.
+@interface WCCIconScaleController : UIViewController <UIPopoverPresentationControllerDelegate>
+@property(nonatomic,copy) void (^onDone)(void);
+@property(nonatomic,strong) UISlider *slider;
+@property(nonatomic,strong) UILabel *valueLabel;
+@end
+@implementation WCCIconScaleController
+- (void)viewDidLoad {
+    [super viewDidLoad]; self.title=@"图标大小";
+    self.view.backgroundColor=UIColor.systemBackgroundColor;
+    self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
+    self.valueLabel=[UILabel new]; self.valueLabel.font=[UIFont monospacedDigitSystemFontOfSize:22 weight:UIFontWeightMedium]; self.valueLabel.textAlignment=NSTextAlignmentCenter;
+    self.slider=[UISlider new]; self.slider.minimumValue=50; self.slider.maximumValue=150;
+    self.slider.value=WCCMainIconPercent(); self.slider.enabled=[WCCPrefs() boolForKey:@"customIcon"];
+    self.slider.accessibilityLabel=@"主自定义天气图标大小";
+    [self.slider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
+    UILabel *range=[UILabel new]; range.text=@"小 50%        默认 100%        大 150%"; range.font=[UIFont systemFontOfSize:12]; range.textAlignment=NSTextAlignmentCenter;
+    UILabel *note=[UILabel new]; note.numberOfLines=0; note.font=[UIFont systemFontOfSize:13]; note.textColor=UIColor.secondaryLabelColor;
+    note.text=@"仅调整主自定义图标（含展开头部），不改变原天气图标或小时图标。100% 与 1.1.7 相同；每步 5%。为避免遮字或越界，实际显示可能低于设置比例。关闭总开关仅禁用调节，保留数值。";
+    UIStackView *stack=[[UIStackView alloc] initWithArrangedSubviews:@[self.valueLabel,self.slider,range,note]];
+    stack.axis=UILayoutConstraintAxisVertical; stack.spacing=14; stack.translatesAutoresizingMaskIntoConstraints=NO; [self.view addSubview:stack];
+    [NSLayoutConstraint activateConstraints:@[[stack.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:20],[stack.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-20],[stack.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:18]]];
+    [self showValue];
+}
+- (void)showValue {
+    self.valueLabel.text=[NSString stringWithFormat:@"设置 %.0f%%",self.slider.value];
+    self.slider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",self.slider.value];
+}
+- (void)changed:(UISlider *)slider {
+    slider.value=roundf(slider.value/5)*5;
+    WCCSetMainIconPercent(slider.value); [self showValue];
+}
+- (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
+@end
+
 // Compact original-asset category page. No localized-condition substring matching.
 @interface WCCWeatherMappings : UITableViewController <UIPopoverPresentationControllerDelegate>
 @property(nonatomic,copy) void (^onDone)(void);
@@ -51,6 +89,8 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 @implementation WCCWeatherMappings
 - (void)viewDidLoad {
     [super viewDidLoad]; self.title=@"选择原天气图标";
+    self.tableView.rowHeight=64;
+    self.tableView.estimatedRowHeight=64;
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
 }
 - (void)viewWillAppear:(BOOL)animated { [super viewWillAppear:animated]; [self.tableView reloadData]; }
@@ -62,6 +102,21 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[table dequeueReusableCellWithIdentifier:@"weather"] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"weather"];
     NSString *key=WCCAssetKeys()[index.row], *name=WCCMappedName(key);
+    // Always resolve the original basename in this module's resource bundle.
+    // Never use the user's mapping/root for the category thumbnail.
+    cell.imageView.image=nil;
+    NSString *path=[[NSBundle bundleForClass:WCCWeatherMappings.class] pathForResource:key ofType:@"png"];
+    UIImage *original=path ? [UIImage imageWithContentsOfFile:path] : nil;
+    if (original) {
+        // A fixed transparent canvas keeps differently sized originals compact.
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(36,36),NO,0);
+        CGFloat scale=MIN(36.0/MAX(original.size.width,1),36.0/MAX(original.size.height,1));
+        CGSize size=CGSizeMake(original.size.width*scale,original.size.height*scale);
+        [original drawInRect:CGRectMake((36-size.width)/2,(36-size.height)/2,size.width,size.height)];
+        cell.imageView.image=[UIGraphicsGetImageFromCurrentImageContext() imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        UIGraphicsEndImageContext();
+    }
+    cell.imageView.contentMode=UIViewContentModeScaleAspectFit;
     cell.textLabel.text=key; cell.detailTextLabel.numberOfLines=2;
     cell.detailTextLabel.text=name ? [NSString stringWithFormat:@"%@%@ · 左滑清除",name,WCCSafePath(WCCRoot(),name)?@"":@"（失效，使用原图）"] : @"未绑定 · 使用原天气图标";
     cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; return cell;
@@ -83,7 +138,6 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。");
     WCCAction(a, @"自定义图标", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
     WCCAction(a, @"模块尺寸（列 × 行）", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); });
-    WCCAction(a, @"下拉问候 · 本地诊断", ^{ WCCAfterAlert(p, ^{ [self diagnosticsFrom:p completion:completion]; }); });
     WCCAction(a, @"地标显示", ^{ WCCAfterAlert(p, ^{ [self modesFrom:p completion:completion]; }); });
     [a addAction:[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) { WCCAfterAlert(p, completion); }]];
     WCCShow(p, a);
@@ -92,24 +146,6 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     [a addAction:[UIAlertAction actionWithTitle:@"返回" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
         WCCAfterAlert(p, ^{ [self presentFrom:p completion:completion]; });
     }]];
-}
-+ (void)diagnosticsFrom:(UIViewController *)p completion:(void (^)(void))completion {
-    BOOL enabled=[WCCPrefs() boolForKey:@"hostDiagnostics"];
-    UIAlertController *a=WCCAlert(@"下拉问候 · 本地诊断",@"默认关闭。不采集位置、天气文字、输入或个人内容；仅记录宿主类/方法ABI与事件、安装和抽样计数。开启后退出设置，完整收起/下拉控制中心3次（不要展开模块），再回来导出一次。仅点导出时写本地文件，不自动上传。不代表真机问题已修复。");
-    WCCAction(a,enabled?@"关闭诊断":@"开启诊断",^{
-        [WCCPrefs() setBool:!enabled forKey:@"hostDiagnostics"]; WCCSave();
-        if (!enabled) WCCObserveHostForModule(p);
-        WCCAfterAlert(p,^{ [self diagnosticsFrom:p completion:completion]; });
-    });
-    if (enabled) WCCAction(a,@"导出本地聚合并复制",^{
-        WCCObserveHostForModule(p);
-        NSString *report=WCCDiagnosticExport(); UIPasteboard.generalPasteboard.string=report;
-        WCCAfterAlert(p,^{
-            UIAlertController *result=WCCAlert(@"诊断已复制",report);
-            WCCAction(result,@"好",^{ WCCAfterAlert(p,^{ [self diagnosticsFrom:p completion:completion]; }); }); WCCShow(p,result);
-        });
-    });
-    [self back:a from:p completion:completion]; WCCShow(p,a);
 }
 + (void)sizesFrom:(UIViewController *)p completion:(void (^)(void))completion {
     BOOL enabled = [WCCPrefs() boolForKey:@"customSize"];
@@ -160,6 +196,16 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     WCCAction(a, enabled ? @"关闭自定义图标" : @"开启自定义图标", ^{
         [WCCPrefs() setBool:!enabled forKey:@"customIcon"]; WCCSave(); WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; });
     });
+    WCCAction(a, @"图标大小", ^{ WCCAfterAlert(p, ^{
+        WCCIconScaleController *page=[WCCIconScaleController new];
+        page.onDone=^{ [self iconsFrom:p completion:completion]; };
+        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
+        nav.modalPresentationStyle=UIModalPresentationPopover; nav.preferredContentSize=CGSizeMake(320,330);
+        UIPopoverPresentationController *pop=nav.popoverPresentationController;
+        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
+        pop.permittedArrowDirections=0; pop.delegate=page;
+        if (p.view.window && !p.presentedViewController) [p presentViewController:nav animated:YES completion:nil];
+    }); });
     WCCAction(a, @"按天气名称管理绑定", ^{ WCCAfterAlert(p, ^{
         NSError *error = nil;
         if (![NSFileManager.defaultManager createDirectoryAtPath:WCCRoot() withIntermediateDirectories:YES attributes:nil error:&error]) {
