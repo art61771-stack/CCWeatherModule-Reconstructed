@@ -6,6 +6,10 @@
 @interface WCCContentViewController ()
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
+@property(nonatomic,strong) NSLayoutConstraint *iconWidth;
+@property(nonatomic,strong) NSLayoutConstraint *cityLeading;
+@property(nonatomic,strong) NSLayoutConstraint *cityTrailing;
+@property(nonatomic,strong) NSLayoutConstraint *tempTop;
 @end
 
 // The original passes @YES through performSelector:withObject:, not a BOOL ABI call.
@@ -92,6 +96,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     CGSize size = self.view.bounds.size;
     _headerView.frame = CGRectMake(0, 0, size.width, MIN(85, size.height));
     BOOL compact = size.width < 220;
+    self.iconWidth.constant = compact ? 38 : 55;
+    self.cityLeading.constant = compact ? 8 : 18;
+    self.tempTop.constant = compact ? 36 : 10;
+    self.cityTrailing.active = !compact;
     _conditionLabel.hidden = compact; _precipLabel.hidden = compact; _highLowLabel.hidden = compact;
     _tempLabel.font = [UIFont systemFontOfSize:compact ? 23 : 38 weight:UIFontWeightLight];
     _cityLabel.font = [UIFont systemFontOfSize:compact ? 11 : 18 weight:UIFontWeightSemibold];
@@ -136,14 +144,19 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         view.translatesAutoresizingMaskIntoConstraints = NO;
         [_headerView addSubview:view];
     }
+    self.iconWidth = [_iconView.widthAnchor constraintEqualToConstant:55];
+    self.cityLeading = [_cityLabel.leadingAnchor constraintEqualToAnchor:_iconView.trailingAnchor constant:18];
+    self.cityTrailing = [_cityLabel.trailingAnchor constraintLessThanOrEqualToAnchor:_tempLabel.leadingAnchor constant:-4];
+    self.tempTop = [_tempLabel.topAnchor constraintEqualToAnchor:_headerView.topAnchor constant:10];
     [NSLayoutConstraint activateConstraints:@[
+        [_cityLabel.trailingAnchor constraintLessThanOrEqualToAnchor:_headerView.trailingAnchor constant:-12],
         [_iconView.leadingAnchor constraintEqualToAnchor:_headerView.leadingAnchor constant:16],
         [_iconView.centerYAnchor constraintEqualToAnchor:_headerView.centerYAnchor],
-        [_iconView.widthAnchor constraintEqualToConstant:55],
+        self.iconWidth,
         [_iconView.heightAnchor constraintEqualToConstant:55],
-        [_cityLabel.leadingAnchor constraintEqualToAnchor:_iconView.trailingAnchor constant:18],
+        self.cityLeading,
         [_cityLabel.topAnchor constraintEqualToAnchor:_headerView.topAnchor constant:12],
-        [_cityLabel.trailingAnchor constraintLessThanOrEqualToAnchor:_tempLabel.leadingAnchor constant:-4],
+        self.cityTrailing,
         [_conditionLabel.leadingAnchor constraintEqualToAnchor:_cityLabel.leadingAnchor],
         [_conditionLabel.topAnchor constraintEqualToAnchor:_cityLabel.bottomAnchor constant:2],
         [_precipLabel.leadingAnchor constraintEqualToAnchor:_cityLabel.leadingAnchor],

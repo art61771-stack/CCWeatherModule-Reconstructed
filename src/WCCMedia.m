@@ -46,10 +46,18 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
         [self addSubview:_image];
     } return self;
 }
-- (BOOL)hasMedia { return _image.image != nil || _player != nil; }
+- (BOOL)hasMedia { return _image.image != nil || (_layer.readyForDisplay && _player.status != AVPlayerStatusFailed && _looper.status != AVPlayerLooperStatusFailed); }
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (context == (__bridge void *)self) {
+        dispatch_async(dispatch_get_main_queue(), ^{ [self notifyMedia]; });
+    } else [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+}
 - (void)notifyMedia { if (self.mediaChanged) self.mediaChanged(); }
 - (void)layoutSubviews { [super layoutSubviews]; _layer.frame = self.bounds; }
 - (void)clear {
+    [_layer removeObserver:self forKeyPath:@"readyForDisplay" context:(__bridge void *)self];
+    [_player removeObserver:self forKeyPath:@"status" context:(__bridge void *)self];
+    [_looper removeObserver:self forKeyPath:@"status" context:(__bridge void *)self];
     [_timer invalidate]; _timer = nil; [_player pause]; [_looper disableLooping];
     [_player removeAllItems]; _looper = nil; _player = nil; [_layer removeFromSuperlayer]; _layer = nil;
     if (_source) { CFRelease(_source); _source = NULL; } _image.image = nil; _frame = 0;
@@ -73,7 +81,9 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
         typeof(self) self = weak; if (!self) return; self->_timer = nil;
         if (!self->_source || !self->_active || !self.window) return;
         self->_frame = (self->_frame + 1) % CGImageSourceGetCount(self->_source);
-        self->_image.image = WCCFrame(self->_source, self->_frame); [self resume];
+        UIImage *frame = WCCFrame(self->_source, self->_frame);
+        if (!frame) { CFRelease(self->_source); self->_source = NULL; return; }
+        self->_image.image = frame; [self resume];
     }];
 }
 - (void)loadPath:(NSString *)path {
@@ -98,6 +108,9 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
                 self->_player = [AVQueuePlayer new]; self->_player.muted = YES;
                 self->_looper = [AVPlayerLooper playerLooperWithPlayer:self->_player templateItem:item];
                 self->_layer = [AVPlayerLayer playerLayerWithPlayer:self->_player]; self->_layer.videoGravity = AVLayerVideoGravityResizeAspect;
+                [self->_layer addObserver:self forKeyPath:@"readyForDisplay" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];
+                [self->_player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];
+                [self->_looper addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];
                 self->_layer.frame = self.bounds; [self.layer addSublayer:self->_layer]; [self notifyMedia]; [self resume];
             });
         }];
