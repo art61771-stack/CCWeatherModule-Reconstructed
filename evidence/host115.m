@@ -100,12 +100,16 @@ int main(int argc,char **argv) { @autoreleasepool {
  module=nil;assert(!weakModule);assert(modules.allObjects.count==0);
  // Regression: registration precedes parent attachment while begin already ran.
  // Installing a module bundle late is unlike a process-load substrate tweak.
- UIViewController *late=[UIViewController new];
+ __weak UIViewController *weakLate;
+ @autoreleasepool {
+ UIViewController *late=[UIViewController new]; weakLate=late;
  WCCObserveHostForModule(late); assert(!state.visible);
  late.parentViewController=host;live=YES;gen=state.generation;
  WCCObserveHostForModule(late);assert(state.visible&&state.generation==gen+1);
  WCCObserveHostForModule(late);assert(state.generation==gen+1);
- endDismiss(host,YES);late=nil;assert(modules.allObjects.count==0);
+ endDismiss(host,YES);late=nil;
+ }
+ assert(!weakLate);assert(modules.allObjects.count==0);
  start(host);endDismiss(host,YES);assert(notices==notifications);
  if(inherited) { assert(class_getMethodImplementation(parent,bs)==parentBegin);uint64_t g=state.generation;start([parent new]);assert(state.generation==g); }
  printf("PASS production WCCHostObserver.m runtime %s: exact original calls, IMP chain, registration dedup, cancel/retry, weak lifetime, main-thread events\n",argv[1]);
