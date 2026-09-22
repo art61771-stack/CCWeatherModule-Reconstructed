@@ -1,4 +1,6 @@
 #import "WCCSettings.h"
+#import "WCCFloatingPanel.h"
+#import "WCCRuntime.h"
 #import "WCCPreferences.h"
 #import "WCCGallery.h"
 #import "WCCRegionSettings.h"
@@ -40,7 +42,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     [super viewDidLoad];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
 }
-- (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
@@ -60,38 +62,39 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     self.view.backgroundColor=UIColor.systemBackgroundColor;
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
     self.valueLabel=[UILabel new]; self.valueLabel.font=[UIFont monospacedDigitSystemFontOfSize:22 weight:UIFontWeightMedium]; self.valueLabel.textAlignment=NSTextAlignmentCenter;
-    self.slider=[UISlider new]; self.slider.minimumValue=50; self.slider.maximumValue=150;
-    self.slider.value=WCCMainIconPercentForMode(NO); self.slider.enabled=YES;
+    self.slider=[UISlider new]; self.slider.minimumValue=-1; self.slider.maximumValue=1;
+    self.slider.value=WCCCollapsedSliderPosition(WCCMainIconPercentForMode(NO)); self.slider.enabled=YES;
     self.slider.accessibilityLabel=@"折叠主图标大小";
     self.expandedLabel=[UILabel new];self.expandedLabel.textAlignment=NSTextAlignmentCenter;
     self.expandedSlider=[UISlider new];self.expandedSlider.minimumValue=50;self.expandedSlider.maximumValue=150;self.expandedSlider.tag=1;
     self.expandedSlider.value=WCCMainIconPercentForMode(YES);self.expandedSlider.accessibilityLabel=@"展开主图标大小";
     [self.expandedSlider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
     [self.slider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
-    UILabel *range=[UILabel new]; range.text=@"小 50%        默认 100%        大 150%"; range.font=[UIFont systemFontOfSize:12]; range.textAlignment=NSTextAlignmentCenter;
+    UILabel *range=[UILabel new]; range.text=@"折叠 50% ← 100% → 250% · 每步5%"; range.font=[UIFont systemFontOfSize:12]; range.textAlignment=NSTextAlignmentCenter;
     UILabel *note=[UILabel new]; note.numberOfLines=0; note.font=[UIFont systemFontOfSize:13]; note.textColor=UIColor.secondaryLabelColor;
-    note.text=@"原系统天气主图、自定义 PNG/GIF/MP4 及失败回退原图共用大小与中心，关闭自定义图标仍可调节。折叠主页面与展开头部各自独立调节，一个滑块不会影响另一个。旧版大小作为两个滑块的初值。小时图标固定 30pt 不受影响。100% 为 1.1.8 原始大小；50–150%，每步 5%。边界处会限幅。八个区域位置偏移仅作用折叠页面，与本设置不同。";
+    note.text=@"原系统天气主图、自定义 PNG/GIF/MP4 及失败回退原图共用大小与中心，关闭自定义图标仍可调节。折叠主页面与展开头部各自独立调节，一个滑块不会影响另一个。旧版大小作为两个滑块的初值。小时图标固定 30pt 不受影响。100% 为 1.1.8 原始大小；折叠50–250%、展开50–150%，每步5%。100%均在滑条中心；折叠右半为100–250%。仅容器边界限幅，大图可能遮挡自行配置的文字。八个区域位置偏移仅作用折叠页面，与本设置不同。";
+    UIScrollView *scroll=[UIScrollView new];scroll.frame=self.view.bounds;scroll.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;[self.view addSubview:scroll];
     UIStackView *stack=[[UIStackView alloc] initWithArrangedSubviews:@[self.valueLabel,self.slider,self.expandedLabel,self.expandedSlider,range,note]];
-    stack.axis=UILayoutConstraintAxisVertical; stack.spacing=14; stack.translatesAutoresizingMaskIntoConstraints=NO; [self.view addSubview:stack];
-    [NSLayoutConstraint activateConstraints:@[[stack.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:20],[stack.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-20],[stack.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:18]]];
+    stack.axis=UILayoutConstraintAxisVertical; stack.spacing=14; stack.translatesAutoresizingMaskIntoConstraints=NO; [scroll addSubview:stack];
+    [NSLayoutConstraint activateConstraints:@[[stack.leadingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.leadingAnchor constant:20],[stack.trailingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.trailingAnchor constant:-20],[stack.topAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.topAnchor constant:18],[stack.bottomAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.bottomAnchor constant:-18],[stack.widthAnchor constraintEqualToAnchor:scroll.frameLayoutGuide.widthAnchor constant:-40]]];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(syncScale) name:WCCRegionPositionChanged object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(syncScale) name:WCCMainIconScaleChanged object:nil];
     [self showValue];
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
-- (void)syncScale { self.slider.value=WCCMainIconPercentForMode(NO); self.expandedSlider.value=WCCMainIconPercentForMode(YES); [self showValue]; }
+- (void)syncScale { self.slider.value=WCCCollapsedSliderPosition(WCCMainIconPercentForMode(NO)); self.expandedSlider.value=WCCMainIconPercentForMode(YES); [self showValue]; }
 - (void)showValue {
     self.expandedLabel.text=[NSString stringWithFormat:@"展开 %.0f%%",self.expandedSlider.value];
     self.expandedSlider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",self.expandedSlider.value];
-    self.valueLabel.text=[NSString stringWithFormat:@"折叠 %.0f%%",self.slider.value];
-    self.slider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",self.slider.value];
+    self.valueLabel.text=[NSString stringWithFormat:@"折叠 %.0f%%",WCCCollapsedSliderPercent(self.slider.value)];
+    self.slider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",WCCCollapsedSliderPercent(self.slider.value)];
 }
 - (void)changed:(UISlider *)slider {
-    slider.value=roundf(slider.value/5)*5;
-    BOOL ok=WCCSetMainIconPercentForMode(slider.tag==1,slider.value); [self syncScale];
+    double percent=slider.tag==1?roundf(slider.value/5)*5:WCCCollapsedSliderPercent(slider.value);
+    BOOL ok=WCCSetMainIconPercentForMode(slider.tag==1,percent); [self syncScale];
     if(!ok){UIAlertController *a=WCCAlert(@"保存失败",@"已保留原设置，请重试。");[a addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];[self presentViewController:a animated:YES completion:nil];}
 }
-- (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
@@ -109,7 +112,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
 }
 - (void)viewWillAppear:(BOOL)animated { [super viewWillAppear:animated]; [self.tableView reloadData]; }
-- (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return WCCAssetKeys().count; }
@@ -134,7 +137,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     cell.imageView.contentMode=UIViewContentModeScaleAspectFit;
     cell.textLabel.text=key; cell.detailTextLabel.numberOfLines=2;
     cell.detailTextLabel.text=name ? [NSString stringWithFormat:@"%@%@ · 左滑清除",name,WCCSafePath(WCCRoot(),name)?@"":@"（失效，使用原图）"] : @"未绑定 · 使用原天气图标";
-    cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; return cell;
+    cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; WCCPanelStyleCell(cell);return cell;
 }
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)index {
     [table deselectRowAtIndexPath:index animated:YES];
@@ -148,34 +151,51 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 }
 @end
 
+// The menu and all continuous tuning pages share one child navigation stack.
+@interface WCCSettings (PanelActions)
++ (void)sizesFrom:(UIViewController *)p completion:(void (^)(void))completion;
++ (void)modesFrom:(UIViewController *)p completion:(void (^)(void))completion;
++ (void)openFilzaFrom:(UIViewController *)p completion:(void (^)(void))completion;
+@end
+@interface WCCPanelMenu : UITableViewController
+@end
+@implementation WCCPanelMenu
+- (void)viewDidLoad { [super viewDidLoad];self.title=@"天气 · 设置";self.tableView.rowHeight=56; }
+- (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)section { return 9; }
+- (NSString *)tableView:(UITableView *)t titleForFooterInSection:(NSInteger)section { return @"只拖动顶部标题栏；面板外仍可操作控制中心。透明只影响设置面板背景，不改变天气模块。位置和透明偏好不写入布局方案。"; }
+- (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)index {
+    UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
+    cell.textLabel.text=@[@"天气来源 / 彩云 / 连接状态",@"位置 / 阴影 / 问候 / 方案",@"主图标大小",@"按天气名称管理绑定",@"自定义图标",@"设置面板背景",@"模块尺寸（列 × 行）",@"地标显示",@"用 Filza 打开素材目录"][index.row];
+    if(index.row==4 || index.row==5) {
+        UISwitch *toggle=[UISwitch new];toggle.tag=index.row;
+        toggle.on=index.row==5?WCCPanelTransparent():[WCCPrefs() boolForKey:@"customIcon"];
+        [toggle addTarget:self action:@selector(toggle:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=toggle;
+        if(index.row==5)cell.detailTextLabel.text=@"关闭：原背景 · 开启：透明背景";
+    } else cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
+    WCCPanelStyleCell(cell);return cell;
+}
+- (void)toggle:(UISwitch *)toggle {
+    [WCCPrefs() setBool:toggle.on forKey:toggle.tag==5?@"settingsPanelTransparent":@"customIcon"];[WCCPrefs() synchronize];
+    [NSNotificationCenter.defaultCenter postNotificationName:toggle.tag==5?@"WCCPanelStyleChanged":WCCPreferencesChanged object:nil];
+}
+- (void)tableView:(UITableView *)t willDisplayHeaderView:(UIView *)v forSection:(NSInteger)section { WCCPanelStyleSection(v); }
+- (void)tableView:(UITableView *)t willDisplayFooterView:(UIView *)v forSection:(NSInteger)section { WCCPanelStyleSection(v); }
+- (void)tableView:(UITableView *)t didSelectRowAtIndexPath:(NSIndexPath *)index {
+    [t deselectRowAtIndexPath:index animated:YES];UIViewController *page=nil;
+    if(index.row==0)page=[[WCCWeatherSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+    if(index.row==1)page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+    if(index.row==2)page=[WCCIconScaleController new];
+    if(index.row==3)page=[[WCCWeatherMappings alloc] initWithStyle:UITableViewStylePlain];
+    if(page){[self.navigationController pushViewController:page animated:YES];return;}
+    if(index.row==6)[WCCSettings sizesFrom:self completion:nil];
+    if(index.row==7)[WCCSettings modesFrom:self completion:nil];
+    if(index.row==8)[WCCSettings openFilzaFrom:self completion:nil];
+}
+@end
 @implementation WCCSettings
 + (void)presentFrom:(UIViewController *)p completion:(void (^)(void))completion {
-    UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。");
-    WCCAction(a, @"天气来源 / 彩云 / 连接状态", ^{ WCCAfterAlert(p, ^{
-        WCCWeatherSettings *page=[[WCCWeatherSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
-        page.onDone=^{ [self presentFrom:p completion:completion]; };
-        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
-        nav.modalPresentationStyle=UIModalPresentationPopover; nav.preferredContentSize=CGSizeMake(350,540);
-        UIPopoverPresentationController *pop=nav.popoverPresentationController;
-        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
-        pop.permittedArrowDirections=0; pop.delegate=page;
-        if(p.view.window && !p.presentedViewController)[p presentViewController:nav animated:YES completion:nil];
-    }); });
-    WCCAction(a, @"位置 / 文字阴影 / 问候 / 方案", ^{ WCCAfterAlert(p, ^{
-        WCCRegionSettings *page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
-        page.onDone=^{ [self presentFrom:p completion:completion]; };
-        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
-        nav.modalPresentationStyle=UIModalPresentationPopover; nav.preferredContentSize=CGSizeMake(340,480);
-        UIPopoverPresentationController *pop=nav.popoverPresentationController;
-        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
-        pop.permittedArrowDirections=0; pop.delegate=page;
-        if(p.view.window && !p.presentedViewController)[p presentViewController:nav animated:YES completion:nil];
-    }); });
-    WCCAction(a, @"自定义图标", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
-    WCCAction(a, @"模块尺寸（列 × 行）", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); });
-    WCCAction(a, @"地标显示", ^{ WCCAfterAlert(p, ^{ [self modesFrom:p completion:completion]; }); });
-    [a addAction:[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) { WCCAfterAlert(p, completion); }]];
-    WCCShow(p, a);
+    if([p isKindOfClass:WCCPanelMenu.class])return;
+    [WCCFloatingPanel openFor:p root:[[WCCPanelMenu alloc] initWithStyle:UITableViewStyleInsetGrouped] completion:completion];
 }
 + (void)back:(UIAlertController *)a from:(UIViewController *)p completion:(void (^)(void))completion {
     [a addAction:[UIAlertAction actionWithTitle:@"返回" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {

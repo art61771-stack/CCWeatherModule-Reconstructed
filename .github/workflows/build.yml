@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.0 rootless
+name: CCWeatherModule 1.2.1 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -21,14 +21,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p verification
-          sh evidence/run120-foundation.sh 2>&1 | tee verification/foundation120.txt
+          sh evidence/run121-foundation.sh 2>&1 | tee verification/foundation121.txt
           sh evidence/run120-source.sh 2>&1 | tee verification/source120.txt
-          python3 evidence/test120_settings.py | tee verification/settings120.txt
+          python3 evidence/test121_settings.py | tee verification/settings121.txt
           python3 evidence/test120_source.py | tee verification/source120-static.txt
           for test in layout boundary; do
             cc -std=gnu11 -Wall -Wextra evidence/runtime120-$test.c -lm -o /tmp/runtime120-$test
             /tmp/runtime120-$test | tee verification/runtime120-$test.txt
           done
+          cc -Wall -Wextra -Werror evidence/runtime121.c -lm -o /tmp/runtime121
+          /tmp/runtime121 | tee verification/runtime121.txt
           make package FINALPACKAGE=1 2>&1 | tee build.log
           mkdir -p verification
           cc -Wall -Wextra -Werror evidence/runtime115.c -lm -o /tmp/runtime115
@@ -64,11 +66,11 @@ jobs:
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo 'UIKit120Tests: NOT RUN (no executable iOS16 XCTest target); no iOS17/18 substitute. Real Keychain and Caiyun live API: NOT RUN. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+          echo 'UIKit121Tests: NOT RUN (no executable iOS16 XCTest target); no iOS17/18 substitute. Real Keychain and Caiyun live API: NOT RUN. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.0-rootless
+          name: CCWeatherModule-1.2.1-rootless
           path: |
             packages/*.deb
             verification/*

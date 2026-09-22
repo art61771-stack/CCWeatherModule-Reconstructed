@@ -1,3 +1,4 @@
+#import "WCCFloatingPanel.h"
 #import "WCCWeatherSettings.h"
 #import "WCCWeatherSource.h"
 #import "WCCPreferences.h"
@@ -28,7 +29,7 @@
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
 - (void)changed { [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(2,2)] withRowAnimation:UITableViewRowAnimationNone]; }
-- (void)done { self.fields[0].text=@""; [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (void)done { self.fields[0].text=@""; [self.navigationController popViewControllerAnimated:YES]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 4; }
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==0?1:section==1?4:section==2?4:1; }
@@ -71,4 +72,9 @@
         [self presentViewController:a animated:YES completion:nil];
     } else [s refreshManual:YES];
 }
+- (void)clearSensitiveInput { for(UITextField *field in self.fields)field.text=@""; }
+- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated];self.fields[0].text=@""; }
+- (void)tableView:(UITableView *)table willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)index { WCCPanelStyleCell(cell); }
+- (void)tableView:(UITableView *)table willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section { WCCPanelStyleSection(view); }
+- (void)tableView:(UITableView *)table willDisplayFooterView:(UIView *)view forSection:(NSInteger)section { WCCPanelStyleSection(view); }
 @end

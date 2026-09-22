@@ -1,4 +1,16 @@
-# CCWeatherModule 1.2.0 / build120 — 彩云与独立展示控制
+# CCWeatherModule 1.2.1 / build121 — 浮动设置、主图250%与文字阴影
+
+双指打开自有浮动设置；根页与调参/天气来源/方案子页共享顶部抓手，可在窗口安全区移动。只在抓手非控件区域接受单指拖动，避免slider/table争抢；归一化位置保存在偏好，旋转及键盘出现重新夹紧。面板不是模态遮罩，不暂停底层天气预览；透明开关清除自有surface/header/nav/table/cell背景，不降低整view alpha，不窥探UIAlert私有子视图。关闭、host消失/CC关闭和失活清理面板与敏感草稿。
+
+折叠主图50–250%步5，100%位于滑条中点（左半50→100，右半100→250）；展开保持50–150%，小时30pt不变。原图/custom/fallback共享安全边界；v2方案合法保存/读取250，v1迁移保留旧范围。生产测试由configurations121和runtime121覆盖；旧120文件原样保留，仅旧slider调用形状断言以121替代。
+
+发现：120控制器使用UILabel.shadowColor且位移仅0.5pt；未接入的121 shadow模块也未列入Makefile。121已改用自有六个标签的单一CALayer阴影，清除双重UILabel阴影、masksToBounds关闭，三组独立、默认关，关闭恢复首次开启前状态；保存通知在commit成功之后应用，布局/展开/换源重新应用。真机“开关无变化”的具体根因仍未证实：不能把代码发现当成iOS16.6视觉验证。Foundation mock UILabel +真实CALayer测试验证实际生产开关/独立/重复应用/恢复，不等同UIKit渲染测试。
+
+彩云官方图标尚未完成：官方v2.6只确认skycon，没有可确认完整可分发官方图标集/URL。继续使用skycon→旧bundle/SF与用户自定义绑定，**不是彩云官方素材**。需用户提供图标包与来源/授权后另接；不提取私有App，不以第三方素材冒充。CYCaiyunProvider/WCCWeatherSource与120保持字节一致，Keychain、坐标及网络链不改。
+
+测试包rootless双arm64/arm64e、control-only、非原生RootHide；iOS16.6真机、UIKit实际交互/视觉：NOT RUN；不以iOS18代替。以下120介绍仅为历史，不代表121范围。
+
+## 1.2.0 / build120 历史
 
 默认系统天气。设置 → 天气来源/彩云：自行填写彩云 Token、经度和纬度及可选地点别名，保存/应用后使用“测试已保存连接”或刷新；输入草稿与布局不发网络。Token仅存Keychain，不内置、不回显、不入偏好或方案；删除需确认。系统↔彩云、Token/坐标变更取消旧代际回调。官方固定HTTPS v2.6综合接口、拒绝重定向、解码2MiB限制；成功缓存15分钟、单飞、手动至少60秒，错误脱敏。主图与小时来自同一快照，不混系统城市；缺值--，probability=1显示1%，按目标时区/skycon/astro处理昼夜。
 

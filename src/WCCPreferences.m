@@ -37,14 +37,14 @@ BOOL WCCResetRegionOffsets(NSInteger region) {
 double WCCMainIconPercentForMode(BOOL expanded) {
     id v=[WCCPrefs() objectForKey:WCCScaleKeys()[expanded?1:0]];
     if(!v)v=[WCCPrefs() objectForKey:@"mainCustomIconPercent"];
-    return WCCNumber(v)?WCCNormalizeIconPercent([v doubleValue]):100;
+    return WCCNumber(v)?WCCNormalizeIconPercentForMode(expanded,[v doubleValue]):100;
 }
 double WCCMainIconPercent(void) { return WCCMainIconPercentForMode(NO); }
 BOOL WCCSetMainIconPercentForMode(BOOL expanded,double value) {
     if(!isfinite(value))return NO;
     // Materialize BOTH migration defaults atomically before editing one mode.
     NSMutableDictionary *v=[@{WCCScaleKeys()[0]:@(WCCMainIconPercentForMode(NO)),WCCScaleKeys()[1]:@(WCCMainIconPercentForMode(YES))} mutableCopy];
-    v[WCCScaleKeys()[expanded?1:0]]=@(WCCNormalizeIconPercent(value));
+    v[WCCScaleKeys()[expanded?1:0]]=@(WCCNormalizeIconPercentForMode(expanded,value));
     BOOL ok=WCCCommitPartial(v);if(ok)WCCNotify(WCCMainIconScaleChanged);return ok;
 }
 BOOL WCCSetMainIconPercent(double value) { return WCCSetMainIconPercentForMode(NO,value); }
@@ -84,7 +84,7 @@ NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger versi
     }
     for(NSString *key in WCCScaleKeys()) {
         id v=input[version==1?@"mainCustomIconPercent":key]?:@100;double n=WCCNumber(v)?[v doubleValue]:NAN;
-        if(!isfinite(n) || n!=WCCNormalizeIconPercent(n))return nil;out[key]=@(n);
+        if(!isfinite(n) || n!=WCCNormalizeIconPercentForMode(version==1 || [key isEqual:@"mainIconExpandedPercent"],n))return nil;out[key]=@(n);
     }
     for(NSString *key in [WCCShadowKeys() arrayByAddingObject:@"customGreetingEnabled"]) {
         id v=input[key]?:@NO;

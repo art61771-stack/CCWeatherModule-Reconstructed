@@ -1,3 +1,4 @@
+#import "WCCFloatingPanel.h"
 #import "WCCRegionSettings.h"
 #import "WCCPreferences.h"
 #import "WCCConfigurations.h"
@@ -11,7 +12,7 @@
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(sync) name:WCCMainIconScaleChanged object:nil];
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
-- (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
+- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
 - (void)sync { [self.tableView reloadData]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
@@ -137,4 +138,7 @@
     if(index.section==6 && index.row==1)[self editGreeting];
     if(index.section==4){ if(index.row==0)[self saveName]; else if(index.row==1)[self plans]; else [self confirm:@"重置全部八个位置？" work:^{[self resetRegion:-1];}]; }
 }
+- (void)tableView:(UITableView *)table willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)index { WCCPanelStyleCell(cell); }
+- (void)tableView:(UITableView *)table willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section { WCCPanelStyleSection(view); }
+- (void)tableView:(UITableView *)table willDisplayFooterView:(UIView *)view forSection:(NSInteger)section { WCCPanelStyleSection(view); }
 @end

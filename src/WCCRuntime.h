@@ -167,7 +167,19 @@ static inline WCCRect WCCRegionTranslation(WCCRect baseline,double width,double 
     return WCCR(WCCRegionHorizontalAxis(baseline.x,baseline.w,width,x),
                 WCCRegionAxis(baseline.y,baseline.h,height,y),0,0);
 }
-/* Persisted percentage: the real numeric midpoint is 100, with five-point steps. */
+static inline double WCCNormalizeIconPercentForMode(int expanded,double value) {
+    if (!isfinite(value) || value<50 || value>(expanded?150:250)) return 100;
+    return round(value/5)*5;
+}
+static inline double WCCCollapsedSliderPercent(double position) {
+    position=fmax(-1,fmin(1,position));
+    return WCCNormalizeIconPercentForMode(0,100+position*(position<0?50:150));
+}
+static inline double WCCCollapsedSliderPosition(double percent) {
+    percent=WCCNormalizeIconPercentForMode(0,percent);
+    return (percent-100)/(percent<100?50:150);
+}
+/* Legacy and expanded range stays 50..150. */
 static inline double WCCNormalizeIconPercent(double value) {
     if (!isfinite(value) || value<50 || value>150) return 100;
     return round(value/5)*5;
@@ -191,9 +203,12 @@ static inline WCCRect WCCMainIconTarget(WCCRect baseline,double width,double hei
     // Scale the baseline first, independently of its position request. Clamp
     // horizontal translation against the COMPLETE scaled rectangle, so 50%
     // and 150% both reach the exact header edges without clipping or resizing.
-    double clearance=fmax(0,fmin(fmin(baseline.x,baseline.y),
-        fmin(width-baseline.x-baseline.w,height-baseline.y-baseline.h)));
-    WCCRect local=WCCScaledMainIcon(baseline,percent,clearance);
+    double scale=WCCNormalizeIconPercentForMode(expanded,percent)/100.;
+    // Only the container boundary limits size; text clearance never caps 250%.
+    if(baseline.w>0 && baseline.h>0)
+        scale=fmin(scale,fmin(width/baseline.w,height/baseline.h));
+    WCCRect local=WCCR((baseline.w-baseline.w*scale)/2,(baseline.h-baseline.h*scale)/2,
+                       baseline.w*scale,baseline.h*scale);
     WCCRect target=WCCR(baseline.x+local.x,baseline.y+local.y,local.w,local.h);
     if (!expanded) {
         target.x+=WCCRegionHorizontalAxis(target.x,target.w,width,x);
@@ -201,6 +216,8 @@ static inline WCCRect WCCMainIconTarget(WCCRect baseline,double width,double hei
         double dy=WCCRegionAxis(baseline.y,baseline.h,height,y);
         target.y+=fmax(fmin(0,-target.y),fmin(fmax(0,height-target.y-target.h),dy));
     }
+    target.x=fmax(0,fmin(width-target.w,target.x));
+    target.y=fmax(0,fmin(height-target.h,target.y));
     return target;
 }
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
