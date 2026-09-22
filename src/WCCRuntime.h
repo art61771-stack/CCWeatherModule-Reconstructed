@@ -144,12 +144,12 @@ static inline WCCGeometry WCCBalanceMeasuredStrip(WCCGeometry g,double width,dou
  * legacy geometry already exceeding a boundary. Oversize baseline unions may
  * move only within their existing overflow; never shrink text or icon frames. */
 static inline double WCCNormalizeRegionOffset(double value) {
-    return isfinite(value) && value>=-40 && value<=40 ? round(value) : 0;
+    return isfinite(value) ? round(fmax(-40, fmin(40, value))) : 0;
 }
 enum { WCCMaximumHorizontalOffset = 1366 };
 static inline double WCCNormalizePositionOffset(int index,double value) {
     double limit=(index%2)==0 ? WCCMaximumHorizontalOffset : 40;
-    return index>=0 && index<8 && isfinite(value) && value>=-limit && value<=limit ? round(value) : 0;
+    return index>=0 && index<8 && isfinite(value) ? round(fmax(-limit, fmin(limit, value))) : 0;
 }
 static inline double WCCRegionAxis(double origin,double length,double bound,double request) {
     request=WCCNormalizeRegionOffset(request);

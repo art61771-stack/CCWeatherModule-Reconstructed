@@ -59,7 +59,7 @@ BOOL WCCSetTextShadowEnabled(NSInteger group,BOOL enabled) {
 }
 NSString *WCCCustomGreetingText(void) {
     id v=[WCCPrefs() objectForKey:@"customGreetingText"];
-    return [v isKindOfClass:NSString.class] && [v length]<=80?v:@"";
+    return [v isKindOfClass:NSString.class] && [v length]<=80?v:"";
 }
 BOOL WCCCustomGreetingEnabled(void) {
     id v=[WCCPrefs() objectForKey:@"customGreetingEnabled"];
@@ -72,6 +72,54 @@ BOOL WCCSetCustomGreeting(BOOL enabled,NSString *text) {
     BOOL ok=WCCCommitPartial(@{@"customGreetingEnabled":@(enabled),@"customGreetingText":text});
     if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
 }
+NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger version) {
+    if(![input isKindOfClass:NSDictionary.class] || (version!=1 && version!=2))return nil;
+    NSArray *keys=version==1?[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"]:[[[WCCRegionPositionKeys() arrayByAddingObjectsFromArray:WCCScaleKeys()] arrayByAddingObjectsFromArray:WCCShadowKeys()] arrayByAddingObjectsFromArray:@[@"customGreetingEnabled",@"customGreetingText"]];
+    for(id key in input)if(![keys containsObject:key])return nil;
+    NSMutableDictionary *out=[NSMutableDictionary dictionary];
+    for(NSInteger i=0;i<8;i++) {
+        id v=input[WCCRegionPositionKeys()[i]]?:@0;double n=WCCNumber(v)?[v doubleValue]:NAN;
+        if(!isfinite(n) || n!=WCCNormalizePositionOffset((int)i,n) || (version==1 && fabs(n)>40))return nil;
+        out[WCCRegionPositionKeys()[i]]=@(n);
+    }
+    for(NSString *key in WCCScaleKeys()) {
+        id v=input[version==1?@"mainCustomIconPercent":key]?:@100;double n=WCCNumber(v)?[v doubleValue]:NAN;
+        if(!isfinite(n) || n!=WCCNormalizeIconPercentForMode(version==1 || [key isEqual:@"mainIconExpandedPercent"],n))return nil;out[key]=@(n);
+    }
+    for(NSString *key in [WCCShadowKeys() arrayByAddingObject:@"customGreetingEnabled"]) {
+        id v=input[key]?:@NO;
+        if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;out[key]=v;
+    }
+    id text=input[@"customGreetingText"]?:@"";
+    if(![text isKindOfClass:NSString.class] || [text length]>80 || [text rangeOfCharacterFromSet:NSCharacterSet.controlCharacterSet].location!=NSNotFound)return nil;
+    if([out[@"customGreetingEnabled"] boolValue] && ![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length)return nil;
+    out[@"customGreetingText"]=text;return out;
+}
+// Custom Greeting List Functions
+BOOL WCCCustomGreetingList() {
+    id v=[WCCPrefs() objectForKey:@"customGreetingList"];
+    if(![v isKindOfClass:NSArray.class]) return NO;
+    return YES;
+}
+BOOL WCCSetCustomGreetingList(NSArray *list) {
+    if(![list isKindOfClass:NSArray.class]) return NO;
+    id v=[WCCPrefs() objectForKey:@"customGreetingList"];
+    if(![v isKindOfClass:NSArray.class]) return NO;
+    BOOL ok=WCCCommitPartial(@{@"customGreetingList":@list});
+    if(ok)WCCNotify(WCCCustomGreetingRandomEnabled); return ok;
+}
+BOOL WCCCustomGreetingRandomEnabled() {
+    id v=[WCCPrefs() objectForKey:@"customGreetingRandomEnabled"];
+    return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID() && [v boolValue];
+}
+BOOL WCCSetCustomGreetingRandomEnabled(BOOL enabled) {
+    if(![enabled isKindOfClass:NSNumber.class]) return NO;
+    id v=[WCCPrefs() objectForKey:@"customGreetingRandomEnabled"];
+    if(![v isKindOfClass:NSNumber.class]) return NO;
+    BOOL ok=WCCCommitPartial(@{@"customGreetingRandomEnabled":@(enabled)});
+    if(ok)WCCNotify(WCCCustomGreetingRandomEnabled); return ok;
+}
+
 NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger version) {
     if(![input isKindOfClass:NSDictionary.class] || (version!=1 && version!=2))return nil;
     NSArray *keys=version==1?[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"]:[[[WCCRegionPositionKeys() arrayByAddingObjectsFromArray:WCCScaleKeys()] arrayByAddingObjectsFromArray:WCCShadowKeys()] arrayByAddingObjectsFromArray:@[@"customGreetingEnabled",@"customGreetingText"]];
@@ -145,13 +193,13 @@ BOOL WCCSetSelectedSize(NSString *size) {
 WCCLayoutSize WCCEffectiveSize(void) {
     // One process-wide snapshot shared by container size and content geometry.
     static WCCLayoutSize size; static dispatch_once_t once;
-    dispatch_once(&once, ^{
+    dispatch_once(&once, ^
         size=(WCCLayoutSize){4,1};
         if ([WCCPrefs() boolForKey:@"customSize"]) {
             NSArray *parts=[WCCSelectedSize() componentsSeparatedByString:@"x"];
             size=(WCCLayoutSize){[parts[0] integerValue],[parts[1] integerValue]};
         }
-    });
+    );
     return size;
 }
 BOOL WCCAllowedRoot(NSString *path) {
@@ -168,10 +216,10 @@ NSString *WCCRoot(void) {
 }
 NSString *WCCCheckedPath(NSString *root, NSString *name, NSString **reason) {
     if (reason) *reason = nil;
-    if (!WCCAllowedRoot(root)) { if (reason) *reason = @"素材目录不在约定位置（或目录符号链接指向外部）"; return nil; }
+    if (!WCCAllowedRoot(root)) { if (reason) *reason = @"素材目录不在约定位置（或目录符号链接指向外部」"; return nil; }
     char resolved[PATH_MAX];
     WCCFileResult result = WCCValidateFile(root.fileSystemRepresentation,
-        [name isKindOfClass:NSString.class] ? name.fileSystemRepresentation : NULL, resolved, sizeof(resolved));
+        [name isKindOfClass:NSString.class] ? name.fileSystemRepresentation : NULL, resolved, sizeof(resolved)];
     if (result == WCCFileOK) return [NSFileManager.defaultManager stringWithFileSystemRepresentation:resolved length:strlen(resolved)];
     NSArray *reasons = @[@"", @"文件名无效", @"目录不存在或无法读取", @"符号链接越出素材目录", @"不支持的扩展名（支持 PNG/JPG/JPEG/GIF/MP4）", @"文件不存在、链接失效或无法取得属性", @"不是普通文件（不递归子目录）", @"空文件", @"文件超过8MB", @"文件读取失败，请检查权限"];
     if (reason) *reason = reasons[result];
@@ -186,11 +234,11 @@ NSString *WCCAssetKey(NSInteger code, BOOL night) {
 }
 NSArray<NSString *> *WCCAssetKeys(void) {
     static NSArray *keys; static dispatch_once_t once;
-    dispatch_once(&once, ^{
+    dispatch_once(&once, ^
         NSMutableOrderedSet *set=[NSMutableOrderedSet orderedSet];
         for (NSInteger code=0; code<48; code++) for (NSInteger night=0; night<2; night++) [set addObject:WCCAssetKey(code,night)];
         keys=set.array;
-    }); return keys;
+    ); return keys;
 }
 NSString *WCCMappedNameForKey(NSDictionary *mappings, NSString *key) {
     if (![key isKindOfClass:NSString.class] || ![WCCAssetKeys() containsObject:key] || ![mappings isKindOfClass:NSDictionary.class]) return nil;
@@ -206,3 +254,5 @@ BOOL WCCSetMappedName(NSString *key, NSString *name) {
     [WCCPrefs() setObject:map forKey:@"weatherIconMappings"];
     return [WCCPrefs() synchronize];
 }
+
+minis_url: minis://workspace/CCWeatherModule-Reconstructed/src/WCCPreferences.m

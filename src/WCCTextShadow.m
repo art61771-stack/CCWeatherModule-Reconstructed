@@ -10,10 +10,12 @@
 @property(nonatomic) CGFloat radius;
 @property(nonatomic) BOOL masks;
 @property(nonatomic,strong) id path;
+@property(nonatomic) BOOL glowEnabled;
+@property(nonatomic) CGFloat glowRadius;
 @end
 @implementation WCCTextShadowState @end
 static char WCCTextShadowKey;
-void WCCApplyTextShadow(UILabel *label, BOOL enabled) {
+void WCCApplyTextShadow(UILabel *label, BOOL enabled, int group, CGFloat glowRadius) {
     if(!label)return;
     CALayer *layer=label.layer;
     WCCTextShadowState *state=objc_getAssociatedObject(label,&WCCTextShadowKey);
@@ -24,7 +26,7 @@ void WCCApplyTextShadow(UILabel *label, BOOL enabled) {
             state=[WCCTextShadowState new];state.labelColor=label.shadowColor;state.labelOffset=label.shadowOffset;
             state.layerColor=layer.shadowColor?[UIColor colorWithCGColor:layer.shadowColor]:nil;
             state.layerOffset=layer.shadowOffset;state.opacity=layer.shadowOpacity;state.radius=layer.shadowRadius;
-            state.masks=layer.masksToBounds;state.path=(__bridge id)layer.shadowPath;
+            state.masks=layer.masksToBounds;state.path=(__bridge id)layer.shadowPath;state.glowRadius=glowRadius;state.glowEnabled=glowRadius>0;
             objc_setAssociatedObject(label,&WCCTextShadowKey,state,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
         // Resolve the current trait collection now: a CGColor cannot be dynamic.

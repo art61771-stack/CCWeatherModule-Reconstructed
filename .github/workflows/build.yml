@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.2 rootless
+name: CCWeatherModule 1.2.3 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -69,11 +69,11 @@ jobs:
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo 'UIKit122Tests: NOT RUN (no executable iOS16 XCTest target); no iOS17/18 substitute. Real Keychain and Caiyun live API: NOT RUN. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+          echo 'UIKit123Tests: NOT RUN (no executable iOS16 XCTest target); no iOS17/18 substitute. Real Keychain and Caiyun live API: NOT RUN. Negative slider direction, multi-line random greeting and text shadow glow: NOT RUN on real device. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.2-rootless
+          name: CCWeatherModule-1.2.3-rootless
           path: |
             packages/*.deb
             verification/*
