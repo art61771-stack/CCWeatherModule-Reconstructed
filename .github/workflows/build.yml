@@ -44,7 +44,7 @@ jobs:
           /tmp/hourly118 | tee verification/hourly118.txt
           cc -Wall -Wextra -Werror evidence/layout118.c -lm -o /tmp/layout118
           /tmp/layout118 | tee verification/layout118.txt
-          python3 evidence/test118_ui.py | tee verification/ui118.txt
+          python3 evidence/test122_ui.py | tee verification/ui118.txt
           git diff --exit-code -- evidence/hourly118-generated.m
           cc -Wall -Wextra -Werror evidence/hourly116.c -o /tmp/hourly116
           /tmp/hourly116 | tee verification/hourly116.txt
