@@ -3,6 +3,14 @@
 #import "../src/WCCRuntime.h"
 #import "../src/WCCHourly.h"
 #import <CoreGraphics/CoreGraphics.h>
+// Dependency stub only; production source coordinator is tested separately by source120.
+@interface WCCWeatherSource:NSObject
+@property BOOL caiyun;
++(instancetype)shared;
+@end
+@implementation WCCWeatherSource
++(instancetype)shared { static WCCWeatherSource *s; if(!s)s=[self new]; return s; }
+@end
 enum { NSTextAlignmentCenter, UIViewContentModeScaleAspectFit, UIFontWeightMedium, UIImageSymbolWeightRegular };
 static NSString *loadedName;
 @interface UIView:NSObject
@@ -56,10 +64,12 @@ static UILabel *WCCLabel(double s,int w,double a){return [UILabel new];}
 @end
 @interface UIImage:NSObject
 +(id)imageNamed:(NSString*)n inBundle:(id)b compatibleWithTraitCollection:(id)c;
++(id)systemImageNamed:(NSString*)n;
 +(id)systemImageNamed:(NSString*)n withConfiguration:(id)c;
 @end
 @implementation UIImage
 +(id)imageNamed:(NSString*)n inBundle:(id)b compatibleWithTraitCollection:(id)c{loadedName=n;return [self new];}
++(id)systemImageNamed:(NSString*)n{return [self new];}
 +(id)systemImageNamed:(NSString*)n withConfiguration:(id)c{return [self new];}
 @end
 @interface UIImageView:UIView
@@ -118,6 +128,7 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
 @property id presentedViewController;
 -(UIView*)createHourlyItemWithForecast:(id)f isNow:(BOOL)n formatter:(NSDateFormatter*)fmt;
 -(void)refreshHourlyMedia;
+-(UIImage *)caiyunImage:(NSDictionary *)condition;
 @end
 @implementation Harness
 -(NSString*)temperatureString:(id)t{return @"26°";}

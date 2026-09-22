@@ -3,6 +3,14 @@
 #import "../src/WCCRuntime.h"
 #import "../src/WCCHourly.h"
 #import <CoreGraphics/CoreGraphics.h>
+// Dependency stub only; production source coordinator is tested separately by source120.
+@interface WCCWeatherSource:NSObject
+@property BOOL caiyun;
++(instancetype)shared;
+@end
+@implementation WCCWeatherSource
++(instancetype)shared { static WCCWeatherSource *s; if(!s)s=[self new]; return s; }
+@end
 enum { NSTextAlignmentCenter, UIViewContentModeScaleAspectFit, UIFontWeightMedium, UIImageSymbolWeightRegular };
 static NSString *loadedName;
 @interface UIView:NSObject
@@ -56,10 +64,12 @@ static UILabel *WCCLabel(double s,int w,double a){return [UILabel new];}
 @end
 @interface UIImage:NSObject
 +(id)imageNamed:(NSString*)n inBundle:(id)b compatibleWithTraitCollection:(id)c;
++(id)systemImageNamed:(NSString*)n;
 +(id)systemImageNamed:(NSString*)n withConfiguration:(id)c;
 @end
 @implementation UIImage
 +(id)imageNamed:(NSString*)n inBundle:(id)b compatibleWithTraitCollection:(id)c{loadedName=n;return [self new];}
++(id)systemImageNamed:(NSString*)n{return [self new];}
 +(id)systemImageNamed:(NSString*)n withConfiguration:(id)c{return [self new];}
 @end
 @interface UIImageView:UIView
@@ -118,6 +128,7 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
 @property id presentedViewController;
 -(UIView*)createHourlyItemWithForecast:(id)f isNow:(BOOL)n formatter:(NSDateFormatter*)fmt;
 -(void)refreshHourlyMedia;
+-(UIImage *)caiyunImage:(NSDictionary *)condition;
 @end
 @implementation Harness
 -(NSString*)temperatureString:(id)t{return @"26°";}
@@ -137,6 +148,7 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
         return [UIImage imageNamed:name inBundle:[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/WeatherUI.framework"] compatibleWithTraitCollection:nil];
     } @catch (NSException *exception) { return nil; }
 }
+- (UIImage *)caiyunImage:(NSDictionary *)condition;
 - (UIView *)createHourlyItemWithForecast:(id)forecast isNow:(BOOL)isNow formatter:(NSDateFormatter *)formatter {
     WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;
@@ -235,6 +247,13 @@ int main(void){@autoreleasepool{
   assert(i.media.frame.origin.x==12 && i.media.frame.origin.y==22 && i.media.frame.size.width==30);
  }
  [h.hourlyItems removeAllObjects];
+ WCCWeatherSource.shared.caiyun=YES; h->_currentCity.isDay=YES;
+ NSDictionary *hour=@{@"time":@"23时",@"temperature":@"--",@"condition":@{@"basename":@"night_clear",@"symbol":@"moon.fill"}};
+ WCCHourlyItem *cy=(id)[h createHourlyItemWithForecast:hour isNow:NO formatter:[NSDateFormatter new]];
+ assert([cy.assetKey isEqual:@"night_clear"] && [loadedName isEqual:@"night_clear"]);
+ assert([cy.timeLabel.text isEqual:@"23时"] && [cy.temperatureLabel.text isEqual:@"--"]);
+ assert(cy.originalIcon.image && cy.media.frame.size.width==30);
+ WCCWeatherSource.shared.caiyun=NO; [h.hourlyItems removeAllObjects];
  for(int code=9;code<15;code++){
   Forecast*f=[Forecast new];f.conditionCode=code;WCCHourlyItem*i=(id)[h createHourlyItemWithForecast:f isNow:YES formatter:[NSDateFormatter new]];
   i.frame=CGRectMake((code-9)*55,0,55,80);i.cachedPath=@"fixture.png";i.cachedIdentity=[NSString stringWithFormat:@"%d",code];

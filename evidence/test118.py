@@ -23,7 +23,7 @@ assert 'WCCHourlyAnimatedLimit' not in s
 pre=(r/'evidence/hourly118-stub.inc').read_text()
 post=(r/'evidence/hourly118-main.inc').read_text()
 keymethod=(r/'src/ConditionTables.m').read_text().split('- (NSString *)imageNameForConditionCode:',1)[1].split('\n@end',1)[0]
-out=pre+'\n- (NSString *)imageNameForConditionCode:'+keymethod+'\n'+resolver+'\n'+create+'\n'+refresh+'\n'+method('- (void)scheduleHourlyLayoutValidation {')+'\n'+method('- (void)didTransitionToExpandedContentMode:')+'\n@end\n'+post
+out=pre+'\n- (NSString *)imageNameForConditionCode:'+keymethod+'\n'+resolver+'\n'+method('- (UIImage *)caiyunImage:')+'\n'+create+'\n'+refresh+'\n'+method('- (void)scheduleHourlyLayoutValidation {')+'\n'+method('- (void)didTransitionToExpandedContentMode:')+'\n@end\n'+post
 if '--generate' in sys.argv:
     (r/'evidence/hourly118-generated.m').write_text(out)
 print('PASS 118 source linkage; Objective-C executable requires macOS Foundation; iOS16 NOT RUN')

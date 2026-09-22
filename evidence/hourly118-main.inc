@@ -12,6 +12,13 @@ int main(void){@autoreleasepool{
   assert(i.media.frame.origin.x==12 && i.media.frame.origin.y==22 && i.media.frame.size.width==30);
  }
  [h.hourlyItems removeAllObjects];
+ WCCWeatherSource.shared.caiyun=YES; h->_currentCity.isDay=YES;
+ NSDictionary *hour=@{@"time":@"23时",@"temperature":@"--",@"condition":@{@"basename":@"night_clear",@"symbol":@"moon.fill"}};
+ WCCHourlyItem *cy=(id)[h createHourlyItemWithForecast:hour isNow:NO formatter:[NSDateFormatter new]];
+ assert([cy.assetKey isEqual:@"night_clear"] && [loadedName isEqual:@"night_clear"]);
+ assert([cy.timeLabel.text isEqual:@"23时"] && [cy.temperatureLabel.text isEqual:@"--"]);
+ assert(cy.originalIcon.image && cy.media.frame.size.width==30);
+ WCCWeatherSource.shared.caiyun=NO; [h.hourlyItems removeAllObjects];
  for(int code=9;code<15;code++){
   Forecast*f=[Forecast new];f.conditionCode=code;WCCHourlyItem*i=(id)[h createHourlyItemWithForecast:f isNow:YES formatter:[NSDateFormatter new]];
   i.frame=CGRectMake((code-9)*55,0,55,80);i.cachedPath=@"fixture.png";i.cachedIdentity=[NSString stringWithFormat:@"%d",code];
