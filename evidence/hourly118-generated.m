@@ -148,7 +148,11 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
         return [UIImage imageNamed:name inBundle:[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/WeatherUI.framework"] compatibleWithTraitCollection:nil];
     } @catch (NSException *exception) { return nil; }
 }
-- (UIImage *)caiyunImage:(NSDictionary *)condition;
+- (UIImage *)caiyunImage:(NSDictionary *)condition {
+    NSString *key=condition[@"basename"];
+    UIImage *image=key.length?[UIImage imageNamed:key inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil]:nil;
+    return image ?: [UIImage systemImageNamed:condition[@"symbol"]?:@"cloud.fill"] ?: [UIImage systemImageNamed:@"cloud.fill"];
+}
 - (UIView *)createHourlyItemWithForecast:(id)forecast isNow:(BOOL)isNow formatter:(NSDateFormatter *)formatter {
     WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;

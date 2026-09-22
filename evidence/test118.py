@@ -6,7 +6,9 @@ import sys
 r=Path(__file__).resolve().parents[1]
 s=(r/'src/WCCContentViewController.m').read_text()
 def method(signature):
-    start=s.index(signature); end=s.find('\n- (',start+1)
+    # Skip interface forward declarations; extract only production implementations.
+    start=s.index(signature,s.index('@implementation WCCContentViewController')); end=s.find('\n- (',start+1)
+    assert '{' in s[start:s.find('\n',start)], 'Expected method implementation, not declaration'
     if end<0: end=s.index('\n@end',start)
     return s[start:end]
 resolver=method('- (UIImage *)systemWeatherImageForConditionCode:(NSInteger)code selectedAssetKey:')
