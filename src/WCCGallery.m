@@ -1,3 +1,4 @@
+#import "WCCFloatingPanel.h"
 #import "WCCGallery.h"
 #import "WCCPreferences.h"
 #import "WCCMedia.h"
@@ -22,6 +23,11 @@
     _table=[[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain]; _table.dataSource=self; _table.delegate=self; [self.view addSubview:_table];
     self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reload)];
     [self reload];
+}
+- (void)applySettingsPanelStyle {
+    _table.backgroundColor=WCCPanelTransparent()?UIColor.clearColor:UIColor.systemBackgroundColor;
+    _status.textColor=WCCPanelTransparent()?UIColor.whiteColor:UIColor.secondaryLabelColor;
+    [_table reloadData];
 }
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews]; CGFloat top=self.view.safeAreaInsets.top,w=self.view.bounds.size.width;
@@ -63,7 +69,7 @@
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return _names.count; }
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[table dequeueReusableCellWithIdentifier:@"file"] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"file"];
-    cell.textLabel.text=_names[index.row]; cell.textLabel.numberOfLines=2; cell.detailTextLabel.text=@"轻触应用 · 原生预览 GIF / MP4 / 图片"; cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; return cell;
+    cell.textLabel.text=_names[index.row]; cell.textLabel.numberOfLines=2; cell.detailTextLabel.text=@"轻触应用 · 原生预览 GIF / MP4 / 图片"; cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; WCCPanelStyleCell(cell); return cell;
 }
 - (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section { return _scanMessage; }
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)index { [table deselectRowAtIndexPath:index animated:YES]; [self choose:index.row]; }

@@ -7,6 +7,7 @@
 @property(nonatomic,strong) NSArray<UITextField *> *fields;
 @end
 @implementation WCCWeatherSettings
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
 - (void)viewDidLoad {
     [super viewDidLoad]; self.title=@"天气来源";
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(done)];
@@ -29,7 +30,7 @@
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
 - (void)changed { [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(2,2)] withRowAnimation:UITableViewRowAnimationNone]; }
-- (void)done { self.fields[0].text=@""; [self.navigationController popViewControllerAnimated:YES]; }
+- (void)done { self.fields[0].text=@""; void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 4; }
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==0?1:section==1?4:section==2?4:1; }

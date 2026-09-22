@@ -2,8 +2,6 @@
 #import <dlfcn.h>
 #import "WCCPreferences.h"
 #import "WCCSettings.h"
-#import "WCCFloatingPanel.h"
-#import "WCCTextShadow.h"
 #import "WCCMedia.h"
 #import "WCCRuntime.h"
 #import "WCCHostObserver.h"
@@ -171,7 +169,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)hostVisibilityChanged:(NSNotification *)note {
     [self consumeHostSession];
     self.mediaVisible=WCCCurrentHostState().visible;
-    if(!self.mediaVisible) { [WCCFloatingPanel closeFor:self]; [WCCWeatherSource.shared cancel]; }
+    if(!self.mediaVisible) [WCCWeatherSource.shared cancel];
     self.customMedia.active=self.mediaVisible && !self.presentedViewController;
     [self refreshHourlyMedia];
 }
@@ -205,7 +203,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     view.visibilityChanged=^(BOOL visible) {
         typeof(self) self=weak; if (!self) return;
         if (visible) { [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; }
-        else if (!self.presentedViewController) { [WCCFloatingPanel closeFor:self]; self.mediaVisible=NO; self.customMedia.active=NO; [self refreshHourlyMedia]; }
+        else if (!self.presentedViewController) {  self.mediaVisible=NO; self.customMedia.active=NO; [self refreshHourlyMedia]; }
     }; self.view=view;
 }
 - (void)controlCenterWillPresent {
@@ -425,10 +423,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self updateCityLabel];
 }
 - (void)handleTwoFingerDoubleTap:(UITapGestureRecognizer *)gesture {
-    if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController || self.mediaSuspended) return;
-    if (![NSThread isMainThread] || !self.isViewLoaded || !self.view.window || self.isBeingDismissed || self.isBeingPresented || self.transitionCoordinator) return;
-    // 122 restores the 120 native settings presentation and media suspension.
-    self.mediaSuspended=YES; self.customMedia.active=NO; [self refreshHourlyMedia];
+    if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController) return;
+    self.mediaSuspended=YES; self.customMedia.active = NO; [self refreshHourlyMedia];
     __weak typeof(self) weak = self;
     [WCCSettings presentFrom:self completion:^{ weak.mediaSuspended=NO; [weak preferencesChanged]; }];
 }
@@ -443,13 +439,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _customLocationName = [WCCPrefs() stringForKey:@"landmark"];
     if (_displayMode == 2 && !_customLocationName.length) _displayMode = 0;
     [self updateCityLabel]; [self updateWeatherIcon]; [self cacheHourlyMediaPaths]; [self refreshHourlyMedia];
-    self.customMedia.active = self.mediaVisible && !self.mediaSuspended && !self.presentedViewController;
+    self.customMedia.active = self.mediaVisible && !self.presentedViewController;
 }
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = YES; [self preferencesChanged]; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)viewDidDisappear:(BOOL)animated { [super viewDidDisappear:animated]; }
-- (void)controlCenterDidDismiss { [WCCFloatingPanel closeFor:self]; [WCCWeatherSource.shared cancel]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
-- (void)willResignActive { [WCCFloatingPanel closeFor:self]; if (!self.presentedViewController)  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)controlCenterDidDismiss { [WCCWeatherSource.shared cancel]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)willResignActive { if (!self.presentedViewController)  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)stopSystemWeather {
     @try {
         [_weatherModel removeObserver:self];
@@ -724,7 +720,15 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     for (NSArray<UILabel *> *group in groups) {
         BOOL enabled=WCCTextShadowEnabled(index++);
         for (UILabel *label in group) {
-            WCCApplyTextShadow(label,enabled);
+            // Dynamic contrast also works if a future host uses dark text.
+            UIColor *textColor=label.textColor ?: UIColor.whiteColor;
+            UIColor *color=[UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *traits) {
+                CGFloat r=1,g=1,b=1,a=1;
+                [[textColor resolvedColorWithTraitCollection:traits] getRed:&r green:&g blue:&b alpha:&a];
+                return (r*.2126+g*.7152+b*.0722)>.5 ? [UIColor colorWithWhite:0 alpha:.55] : [UIColor colorWithWhite:1 alpha:.65];
+            }];
+            label.shadowColor=enabled ? color : nil;
+            label.shadowOffset=enabled ? CGSizeMake(0,.5) : CGSizeZero;
         }
     }
 }

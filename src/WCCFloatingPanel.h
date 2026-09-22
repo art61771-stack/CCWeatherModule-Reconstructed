@@ -7,3 +7,6 @@
 void WCCPanelStyleCell(UITableViewCell *cell);
 void WCCPanelStyleSection(UIView *view);
 BOOL WCCPanelTransparent(void);
+
+@interface WCCNativeSettingsNavigation : UINavigationController
+@end

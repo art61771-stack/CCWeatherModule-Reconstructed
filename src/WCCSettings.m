@@ -30,8 +30,21 @@ static UIAlertController *WCCAlert(NSString *title, NSString *message) {
 static void WCCAction(UIAlertController *a, NSString *title, void (^work)(void)) {
     [a addAction:[UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) { if (work) work(); }]];
 }
-static void WCCShow(UIViewController *p, UIAlertController *a) {
-    if (p.view.window && !p.presentedViewController) [p presentViewController:a animated:YES completion:nil];
+// Shared by alerts and child navigation controllers; rejection ends the session.
+static void (^WCCOnce(void (^completion)(void)))(void) {
+    __block BOOL finished=NO;
+    return [^{ if (finished) return; finished=YES; if(completion) completion(); } copy];
+}
+static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(void)) {
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{ WCCShow(p, a, rejected); });
+        return;
+    }
+    if (!p || !p.isViewLoaded || !p.view.window || p.presentedViewController || p.isBeingPresented || p.isBeingDismissed || p.transitionCoordinator) {
+        if(rejected) rejected(); return;
+    }
+    [p presentViewController:a animated:YES completion:nil];
+    if (p.presentedViewController != a && rejected) rejected();
 }
 
 @interface WCCSettingsGallery : WCCGallery <UIPopoverPresentationControllerDelegate>
@@ -42,7 +55,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     [super viewDidLoad];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
 }
-- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
+- (void)done { void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
@@ -94,7 +107,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     BOOL ok=WCCSetMainIconPercentForMode(slider.tag==1,percent); [self syncScale];
     if(!ok){UIAlertController *a=WCCAlert(@"保存失败",@"已保留原设置，请重试。");[a addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];[self presentViewController:a animated:YES completion:nil];}
 }
-- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
+- (void)done { void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
@@ -105,6 +118,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 @property(nonatomic,copy) void (^onDone)(void);
 @end
 @implementation WCCWeatherMappings
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
 - (void)viewDidLoad {
     [super viewDidLoad]; self.title=@"选择原天气图标";
     self.tableView.rowHeight=64;
@@ -112,7 +126,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
 }
 - (void)viewWillAppear:(BOOL)animated { [super viewWillAppear:animated]; [self.tableView reloadData]; }
-- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
+- (void)done { void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return WCCAssetKeys().count; }
@@ -151,51 +165,40 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 }
 @end
 
-// The menu and all continuous tuning pages share one child navigation stack.
-@interface WCCSettings (PanelActions)
-+ (void)sizesFrom:(UIViewController *)p completion:(void (^)(void))completion;
-+ (void)modesFrom:(UIViewController *)p completion:(void (^)(void))completion;
-+ (void)openFilzaFrom:(UIViewController *)p completion:(void (^)(void))completion;
-@end
-@interface WCCPanelMenu : UITableViewController
-@end
-@implementation WCCPanelMenu
-- (void)viewDidLoad { [super viewDidLoad];self.title=@"天气 · 设置";self.tableView.rowHeight=56; }
-- (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)section { return 9; }
-- (NSString *)tableView:(UITableView *)t titleForFooterInSection:(NSInteger)section { return @"只拖动顶部标题栏；面板外仍可操作控制中心。透明只影响设置面板背景，不改变天气模块。位置和透明偏好不写入布局方案。"; }
-- (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)index {
-    UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    cell.textLabel.text=@[@"天气来源 / 彩云 / 连接状态",@"位置 / 阴影 / 问候 / 方案",@"主图标大小",@"按天气名称管理绑定",@"自定义图标",@"设置面板背景",@"模块尺寸（列 × 行）",@"地标显示",@"用 Filza 打开素材目录"][index.row];
-    if(index.row==4 || index.row==5) {
-        UISwitch *toggle=[UISwitch new];toggle.tag=index.row;
-        toggle.on=index.row==5?WCCPanelTransparent():[WCCPrefs() boolForKey:@"customIcon"];
-        [toggle addTarget:self action:@selector(toggle:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=toggle;
-        if(index.row==5)cell.detailTextLabel.text=@"关闭：原背景 · 开启：透明背景";
-    } else cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
-    WCCPanelStyleCell(cell);return cell;
-}
-- (void)toggle:(UISwitch *)toggle {
-    [WCCPrefs() setBool:toggle.on forKey:toggle.tag==5?@"settingsPanelTransparent":@"customIcon"];[WCCPrefs() synchronize];
-    [NSNotificationCenter.defaultCenter postNotificationName:toggle.tag==5?@"WCCPanelStyleChanged":WCCPreferencesChanged object:nil];
-}
-- (void)tableView:(UITableView *)t willDisplayHeaderView:(UIView *)v forSection:(NSInteger)section { WCCPanelStyleSection(v); }
-- (void)tableView:(UITableView *)t willDisplayFooterView:(UIView *)v forSection:(NSInteger)section { WCCPanelStyleSection(v); }
-- (void)tableView:(UITableView *)t didSelectRowAtIndexPath:(NSIndexPath *)index {
-    [t deselectRowAtIndexPath:index animated:YES];UIViewController *page=nil;
-    if(index.row==0)page=[[WCCWeatherSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
-    if(index.row==1)page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
-    if(index.row==2)page=[WCCIconScaleController new];
-    if(index.row==3)page=[[WCCWeatherMappings alloc] initWithStyle:UITableViewStylePlain];
-    if(page){[self.navigationController pushViewController:page animated:YES];return;}
-    if(index.row==6)[WCCSettings sizesFrom:self completion:nil];
-    if(index.row==7)[WCCSettings modesFrom:self completion:nil];
-    if(index.row==8)[WCCSettings openFilzaFrom:self completion:nil];
-}
-@end
 @implementation WCCSettings
 + (void)presentFrom:(UIViewController *)p completion:(void (^)(void))completion {
-    if([p isKindOfClass:WCCPanelMenu.class])return;
-    [WCCFloatingPanel openFor:p root:[[WCCPanelMenu alloc] initWithStyle:UITableViewStyleInsetGrouped] completion:completion];
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{ [self presentFrom:p completion:completion]; });
+        return;
+    }
+    if (!p || !p.isViewLoaded || !p.view.window || p.presentedViewController || p.isBeingDismissed || p.isBeingPresented) { if (completion) completion(); return; }
+    completion=WCCOnce(completion);
+    UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。122安全候选：取消拖动。透明按钮保留于固定调参面板底栏；本标准菜单不透明。");
+    WCCAction(a, @"天气来源 / 彩云 / 连接状态", ^{ WCCAfterAlert(p, ^{
+        WCCWeatherSettings *page=[[WCCWeatherSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+        page.onDone=^{ [self presentFrom:p completion:completion]; };
+        UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];
+        nav.modalPresentationStyle=UIModalPresentationCustom; nav.preferredContentSize=CGSizeMake(350,540);
+        UIPopoverPresentationController *pop=nav.popoverPresentationController;
+        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
+        pop.permittedArrowDirections=0; pop.delegate=page;
+        WCCShow(p, nav, completion);
+    }); });
+    WCCAction(a, @"位置 / 文字阴影 / 问候 / 方案", ^{ WCCAfterAlert(p, ^{
+        WCCRegionSettings *page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+        page.onDone=^{ [self presentFrom:p completion:completion]; };
+        UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];
+        nav.modalPresentationStyle=UIModalPresentationCustom; nav.preferredContentSize=CGSizeMake(340,480);
+        UIPopoverPresentationController *pop=nav.popoverPresentationController;
+        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
+        pop.permittedArrowDirections=0; pop.delegate=page;
+        WCCShow(p, nav, completion);
+    }); });
+    WCCAction(a, @"自定义图标", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
+    WCCAction(a, @"模块尺寸（列 × 行）", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); });
+    WCCAction(a, @"地标显示", ^{ WCCAfterAlert(p, ^{ [self modesFrom:p completion:completion]; }); });
+    [a addAction:[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) { WCCAfterAlert(p, completion); }]];
+    WCCShow(p, a, completion);
 }
 + (void)back:(UIAlertController *)a from:(UIViewController *)p completion:(void (^)(void))completion {
     [a addAction:[UIAlertAction actionWithTitle:@"返回" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
@@ -216,11 +219,11 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
             BOOL saved = WCCSetSelectedSize(size); WCCSave();
             WCCAfterAlert(p, ^{
                 UIAlertController *notice = WCCAlert(saved ? @"尺寸已保存" : @"保存尚未确认", saved ? @"自定义尺寸开关保持不变。开启后请手动注销 SpringBoard（不是重启手机）；本次会话仍使用旧布局。" : @"系统未确认偏好同步，请重选并在注销后检查。");
-                WCCAction(notice, @"好", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); }); WCCShow(p, notice);
+                WCCAction(notice, @"好", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); }); WCCShow(p, notice, completion);
             });
         });
     }
-    [self back:a from:p completion:completion]; WCCShow(p, a);
+    [self back:a from:p completion:completion]; WCCShow(p, a, completion);
 }
 + (void)modesFrom:(UIViewController *)p completion:(void (^)(void))completion {
     UIAlertController *a = WCCAlert(@"地标显示", @"显示方式立即保存；自定义地标留空恢复附近。");
@@ -232,7 +235,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
             WCCAfterAlert(p, ^{ [self modesFrom:p completion:completion]; });
         });
     }
-    [self back:a from:p completion:completion]; WCCShow(p, a);
+    [self back:a from:p completion:completion]; WCCShow(p, a, completion);
 }
 + (void)editLandmarkFrom:(UIViewController *)p completion:(void (^)(void))completion {
     UIAlertController *a = WCCAlert(@"自定义地标", @"留空恢复附近地标，最多80字。");
@@ -243,7 +246,7 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
         [WCCPrefs() setObject:name forKey:@"landmark"]; [WCCPrefs() setInteger:name.length ? 2 : 0 forKey:@"displayMode"]; WCCSave(); WCCAfterAlert(p, completion);
     });
     [a addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) { WCCAfterAlert(p, completion); }]];
-    WCCShow(p, a);
+    WCCShow(p, a, completion);
 }
 + (void)iconsFrom:(UIViewController *)p completion:(void (^)(void))completion {
     BOOL enabled = [WCCPrefs() boolForKey:@"customIcon"];
@@ -254,12 +257,12 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     WCCAction(a, @"主图标大小", ^{ WCCAfterAlert(p, ^{
         WCCIconScaleController *page=[WCCIconScaleController new];
         page.onDone=^{ [self iconsFrom:p completion:completion]; };
-        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
-        nav.modalPresentationStyle=UIModalPresentationPopover; nav.preferredContentSize=CGSizeMake(320,330);
+        UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];
+        nav.modalPresentationStyle=UIModalPresentationCustom; nav.preferredContentSize=CGSizeMake(320,330);
         UIPopoverPresentationController *pop=nav.popoverPresentationController;
         pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
         pop.permittedArrowDirections=0; pop.delegate=page;
-        if (p.view.window && !p.presentedViewController) [p presentViewController:nav animated:YES completion:nil];
+        WCCShow(p, nav, completion);
     }); });
     WCCAction(a, @"按天气名称管理绑定", ^{ WCCAfterAlert(p, ^{
         NSError *error = nil;
@@ -268,22 +271,22 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
         }
         WCCWeatherMappings *gallery = [[WCCWeatherMappings alloc] initWithStyle:UITableViewStylePlain];
         gallery.onDone = ^{ [self iconsFrom:p completion:completion]; };
-        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:gallery];
-        nav.modalPresentationStyle = UIModalPresentationPopover;
+        UINavigationController *nav = [[WCCNativeSettingsNavigation alloc] initWithRootViewController:gallery];
+        nav.modalPresentationStyle = UIModalPresentationCustom;
         nav.preferredContentSize = CGSizeMake(320, 420);
         UIPopoverPresentationController *pop = nav.popoverPresentationController;
         pop.sourceView = p.view; pop.sourceRect = CGRectMake(CGRectGetMidX(p.view.bounds), CGRectGetMidY(p.view.bounds), 1, 1);
         pop.permittedArrowDirections = 0; pop.delegate = gallery;
-        if (p.view.window && !p.presentedViewController) [p presentViewController:nav animated:YES completion:nil];
+        WCCShow(p, nav, completion);
     }); });
     WCCAction(a, @"用 Filza 打开素材目录", ^{ WCCAfterAlert(p, ^{ [self openFilzaFrom:p completion:completion]; }); });
-    [self back:a from:p completion:completion]; WCCShow(p, a);
+    [self back:a from:p completion:completion]; WCCShow(p, a, completion);
 }
 + (void)pathFailure:(NSString *)path reason:(NSString *)reason from:(UIViewController *)p completion:(void (^)(void))completion {
     UIAlertController *a = WCCAlert(@"无法打开素材目录", [NSString stringWithFormat:@"%@\n%@\n请检查 Filza 是否安装，或复制路径后手动前往。", reason ?: @"系统未能打开 Filza。", path]);
     WCCAction(a, @"复制路径", ^{ UIPasteboard.generalPasteboard.string = path; WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
     WCCAction(a, @"返回", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
-    WCCShow(p, a);
+    WCCShow(p, a, completion);
 }
 + (void)openFilzaFrom:(UIViewController *)p completion:(void (^)(void))completion {
     NSString *path = WCCRoot(); NSError *error = nil;

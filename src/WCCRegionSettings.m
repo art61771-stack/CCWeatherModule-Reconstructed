@@ -12,7 +12,7 @@
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(sync) name:WCCMainIconScaleChanged object:nil];
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
-- (void)done { [self.navigationController popViewControllerAnimated:YES]; }
+- (void)done { void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (void)sync { [self.tableView reloadData]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traits { return UIModalPresentationNone; }
