@@ -1,0 +1,1307 @@
+package/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (architecture arm64):
+	/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/System/Library/Frameworks/Foundation.framework/Foundation (compatibility version 300.0.0, current version 3208.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (compatibility version 150.0.0, current version 3208.0.0)
+	/System/Library/Frameworks/UIKit.framework/UIKit (compatibility version 1.0.0, current version 8220.1.104)
+	/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics (compatibility version 64.0.0, current version 1889.2.7)
+	/System/Library/PrivateFrameworks/Weather.framework/Weather (compatibility version 1.0.0, current version 1815.0.0)
+	/System/Library/PrivateFrameworks/WeatherUI.framework/WeatherUI (compatibility version 1.0.0, current version 354.0.0)
+	/System/Library/PrivateFrameworks/ControlCenterUIKit.framework/ControlCenterUIKit (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)
+	/System/Library/Frameworks/CoreLocation.framework/CoreLocation (compatibility version 1.0.0, current version 2953.0.30)
+
+SYMBOL TABLE:
+0000000005614542      d  *UND* .hidden radr://5614542
+0000000000010fb8 g     O __DATA,__objc_data _OBJC_CLASS_$_WCCContentViewController
+0000000000010f90 g     O __DATA,__objc_data _OBJC_CLASS_$_WCCModule
+0000000000010f38 g     O __DATA,__objc_ivar _OBJC_IVAR_$_WCCModule._contentViewController
+0000000000011008 g     O __DATA,__objc_data _OBJC_METACLASS_$_WCCContentViewController
+0000000000010fe0 g     O __DATA,__objc_data _OBJC_METACLASS_$_WCCModule
+0000000000000000         *UND* _NSClassFromString
+0000000000000000         *UND* _OBJC_CLASS_$_CLGeocoder
+0000000000000000         *UND* _OBJC_CLASS_$_CLLocation
+0000000000000000         *UND* _OBJC_CLASS_$_NSArray
+0000000000000000         *UND* _OBJC_CLASS_$_NSBundle
+0000000000000000         *UND* _OBJC_CLASS_$_NSCharacterSet
+0000000000000000         *UND* _OBJC_CLASS_$_NSConstantIntegerNumber
+0000000000000000         *UND* _OBJC_CLASS_$_NSDateFormatter
+0000000000000000         *UND* _OBJC_CLASS_$_NSDictionary
+0000000000000000         *UND* _OBJC_CLASS_$_NSLayoutConstraint
+0000000000000000         *UND* _OBJC_CLASS_$_NSLocale
+0000000000000000         *UND* _OBJC_CLASS_$_NSNumber
+0000000000000000         *UND* _OBJC_CLASS_$_NSObject
+0000000000000000         *UND* _OBJC_CLASS_$_NSString
+0000000000000000         *UND* _OBJC_CLASS_$_UIAlertAction
+0000000000000000         *UND* _OBJC_CLASS_$_UIAlertController
+0000000000000000         *UND* _OBJC_CLASS_$_UIColor
+0000000000000000         *UND* _OBJC_CLASS_$_UIFont
+0000000000000000         *UND* _OBJC_CLASS_$_UIImage
+0000000000000000         *UND* _OBJC_CLASS_$_UIImageSymbolConfiguration
+0000000000000000         *UND* _OBJC_CLASS_$_UIImageView
+0000000000000000         *UND* _OBJC_CLASS_$_UILabel
+0000000000000000         *UND* _OBJC_CLASS_$_UIScrollView
+0000000000000000         *UND* _OBJC_CLASS_$_UITapGestureRecognizer
+0000000000000000         *UND* _OBJC_CLASS_$_UIView
+0000000000000000         *UND* _OBJC_CLASS_$_UIViewController
+0000000000000000         *UND* _OBJC_EHTYPE_$_NSException
+0000000000000000         *UND* _OBJC_METACLASS_$_NSObject
+0000000000000000         *UND* _OBJC_METACLASS_$_UIViewController
+0000000000000000         *UND* _UIFontWeightLight
+0000000000000000         *UND* _UIFontWeightMedium
+0000000000000000         *UND* _UIFontWeightRegular
+0000000000000000         *UND* _UIFontWeightSemibold
+0000000000000000         *UND* __NSConcreteStackBlock
+0000000000000000         *UND* __Unwind_Resume
+0000000000000000         *UND* ___CFConstantStringClassReference
+0000000000000000         *UND* ___kCFBooleanTrue
+0000000000000000         *UND* ___objc_personality_v0
+0000000000000000         *UND* ___stack_chk_fail
+0000000000000000         *UND* ___stack_chk_guard
+0000000000000000         *UND* __dispatch_main_q
+0000000000000000         *UND* __objc_empty_cache
+0000000000000000         *UND* _dispatch_after
+0000000000000000         *UND* _dispatch_async
+0000000000000000         *UND* _dispatch_time
+0000000000000000         *UND* _dlsym
+0000000000000000         *UND* _objc_alloc
+0000000000000000         *UND* _objc_alloc_init
+0000000000000000         *UND* _objc_autoreleaseReturnValue
+0000000000000000         *UND* _objc_begin_catch
+0000000000000000         *UND* _objc_end_catch
+0000000000000000         *UND* _objc_enumerationMutation
+0000000000000000         *UND* _objc_msgSend
+0000000000000000         *UND* _objc_msgSendSuper2
+0000000000000000         *UND* _objc_opt_class
+0000000000000000         *UND* _objc_opt_isKindOfClass
+0000000000000000         *UND* _objc_opt_respondsToSelector
+0000000000000000         *UND* _objc_release
+0000000000000000         *UND* _objc_retain
+0000000000000000         *UND* _objc_retainAutoreleaseReturnValue
+0000000000000000         *UND* _objc_retainAutoreleasedReturnValue
+0000000000000000         *UND* _objc_storeStrong
+Mach header
+      magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
+MH_MAGIC_64   ARM64        ALL  0x00       DYLIB    30       3768   NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS
+Load command 0
+      cmd LC_SEGMENT_64
+  cmdsize 1032
+  segname __TEXT
+   vmaddr 0x0000000000000000
+   vmsize 0x000000000000c000
+  fileoff 0
+ filesize 49152
+  maxprot r-x
+ initprot r-x
+   nsects 12
+    flags (none)
+Section
+  sectname __text
+   segname __TEXT
+      addr 0x0000000000004000
+      size 0x0000000000003d40
+    offset 16384
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __stubs
+   segname __TEXT
+      addr 0x0000000000007d40
+      size 0x0000000000000108
+    offset 32064
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_SYMBOL_STUBS
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0 (index into indirect symbol table)
+ reserved2 12 (size of stubs)
+Section
+  sectname __objc_stubs
+   segname __TEXT
+      addr 0x0000000000007e60
+      size 0x0000000000000f20
+    offset 32352
+     align 2^5 (32)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_methlist
+   segname __TEXT
+      addr 0x0000000000008d80
+      size 0x000000000000023c
+    offset 36224
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __const
+   segname __TEXT
+      addr 0x0000000000008fc0
+      size 0x0000000000000078
+    offset 36800
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __gcc_except_tab
+   segname __TEXT
+      addr 0x0000000000009038
+      size 0x00000000000002ec
+    offset 36920
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_methname
+   segname __TEXT
+      addr 0x0000000000009324
+      size 0x0000000000000e8b
+    offset 37668
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __cstring
+   segname __TEXT
+      addr 0x000000000000a1af
+      size 0x00000000000001eb
+    offset 41391
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_classname
+   segname __TEXT
+      addr 0x000000000000a39a
+      size 0x0000000000000080
+    offset 41882
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_methtype
+   segname __TEXT
+      addr 0x000000000000a41a
+      size 0x00000000000001b0
+    offset 42010
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __ustring
+   segname __TEXT
+      addr 0x000000000000a5ca
+      size 0x00000000000001fe
+    offset 42442
+     align 2^1 (2)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __unwind_info
+   segname __TEXT
+      addr 0x000000000000a7c8
+      size 0x00000000000001b8
+    offset 42952
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 1
+      cmd LC_SEGMENT_64
+  cmdsize 632
+  segname __DATA_CONST
+   vmaddr 0x000000000000c000
+   vmsize 0x0000000000004000
+  fileoff 49152
+ filesize 16384
+  maxprot rw-
+ initprot rw-
+   nsects 7
+    flags SG_READ_ONLY
+Section
+  sectname __got
+   segname __DATA_CONST
+      addr 0x000000000000c000
+      size 0x0000000000000108
+    offset 49152
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_NON_LAZY_SYMBOL_POINTERS
+attributes (none)
+ reserved1 22 (index into indirect symbol table)
+ reserved2 0
+Section
+  sectname __const
+   segname __DATA_CONST
+      addr 0x000000000000c108
+      size 0x0000000000000270
+    offset 49416
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __cfstring
+   segname __DATA_CONST
+      addr 0x000000000000c378
+      size 0x0000000000000a00
+    offset 50040
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_classlist
+   segname __DATA_CONST
+      addr 0x000000000000cd78
+      size 0x0000000000000010
+    offset 52600
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_protolist
+   segname __DATA_CONST
+      addr 0x000000000000cd88
+      size 0x0000000000000020
+    offset 52616
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_imageinfo
+   segname __DATA_CONST
+      addr 0x000000000000cda8
+      size 0x0000000000000008
+    offset 52648
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_intobj
+   segname __DATA_CONST
+      addr 0x000000000000cdb0
+      size 0x0000000000000480
+    offset 52656
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 2
+      cmd LC_SEGMENT_64
+  cmdsize 632
+  segname __DATA
+   vmaddr 0x0000000000010000
+   vmsize 0x0000000000004000
+  fileoff 65536
+ filesize 16384
+  maxprot rw-
+ initprot rw-
+   nsects 7
+    flags (none)
+Section
+  sectname __objc_const
+   segname __DATA
+      addr 0x0000000000010000
+      size 0x00000000000009d0
+    offset 65536
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_selrefs
+   segname __DATA
+      addr 0x00000000000109d0
+      size 0x00000000000004a0
+    offset 68048
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_LITERAL_POINTERS
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_classrefs
+   segname __DATA
+      addr 0x0000000000010e70
+      size 0x00000000000000b8
+    offset 69232
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_superrefs
+   segname __DATA
+      addr 0x0000000000010f28
+      size 0x0000000000000010
+    offset 69416
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_ivar
+   segname __DATA
+      addr 0x0000000000010f38
+      size 0x0000000000000054
+    offset 69432
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_data
+   segname __DATA
+      addr 0x0000000000010f90
+      size 0x00000000000000a0
+    offset 69520
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __data
+   segname __DATA
+      addr 0x0000000000011030
+      size 0x0000000000000180
+    offset 69680
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 3
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __LINKEDIT
+   vmaddr 0x0000000000014000
+   vmsize 0x0000000000004000
+  fileoff 81920
+ filesize 6736
+  maxprot r--
+ initprot r--
+   nsects 0
+    flags (none)
+Load command 4
+          cmd LC_ID_DYLIB
+      cmdsize 104
+         name /var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (offset 24)
+   time stamp 1 Thu Jan  1 08:00:01 1970
+      current version 0.0.0
+compatibility version 0.0.0
+Load command 5
+      cmd LC_DYLD_CHAINED_FIXUPS
+  cmdsize 16
+  dataoff 81920
+ datasize 1800
+Load command 6
+      cmd LC_DYLD_EXPORTS_TRIE
+  cmdsize 16
+  dataoff 83720
+ datasize 184
+Load command 7
+     cmd LC_SYMTAB
+ cmdsize 24
+  symoff 84000
+   nsyms 68
+  stroff 85312
+ strsize 1648
+Load command 8
+            cmd LC_DYSYMTAB
+        cmdsize 80
+      ilocalsym 0
+      nlocalsym 1
+     iextdefsym 1
+     nextdefsym 5
+      iundefsym 6
+      nundefsym 62
+         tocoff 0
+           ntoc 0
+      modtaboff 0
+        nmodtab 0
+   extrefsymoff 0
+    nextrefsyms 0
+ indirectsymoff 85088
+  nindirectsyms 55
+      extreloff 0
+        nextrel 0
+      locreloff 0
+        nlocrel 0
+Load command 9
+     cmd LC_UUID
+ cmdsize 24
+    uuid EF74F805-323D-39A0-88DA-5DBF84C4B559
+Load command 10
+       cmd LC_BUILD_VERSION
+   cmdsize 32
+  platform ios
+       sdk 18.2
+     minos 14.0
+    ntools 1
+      tool ld
+   version 1115.7.3
+Load command 11
+      cmd LC_SOURCE_VERSION
+  cmdsize 16
+  version 0.0
+Load command 12
+          cmd LC_ENCRYPTION_INFO_64
+      cmdsize 24
+     cryptoff 16384
+    cryptsize 32768
+      cryptid 0
+          pad 0
+Load command 13
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /usr/lib/libobjc.A.dylib (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 228.0.0
+compatibility version 1.0.0
+Load command 14
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/Frameworks/Foundation.framework/Foundation (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 3208.0.0
+compatibility version 300.0.0
+Load command 15
+          cmd LC_LOAD_DYLIB
+      cmdsize 96
+         name /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 3208.0.0
+compatibility version 150.0.0
+Load command 16
+          cmd LC_LOAD_DYLIB
+      cmdsize 80
+         name /System/Library/Frameworks/UIKit.framework/UIKit (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 8220.1.104
+compatibility version 1.0.0
+Load command 17
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/Frameworks/CoreGraphics.framework/CoreGraphics (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1889.2.7
+compatibility version 64.0.0
+Load command 18
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/PrivateFrameworks/Weather.framework/Weather (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1815.0.0
+compatibility version 1.0.0
+Load command 19
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/PrivateFrameworks/WeatherUI.framework/WeatherUI (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 354.0.0
+compatibility version 1.0.0
+Load command 20
+          cmd LC_LOAD_DYLIB
+      cmdsize 112
+         name /System/Library/PrivateFrameworks/ControlCenterUIKit.framework/ControlCenterUIKit (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1.0.0
+compatibility version 1.0.0
+Load command 21
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /usr/lib/libSystem.B.dylib (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1351.0.0
+compatibility version 1.0.0
+Load command 22
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/Frameworks/CoreLocation.framework/CoreLocation (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 2953.0.30
+compatibility version 1.0.0
+Load command 23
+          cmd LC_RPATH
+      cmdsize 40
+         path /var/jb/Library/Frameworks (offset 12)
+Load command 24
+          cmd LC_RPATH
+      cmdsize 32
+         path /var/jb/usr/lib (offset 12)
+Load command 25
+          cmd LC_RPATH
+      cmdsize 56
+         path @loader_path/.jbroot/Library/Frameworks (offset 12)
+Load command 26
+          cmd LC_RPATH
+      cmdsize 48
+         path @loader_path/.jbroot/usr/lib (offset 12)
+Load command 27
+      cmd LC_FUNCTION_STARTS
+  cmdsize 16
+  dataoff 83904
+ datasize 96
+Load command 28
+      cmd LC_DATA_IN_CODE
+  cmdsize 16
+  dataoff 84000
+ datasize 0
+Load command 29
+      cmd LC_CODE_SIGNATURE
+  cmdsize 16
+  dataoff 86960
+ datasize 1696
+
+Bind table:
+segment  section            address    type       addend dylib            symbol
+
+Lazy bind table:
+segment  section            address     dylib            symbol
+package/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (architecture arm64e):
+	/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/System/Library/Frameworks/Foundation.framework/Foundation (compatibility version 300.0.0, current version 3208.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (compatibility version 150.0.0, current version 3208.0.0)
+	/System/Library/Frameworks/UIKit.framework/UIKit (compatibility version 1.0.0, current version 8220.1.104)
+	/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics (compatibility version 64.0.0, current version 1889.2.7)
+	/System/Library/PrivateFrameworks/Weather.framework/Weather (compatibility version 1.0.0, current version 1815.0.0)
+	/System/Library/PrivateFrameworks/WeatherUI.framework/WeatherUI (compatibility version 1.0.0, current version 354.0.0)
+	/System/Library/PrivateFrameworks/ControlCenterUIKit.framework/ControlCenterUIKit (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)
+	/System/Library/Frameworks/CoreLocation.framework/CoreLocation (compatibility version 1.0.0, current version 2953.0.30)
+
+SYMBOL TABLE:
+0000000005614542      d  *UND* .hidden radr://5614542
+0000000000010fb8 g     O __DATA,__objc_data _OBJC_CLASS_$_WCCContentViewController
+0000000000010f90 g     O __DATA,__objc_data _OBJC_CLASS_$_WCCModule
+0000000000010f38 g     O __DATA,__objc_ivar _OBJC_IVAR_$_WCCModule._contentViewController
+0000000000011008 g     O __DATA,__objc_data _OBJC_METACLASS_$_WCCContentViewController
+0000000000010fe0 g     O __DATA,__objc_data _OBJC_METACLASS_$_WCCModule
+0000000000000000         *UND* _NSClassFromString
+0000000000000000         *UND* _OBJC_CLASS_$_CLGeocoder
+0000000000000000         *UND* _OBJC_CLASS_$_CLLocation
+0000000000000000         *UND* _OBJC_CLASS_$_NSArray
+0000000000000000         *UND* _OBJC_CLASS_$_NSBundle
+0000000000000000         *UND* _OBJC_CLASS_$_NSCharacterSet
+0000000000000000         *UND* _OBJC_CLASS_$_NSConstantIntegerNumber
+0000000000000000         *UND* _OBJC_CLASS_$_NSDateFormatter
+0000000000000000         *UND* _OBJC_CLASS_$_NSDictionary
+0000000000000000         *UND* _OBJC_CLASS_$_NSLayoutConstraint
+0000000000000000         *UND* _OBJC_CLASS_$_NSLocale
+0000000000000000         *UND* _OBJC_CLASS_$_NSNumber
+0000000000000000         *UND* _OBJC_CLASS_$_NSObject
+0000000000000000         *UND* _OBJC_CLASS_$_NSString
+0000000000000000         *UND* _OBJC_CLASS_$_UIAlertAction
+0000000000000000         *UND* _OBJC_CLASS_$_UIAlertController
+0000000000000000         *UND* _OBJC_CLASS_$_UIColor
+0000000000000000         *UND* _OBJC_CLASS_$_UIFont
+0000000000000000         *UND* _OBJC_CLASS_$_UIImage
+0000000000000000         *UND* _OBJC_CLASS_$_UIImageSymbolConfiguration
+0000000000000000         *UND* _OBJC_CLASS_$_UIImageView
+0000000000000000         *UND* _OBJC_CLASS_$_UILabel
+0000000000000000         *UND* _OBJC_CLASS_$_UIScrollView
+0000000000000000         *UND* _OBJC_CLASS_$_UITapGestureRecognizer
+0000000000000000         *UND* _OBJC_CLASS_$_UIView
+0000000000000000         *UND* _OBJC_CLASS_$_UIViewController
+0000000000000000         *UND* _OBJC_EHTYPE_$_NSException
+0000000000000000         *UND* _OBJC_METACLASS_$_NSObject
+0000000000000000         *UND* _OBJC_METACLASS_$_UIViewController
+0000000000000000         *UND* _UIFontWeightLight
+0000000000000000         *UND* _UIFontWeightMedium
+0000000000000000         *UND* _UIFontWeightRegular
+0000000000000000         *UND* _UIFontWeightSemibold
+0000000000000000         *UND* __NSConcreteStackBlock
+0000000000000000         *UND* __Unwind_Resume
+0000000000000000         *UND* ___CFConstantStringClassReference
+0000000000000000         *UND* ___kCFBooleanTrue
+0000000000000000         *UND* ___objc_personality_v0
+0000000000000000         *UND* ___stack_chk_fail
+0000000000000000         *UND* ___stack_chk_guard
+0000000000000000         *UND* __dispatch_main_q
+0000000000000000         *UND* __objc_empty_cache
+0000000000000000         *UND* _dispatch_after
+0000000000000000         *UND* _dispatch_async
+0000000000000000         *UND* _dispatch_time
+0000000000000000         *UND* _dlsym
+0000000000000000         *UND* _objc_alloc
+0000000000000000         *UND* _objc_alloc_init
+0000000000000000         *UND* _objc_autoreleaseReturnValue
+0000000000000000         *UND* _objc_begin_catch
+0000000000000000         *UND* _objc_end_catch
+0000000000000000         *UND* _objc_enumerationMutation
+0000000000000000         *UND* _objc_msgSend
+0000000000000000         *UND* _objc_msgSendSuper2
+0000000000000000         *UND* _objc_opt_class
+0000000000000000         *UND* _objc_opt_isKindOfClass
+0000000000000000         *UND* _objc_opt_respondsToSelector
+0000000000000000         *UND* _objc_release
+0000000000000000         *UND* _objc_retain
+0000000000000000         *UND* _objc_retainAutoreleaseReturnValue
+0000000000000000         *UND* _objc_retainAutoreleasedReturnValue
+0000000000000000         *UND* _objc_storeStrong
+Mach header
+      magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
+MH_MAGIC_64   ARM64          E LIB64       DYLIB    30       3848   NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS
+Load command 0
+      cmd LC_SEGMENT_64
+  cmdsize 1032
+  segname __TEXT
+   vmaddr 0x0000000000000000
+   vmsize 0x000000000000c000
+  fileoff 0
+ filesize 49152
+  maxprot r-x
+ initprot r-x
+   nsects 12
+    flags (none)
+Section
+  sectname __text
+   segname __TEXT
+      addr 0x0000000000004000
+      size 0x0000000000004148
+    offset 16384
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __auth_stubs
+   segname __TEXT
+      addr 0x0000000000008148
+      size 0x0000000000000160
+    offset 33096
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_SYMBOL_STUBS
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0 (index into indirect symbol table)
+ reserved2 16 (size of stubs)
+Section
+  sectname __objc_stubs
+   segname __TEXT
+      addr 0x00000000000082c0
+      size 0x0000000000000f20
+    offset 33472
+     align 2^5 (32)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_methlist
+   segname __TEXT
+      addr 0x00000000000091e0
+      size 0x000000000000023c
+    offset 37344
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __const
+   segname __TEXT
+      addr 0x0000000000009420
+      size 0x0000000000000048
+    offset 37920
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __gcc_except_tab
+   segname __TEXT
+      addr 0x0000000000009468
+      size 0x00000000000002f0
+    offset 37992
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_methname
+   segname __TEXT
+      addr 0x0000000000009758
+      size 0x0000000000000e8b
+    offset 38744
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __cstring
+   segname __TEXT
+      addr 0x000000000000a5e3
+      size 0x00000000000001eb
+    offset 42467
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_classname
+   segname __TEXT
+      addr 0x000000000000a7ce
+      size 0x0000000000000080
+    offset 42958
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_methtype
+   segname __TEXT
+      addr 0x000000000000a84e
+      size 0x00000000000001b0
+    offset 43086
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __ustring
+   segname __TEXT
+      addr 0x000000000000a9fe
+      size 0x00000000000001fe
+    offset 43518
+     align 2^1 (2)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __unwind_info
+   segname __TEXT
+      addr 0x000000000000abfc
+      size 0x00000000000001c0
+    offset 44028
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 1
+      cmd LC_SEGMENT_64
+  cmdsize 712
+  segname __DATA_CONST
+   vmaddr 0x000000000000c000
+   vmsize 0x0000000000004000
+  fileoff 49152
+ filesize 16384
+  maxprot rw-
+ initprot rw-
+   nsects 8
+    flags SG_READ_ONLY
+Section
+  sectname __auth_got
+   segname __DATA_CONST
+      addr 0x000000000000c000
+      size 0x00000000000000c0
+    offset 49152
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_NON_LAZY_SYMBOL_POINTERS
+attributes (none)
+ reserved1 22 (index into indirect symbol table)
+ reserved2 0
+Section
+  sectname __got
+   segname __DATA_CONST
+      addr 0x000000000000c0c0
+      size 0x0000000000000048
+    offset 49344
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_NON_LAZY_SYMBOL_POINTERS
+attributes (none)
+ reserved1 46 (index into indirect symbol table)
+ reserved2 0
+Section
+  sectname __const
+   segname __DATA_CONST
+      addr 0x000000000000c108
+      size 0x0000000000000270
+    offset 49416
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __cfstring
+   segname __DATA_CONST
+      addr 0x000000000000c378
+      size 0x0000000000000a00
+    offset 50040
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_classlist
+   segname __DATA_CONST
+      addr 0x000000000000cd78
+      size 0x0000000000000010
+    offset 52600
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_protolist
+   segname __DATA_CONST
+      addr 0x000000000000cd88
+      size 0x0000000000000020
+    offset 52616
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_imageinfo
+   segname __DATA_CONST
+      addr 0x000000000000cda8
+      size 0x0000000000000008
+    offset 52648
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_intobj
+   segname __DATA_CONST
+      addr 0x000000000000cdb0
+      size 0x0000000000000480
+    offset 52656
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 2
+      cmd LC_SEGMENT_64
+  cmdsize 632
+  segname __DATA
+   vmaddr 0x0000000000010000
+   vmsize 0x0000000000004000
+  fileoff 65536
+ filesize 16384
+  maxprot rw-
+ initprot rw-
+   nsects 7
+    flags (none)
+Section
+  sectname __objc_const
+   segname __DATA
+      addr 0x0000000000010000
+      size 0x00000000000009d0
+    offset 65536
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_selrefs
+   segname __DATA
+      addr 0x00000000000109d0
+      size 0x00000000000004a0
+    offset 68048
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_LITERAL_POINTERS
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_classrefs
+   segname __DATA
+      addr 0x0000000000010e70
+      size 0x00000000000000b8
+    offset 69232
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_superrefs
+   segname __DATA
+      addr 0x0000000000010f28
+      size 0x0000000000000010
+    offset 69416
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes NO_DEAD_STRIP
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_ivar
+   segname __DATA
+      addr 0x0000000000010f38
+      size 0x0000000000000054
+    offset 69432
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __objc_data
+   segname __DATA
+      addr 0x0000000000010f90
+      size 0x00000000000000a0
+    offset 69520
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __data
+   segname __DATA
+      addr 0x0000000000011030
+      size 0x0000000000000180
+    offset 69680
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 3
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __LINKEDIT
+   vmaddr 0x0000000000014000
+   vmsize 0x0000000000004000
+  fileoff 81920
+ filesize 6736
+  maxprot r--
+ initprot r--
+   nsects 0
+    flags (none)
+Load command 4
+          cmd LC_ID_DYLIB
+      cmdsize 104
+         name /var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (offset 24)
+   time stamp 1 Thu Jan  1 08:00:01 1970
+      current version 0.0.0
+compatibility version 0.0.0
+Load command 5
+      cmd LC_DYLD_CHAINED_FIXUPS
+  cmdsize 16
+  dataoff 81920
+ datasize 1800
+Load command 6
+      cmd LC_DYLD_EXPORTS_TRIE
+  cmdsize 16
+  dataoff 83720
+ datasize 184
+Load command 7
+     cmd LC_SYMTAB
+ cmdsize 24
+  symoff 84000
+   nsyms 68
+  stroff 85312
+ strsize 1648
+Load command 8
+            cmd LC_DYSYMTAB
+        cmdsize 80
+      ilocalsym 0
+      nlocalsym 1
+     iextdefsym 1
+     nextdefsym 5
+      iundefsym 6
+      nundefsym 62
+         tocoff 0
+           ntoc 0
+      modtaboff 0
+        nmodtab 0
+   extrefsymoff 0
+    nextrefsyms 0
+ indirectsymoff 85088
+  nindirectsyms 55
+      extreloff 0
+        nextrel 0
+      locreloff 0
+        nlocrel 0
+Load command 9
+     cmd LC_UUID
+ cmdsize 24
+    uuid DA844506-000E-3EA0-B412-2A4A176B7929
+Load command 10
+       cmd LC_BUILD_VERSION
+   cmdsize 32
+  platform ios
+       sdk 18.2
+     minos 14.0
+    ntools 1
+      tool ld
+   version 1115.7.3
+Load command 11
+      cmd LC_SOURCE_VERSION
+  cmdsize 16
+  version 0.0
+Load command 12
+          cmd LC_ENCRYPTION_INFO_64
+      cmdsize 24
+     cryptoff 16384
+    cryptsize 32768
+      cryptid 0
+          pad 0
+Load command 13
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /usr/lib/libobjc.A.dylib (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 228.0.0
+compatibility version 1.0.0
+Load command 14
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/Frameworks/Foundation.framework/Foundation (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 3208.0.0
+compatibility version 300.0.0
+Load command 15
+          cmd LC_LOAD_DYLIB
+      cmdsize 96
+         name /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 3208.0.0
+compatibility version 150.0.0
+Load command 16
+          cmd LC_LOAD_DYLIB
+      cmdsize 80
+         name /System/Library/Frameworks/UIKit.framework/UIKit (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 8220.1.104
+compatibility version 1.0.0
+Load command 17
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/Frameworks/CoreGraphics.framework/CoreGraphics (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1889.2.7
+compatibility version 64.0.0
+Load command 18
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/PrivateFrameworks/Weather.framework/Weather (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1815.0.0
+compatibility version 1.0.0
+Load command 19
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/PrivateFrameworks/WeatherUI.framework/WeatherUI (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 354.0.0
+compatibility version 1.0.0
+Load command 20
+          cmd LC_LOAD_DYLIB
+      cmdsize 112
+         name /System/Library/PrivateFrameworks/ControlCenterUIKit.framework/ControlCenterUIKit (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1.0.0
+compatibility version 1.0.0
+Load command 21
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /usr/lib/libSystem.B.dylib (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 1351.0.0
+compatibility version 1.0.0
+Load command 22
+          cmd LC_LOAD_DYLIB
+      cmdsize 88
+         name /System/Library/Frameworks/CoreLocation.framework/CoreLocation (offset 24)
+   time stamp 2 Thu Jan  1 08:00:02 1970
+      current version 2953.0.30
+compatibility version 1.0.0
+Load command 23
+          cmd LC_RPATH
+      cmdsize 40
+         path /var/jb/Library/Frameworks (offset 12)
+Load command 24
+          cmd LC_RPATH
+      cmdsize 32
+         path /var/jb/usr/lib (offset 12)
+Load command 25
+          cmd LC_RPATH
+      cmdsize 56
+         path @loader_path/.jbroot/Library/Frameworks (offset 12)
+Load command 26
+          cmd LC_RPATH
+      cmdsize 48
+         path @loader_path/.jbroot/usr/lib (offset 12)
+Load command 27
+      cmd LC_FUNCTION_STARTS
+  cmdsize 16
+  dataoff 83904
+ datasize 96
+Load command 28
+      cmd LC_DATA_IN_CODE
+  cmdsize 16
+  dataoff 84000
+ datasize 0
+Load command 29
+      cmd LC_CODE_SIGNATURE
+  cmdsize 16
+  dataoff 86960
+ datasize 1696
+
+Bind table:
+segment  section            address    type       addend dylib            symbol
+
+Lazy bind table:
+segment  section            address     dylib            symbol

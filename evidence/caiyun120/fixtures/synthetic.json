@@ -1,0 +1,35 @@
+{
+  "status": "ok", "timezone": "Asia/Shanghai", "tzshift": 28800,
+  "server_time": 1790049600,
+  "result": {
+    "realtime": {"status": "ok", "temperature": 0, "skycon": "CLEAR_NIGHT"},
+    "hourly": {
+      "status": "ok",
+      "temperature": [
+        {"datetime": "2026-09-22T18:00:00+08:00", "value": 18},
+        {"datetime": "2026-09-22T17:00+08:00", "value": 0},
+        {"datetime": "2026-09-22T19:00+08:00", "value": null},
+        {"datetime": "2026-09-22T20:00+08:00", "value": true}
+      ],
+      "skycon": [
+        {"datetime": "2026-09-22T19:00+08:00", "value": "LIGHT_RAIN"},
+        {"datetime": "2026-09-22T17:00:00+08:00", "value": "LIGHT_SNOW"},
+        {"datetime": "2026-09-22T18:00+08:00", "value": "CLEAR_NIGHT"},
+        {"datetime": "2026-09-22T20:00+08:00", "value": "UNRECOGNIZED_TEST_CODE"}
+      ],
+      "precipitation": [
+        {"datetime": "2026-09-22T10:00Z", "probability": 1},
+        {"datetime": "2026-09-22T17:00+08:00", "probability": 0},
+        {"datetime": "2026-09-22T20:00+08:00", "probability": false}
+      ]
+    },
+    "daily": {
+      "status": "ok",
+      "temperature": [
+        {"date": "2026-09-21T00:00+08:00", "min": -9, "max": 99},
+        {"date": "2026-09-22T00:00+08:00", "min": 0, "max": 26}
+      ],
+      "astro": [{"date": "2026-09-22T00:00+08:00", "sunrise": {"time": "06:00"}, "sunset": {"time": "17:55"}}]
+    }
+  }
+}

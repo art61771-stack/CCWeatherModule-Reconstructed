@@ -1,0 +1,4015 @@
+package/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule (architecture arm64):
+(__TEXT,__text) section
+
+METHOD init
+    4000:	ff c3 00 d1	sub	sp, sp, #0x30
+    4004:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    4008:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    400c:	fd 83 00 91	add	x29, sp, #0x20
+    4010:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4014:	08 95 47 f9	ldr	x8, [x8, #0xf28] ; Objc class ref: bad class ref
+    4018:	e0 23 00 a9	stp	x0, x8, [sp]
+    401c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4020:	01 11 47 f9	ldr	x1, [x8, #0xe20] // init
+    4024:	e0 03 00 91	mov	x0, sp
+    4028:	6d 0f 00 94	bl	0x7ddc ; symbol stub for: _objc_msgSendSuper2
+    402c:	f3 03 00 aa	mov	x19, x0
+    4030:	00 02 00 b4	cbz	x0, 0x4070
+    4034:	40 00 00 90	adrp	x0, 8 ; 0xc000
+    4038:	00 e0 0d 91	add	x0, x0, #0x378 // @WALockscreenWidgetViewController
+    403c:	41 0f 00 94	bl	0x7d40 ; symbol stub for: _NSClassFromString
+    4040:	00 02 00 b4	cbz	x0, 0x4080
+    4044:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4048:	00 39 47 f9	ldr	x0, [x8, #0xe70] ; Objc class ref: bad class ref
+    404c:	55 0f 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4050:	68 06 40 f9	ldr	x8, [x19, #0x8]
+    4054:	60 06 00 f9	str	x0, [x19, #0x8]
+    4058:	e0 03 08 aa	mov	x0, x8
+    405c:	6c 0f 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4060:	60 06 40 f9	ldr	x0, [x19, #0x8]
+    4064:	e0 00 00 b4	cbz	x0, 0x4080
+    4068:	0e 11 00 94	bl	0x84a0 // SEND isInitialized
+    406c:	a0 00 00 34	cbz	w0, 0x4080
+    4070:	e0 03 13 aa	mov	x0, x19
+    4074:	69 0f 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    4078:	f4 03 00 aa	mov	x20, x0
+    407c:	02 00 00 14	b	0x4084
+    4080:	14 00 80 d2	mov	x20, #0x0
+    4084:	e0 03 13 aa	mov	x0, x19
+    4088:	61 0f 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    408c:	e0 03 14 aa	mov	x0, x20
+    4090:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    4094:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    4098:	ff c3 00 91	add	sp, sp, #0x30
+    409c:	c0 03 5f d6	ret
+
+METHOD contentViewController
+    40a0:	00 04 40 f9	ldr	x0, [x0, #0x8]
+    40a4:	60 0f 00 14	b	0x7e24 ; symbol stub for: _objc_retainAutoreleaseReturnValue
+
+METHOD .cxx_destruct
+    40a8:	00 20 00 91	add	x0, x0, #0x8
+    40ac:	01 00 80 d2	mov	x1, #0x0
+    40b0:	63 0f 00 14	b	0x7e3c ; symbol stub for: _objc_storeStrong
+
+METHOD init
+    40b4:	ff c3 00 d1	sub	sp, sp, #0x30
+    40b8:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    40bc:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    40c0:	fd 83 00 91	add	x29, sp, #0x20
+    40c4:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    40c8:	08 99 47 f9	ldr	x8, [x8, #0xf30] ; Objc class ref: bad class ref
+    40cc:	e0 23 00 a9	stp	x0, x8, [sp]
+    40d0:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    40d4:	01 11 47 f9	ldr	x1, [x8, #0xe20] // init
+    40d8:	e0 03 00 91	mov	x0, sp
+    40dc:	40 0f 00 94	bl	0x7ddc ; symbol stub for: _objc_msgSendSuper2
+    40e0:	f3 03 00 aa	mov	x19, x0
+    40e4:	80 02 00 b4	cbz	x0, 0x4134
+    40e8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    40ec:	14 3d 8f b9	ldrsw	x20, [x8, #0xf3c]
+    40f0:	7f 6a 34 38	strb	wzr, [x19, x20]
+    40f4:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    40f8:	08 41 8f b9	ldrsw	x8, [x8, #0xf40]
+    40fc:	7f 6a 28 38	strb	wzr, [x19, x8]
+    4100:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4104:	08 45 8f b9	ldrsw	x8, [x8, #0xf44]
+    4108:	7f 6a 28 f8	str	xzr, [x19, x8]
+    410c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4110:	08 49 8f b9	ldrsw	x8, [x8, #0xf48]
+    4114:	60 6a 68 f8	ldr	x0, [x19, x8]
+    4118:	7f 6a 28 f8	str	xzr, [x19, x8]
+    411c:	3c 0f 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4120:	e0 03 13 aa	mov	x0, x19
+    4124:	c7 10 00 94	bl	0x8440 // SEND initializeWeatherModel
+    4128:	60 00 00 34	cbz	w0, 0x4134
+    412c:	28 00 80 52	mov	w8, #0x1
+    4130:	68 6a 34 38	strb	w8, [x19, x20]
+    4134:	e0 03 13 aa	mov	x0, x19
+    4138:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    413c:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    4140:	ff c3 00 91	add	sp, sp, #0x30
+    4144:	c0 03 5f d6	ret
+
+METHOD initializeWeatherModel
+    4148:	ff 83 01 d1	sub	sp, sp, #0x60
+    414c:	f6 57 03 a9	stp	x22, x21, [sp, #0x30]
+    4150:	f4 4f 04 a9	stp	x20, x19, [sp, #0x40]
+    4154:	fd 7b 05 a9	stp	x29, x30, [sp, #0x50]
+    4158:	fd 43 01 91	add	x29, sp, #0x50
+    415c:	f3 03 00 aa	mov	x19, x0
+    4160:	40 00 00 90	adrp	x0, 8 ; 0xc000
+    4164:	00 e0 0d 91	add	x0, x0, #0x378 // @WALockscreenWidgetViewController
+    4168:	f6 0e 00 94	bl	0x7d40 ; symbol stub for: _NSClassFromString
+    416c:	60 0b 00 b4	cbz	x0, 0x42d8
+    4170:	0c 0f 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4174:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4178:	14 4d 8f b9	ldrsw	x20, [x8, #0xf4c]
+    417c:	68 6a 74 f8	ldr	x8, [x19, x20]
+    4180:	60 6a 34 f8	str	x0, [x19, x20]
+    4184:	e0 03 08 aa	mov	x0, x8
+    4188:	21 0f 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    418c:	60 6a 74 f8	ldr	x0, [x19, x20]
+    4190:	40 0a 00 b4	cbz	x0, 0x42d8
+    4194:	22 00 80 52	mov	w2, #0x1
+    4198:	da 12 00 94	bl	0x8d00 // SEND viewWillAppear:
+    419c:	60 6a 74 f8	ldr	x0, [x19, x20]
+    41a0:	22 00 80 52	mov	w2, #0x1
+    41a4:	cf 12 00 94	bl	0x8ce0 // SEND viewDidAppear:
+    41a8:	60 6a 74 f8	ldr	x0, [x19, x20]
+    41ac:	7d 12 00 94	bl	0x8ba0 // SEND todayModel
+    41b0:	fd 03 1d aa	mov	x29, x29
+    41b4:	1f 0f 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    41b8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    41bc:	14 51 8f b9	ldrsw	x20, [x8, #0xf50]
+    41c0:	68 6a 74 f8	ldr	x8, [x19, x20]
+    41c4:	60 6a 34 f8	str	x0, [x19, x20]
+    41c8:	e0 03 08 aa	mov	x0, x8
+    41cc:	10 0f 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    41d0:	60 6a 74 f8	ldr	x0, [x19, x20]
+    41d4:	20 08 00 b4	cbz	x0, 0x42d8
+    41d8:	e2 03 13 aa	mov	x2, x19
+    41dc:	51 0f 00 94	bl	0x7f20 // SEND addObserver:
+    41e0:	60 6a 74 f8	ldr	x0, [x19, x20]
+    41e4:	0d 0f 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    41e8:	f4 03 00 aa	mov	x20, x0
+    41ec:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    41f0:	15 15 47 f9	ldr	x21, [x8, #0xe28] // setIsLocationTrackingEnabled:
+    41f4:	e1 03 15 aa	mov	x1, x21
+    41f8:	02 0f 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    41fc:	c0 00 00 36	tbz	w0, #0x0, 0x4214
+    4200:	43 00 00 90	adrp	x3, 8 ; 0xc000
+    4204:	63 20 40 f9	ldr	x3, [x3, #0x40] ; literal pool symbol address: ___kCFBooleanTrue
+    4208:	e0 03 14 aa	mov	x0, x20
+    420c:	e2 03 15 aa	mov	x2, x21
+    4210:	f4 10 00 94	bl	0x85e0 // SEND performSelector:withObject:
+    4214:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4218:	15 19 47 f9	ldr	x21, [x8, #0xe30] // setLocationServicesActive:
+    421c:	e0 03 14 aa	mov	x0, x20
+    4220:	e1 03 15 aa	mov	x1, x21
+    4224:	f7 0e 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    4228:	c0 00 00 36	tbz	w0, #0x0, 0x4240
+    422c:	43 00 00 90	adrp	x3, 8 ; 0xc000
+    4230:	63 20 40 f9	ldr	x3, [x3, #0x40] ; literal pool symbol address: ___kCFBooleanTrue
+    4234:	e0 03 14 aa	mov	x0, x20
+    4238:	e2 03 15 aa	mov	x2, x21
+    423c:	e9 10 00 94	bl	0x85e0 // SEND performSelector:withObject:
+    4240:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4244:	01 e9 44 f9	ldr	x1, [x8, #0x9d0] // _kickstartLocationManager
+    4248:	e0 03 14 aa	mov	x0, x20
+    424c:	ed 0e 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    4250:	60 00 00 36	tbz	w0, #0x0, 0x425c
+    4254:	e0 03 14 aa	mov	x0, x20
+    4258:	02 0f 00 94	bl	0x7e60 // SEND _kickstartLocationManager
+    425c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4260:	01 ed 44 f9	ldr	x1, [x8, #0x9d8] // _reloadForecastData:
+    4264:	e0 03 14 aa	mov	x0, x20
+    4268:	e6 0e 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    426c:	80 00 00 36	tbz	w0, #0x0, 0x427c
+    4270:	e0 03 14 aa	mov	x0, x20
+    4274:	22 00 80 52	mov	w2, #0x1
+    4278:	02 0f 00 94	bl	0x7e80 // SEND _reloadForecastData:
+    427c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4280:	01 71 45 f9	ldr	x1, [x8, #0xae0] // executeModelUpdateWithCompletion:
+    4284:	e0 03 14 aa	mov	x0, x20
+    4288:	de 0e 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    428c:	00 02 00 36	tbz	w0, #0x0, 0x42cc
+    4290:	48 00 00 90	adrp	x8, 8 ; 0xc000
+    4294:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    4298:	e8 07 00 f9	str	x8, [sp, #0x8]
+    429c:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    42a0:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    42a4:	08 00 00 90	adrp	x8, 0 ; 0x4000
+    42a8:	08 31 0c 91	add	x8, x8, #0x30c
+    42ac:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    42b0:	49 00 00 90	adrp	x9, 8 ; 0xc000
+    42b4:	29 21 04 91	add	x9, x9, #0x108
+    42b8:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    42bc:	f3 17 00 f9	str	x19, [sp, #0x28]
+    42c0:	e2 23 00 91	add	x2, sp, #0x8
+    42c4:	e0 03 14 aa	mov	x0, x20
+    42c8:	f6 0f 00 94	bl	0x82a0 // SEND executeModelUpdateWithCompletion:
+    42cc:	e0 03 14 aa	mov	x0, x20
+    42d0:	cf 0e 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    42d4:	20 00 80 52	mov	w0, #0x1
+    42d8:	fd 7b 45 a9	ldp	x29, x30, [sp, #0x50]
+    42dc:	f4 4f 44 a9	ldp	x20, x19, [sp, #0x40]
+    42e0:	f6 57 43 a9	ldp	x22, x21, [sp, #0x30]
+    42e4:	ff 83 01 91	add	sp, sp, #0x60
+    42e8:	c0 03 5f d6	ret
+    42ec:	01 00 00 14	b	0x42f0
+    42f0:	3f 04 00 71	cmp	w1, #0x1
+    42f4:	a1 00 00 54	b.ne	0x4308
+    42f8:	b0 0e 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    42fc:	b2 0e 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    4300:	00 00 80 52	mov	w0, #0x0
+    4304:	f5 ff ff 17	b	0x42d8
+    4308:	91 0e 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+    430c:	ff 03 01 d1	sub	sp, sp, #0x40
+    4310:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    4314:	fd c3 00 91	add	x29, sp, #0x30
+    4318:	48 00 00 90	adrp	x8, 8 ; 0xc000
+    431c:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    4320:	e8 07 00 f9	str	x8, [sp, #0x8]
+    4324:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    4328:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    432c:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    4330:	08 00 00 90	adrp	x8, 0 ; 0x4000
+    4334:	08 a1 0d 91	add	x8, x8, #0x368
+    4338:	49 00 00 90	adrp	x9, 8 ; 0xc000
+    433c:	29 21 04 91	add	x9, x9, #0x108
+    4340:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    4344:	08 10 40 f9	ldr	x8, [x0, #0x20]
+    4348:	e8 17 00 f9	str	x8, [sp, #0x28]
+    434c:	40 00 00 90	adrp	x0, 8 ; 0xc000
+    4350:	00 30 40 f9	ldr	x0, [x0, #0x60] ; literal pool symbol address: __dispatch_main_q
+    4354:	e1 23 00 91	add	x1, sp, #0x8
+    4358:	86 0e 00 94	bl	0x7d70 ; symbol stub for: _dispatch_async
+    435c:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    4360:	ff 03 01 91	add	sp, sp, #0x40
+    4364:	c0 03 5f d6	ret
+    4368:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    436c:	3d 12 00 14	b	0x8c60 // SEND updateWeatherDisplay
+    4370:	20 10 40 f9	ldr	x0, [x1, #0x20]
+    4374:	a9 0e 00 14	b	0x7e18 ; symbol stub for: _objc_retain
+    4378:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    437c:	a4 0e 00 14	b	0x7e0c ; symbol stub for: _objc_release
+
+METHOD dealloc
+    4380:	ff c3 00 d1	sub	sp, sp, #0x30
+    4384:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    4388:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    438c:	fd 83 00 91	add	x29, sp, #0x20
+    4390:	f3 03 00 aa	mov	x19, x0
+    4394:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4398:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    439c:	00 68 68 f8	ldr	x0, [x0, x8]
+    43a0:	60 00 00 b4	cbz	x0, 0x43ac
+    43a4:	e2 03 13 aa	mov	x2, x19
+    43a8:	b6 10 00 94	bl	0x8680 // SEND removeObserver:
+    43ac:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    43b0:	08 99 47 f9	ldr	x8, [x8, #0xf30] ; Objc class ref: bad class ref
+    43b4:	f3 23 00 a9	stp	x19, x8, [sp]
+    43b8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    43bc:	01 1d 47 f9	ldr	x1, [x8, #0xe38] // dealloc
+    43c0:	e0 03 00 91	mov	x0, sp
+    43c4:	86 0e 00 94	bl	0x7ddc ; symbol stub for: _objc_msgSendSuper2
+    43c8:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    43cc:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    43d0:	ff c3 00 91	add	sp, sp, #0x30
+    43d4:	c0 03 5f d6	ret
+    43d8:	78 0e 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    43dc:	7a 0e 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    43e0:	f3 ff ff 17	b	0x43ac
+
+METHOD shouldFinishTransitionToExpandedContentModule
+    43e4:	20 00 80 52	mov	w0, #0x1
+    43e8:	c0 03 5f d6	ret
+
+METHOD preferredExpandedContentHeight
+    43ec:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    43f0:	00 e5 47 fd	ldr	d0, [x8, #0xfc8]
+    43f4:	c0 03 5f d6	ret
+
+METHOD willTransitionToExpandedContentMode:
+    43f8:	f4 4f be a9	stp	x20, x19, [sp, #-0x20]!
+    43fc:	fd 7b 01 a9	stp	x29, x30, [sp, #0x10]
+    4400:	fd 43 00 91	add	x29, sp, #0x10
+    4404:	f4 03 02 aa	mov	x20, x2
+    4408:	f3 03 00 aa	mov	x19, x0
+    440c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4410:	08 41 8f b9	ldrsw	x8, [x8, #0xf40]
+    4414:	02 68 28 38	strb	w2, [x0, x8]
+    4418:	62 00 00 34	cbz	w2, 0x4424
+    441c:	e0 03 13 aa	mov	x0, x19
+    4420:	00 12 00 94	bl	0x8c20 // SEND updateHourlyForecast
+    4424:	80 02 63 1e	ucvtf	d0, w20
+    4428:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    442c:	08 55 8f b9	ldrsw	x8, [x8, #0xf54]
+    4430:	60 6a 68 f8	ldr	x0, [x19, x8]
+    4434:	fd 7b 41 a9	ldp	x29, x30, [sp, #0x10]
+    4438:	f4 4f c2 a8	ldp	x20, x19, [sp], #0x20
+    443c:	a1 10 00 14	b	0x86c0 // SEND setAlpha:
+
+METHOD didTransitionToExpandedContentMode:
+    4440:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4444:	08 41 8f b9	ldrsw	x8, [x8, #0xf40]
+    4448:	02 68 28 38	strb	w2, [x0, x8]
+    444c:	c0 03 5f d6	ret
+
+METHOD willBecomeActive
+    4450:	7c 10 00 14	b	0x8640 // SEND refreshWeatherData
+
+METHOD controlCenterWillPresent
+    4454:	7b 10 00 14	b	0x8640 // SEND refreshWeatherData
+
+METHOD viewDidLoad
+    4458:	ff 83 02 d1	sub	sp, sp, #0xa0
+    445c:	e9 23 06 6d	stp	d9, d8, [sp, #0x60]
+    4460:	f6 57 07 a9	stp	x22, x21, [sp, #0x70]
+    4464:	f4 4f 08 a9	stp	x20, x19, [sp, #0x80]
+    4468:	fd 7b 09 a9	stp	x29, x30, [sp, #0x90]
+    446c:	fd 43 02 91	add	x29, sp, #0x90
+    4470:	f3 03 00 aa	mov	x19, x0
+    4474:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4478:	08 99 47 f9	ldr	x8, [x8, #0xf30] ; Objc class ref: bad class ref
+    447c:	a0 23 3c a9	stp	x0, x8, [x29, #-0x40]
+    4480:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4484:	01 21 47 f9	ldr	x1, [x8, #0xe40] // viewDidLoad
+    4488:	a0 03 01 d1	sub	x0, x29, #0x40
+    448c:	54 0e 00 94	bl	0x7ddc ; symbol stub for: _objc_msgSendSuper2
+    4490:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4494:	00 3d 47 f9	ldr	x0, [x8, #0xe78] ; Objc class ref: bad class ref
+    4498:	02 0f 00 94	bl	0x80a0 // SEND clearColor
+    449c:	fd 03 1d aa	mov	x29, x29
+    44a0:	64 0e 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    44a4:	f4 03 00 aa	mov	x20, x0
+    44a8:	e0 03 13 aa	mov	x0, x19
+    44ac:	05 12 00 94	bl	0x8cc0 // SEND view
+    44b0:	fd 03 1d aa	mov	x29, x29
+    44b4:	5f 0e 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    44b8:	f5 03 00 aa	mov	x21, x0
+    44bc:	e2 03 14 aa	mov	x2, x20
+    44c0:	88 10 00 94	bl	0x86e0 // SEND setBackgroundColor:
+    44c4:	e0 03 15 aa	mov	x0, x21
+    44c8:	51 0e 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    44cc:	e0 03 14 aa	mov	x0, x20
+    44d0:	4f 0e 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    44d4:	e0 03 13 aa	mov	x0, x19
+    44d8:	1a 11 00 94	bl	0x8940 // SEND setupHeaderView
+    44dc:	e0 03 13 aa	mov	x0, x19
+    44e0:	20 11 00 94	bl	0x8960 // SEND setupHourlyContainer
+    44e4:	e0 03 13 aa	mov	x0, x19
+    44e8:	de 11 00 94	bl	0x8c60 // SEND updateWeatherDisplay
+    44ec:	e0 03 13 aa	mov	x0, x19
+    44f0:	84 0f 00 94	bl	0x8300 // SEND forceCityUpdate
+    44f4:	00 00 80 d2	mov	x0, #0x0
+    44f8:	01 40 99 52	mov	w1, #0xca00
+    44fc:	41 73 a7 72	movk	w1, #0x3b9a, lsl #16
+    4500:	1f 0e 00 94	bl	0x7d7c ; symbol stub for: _dispatch_time
+    4504:	55 00 00 90	adrp	x21, 8 ; 0xc000
+    4508:	b5 1a 40 f9	ldr	x21, [x21, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    450c:	f5 17 00 f9	str	x21, [sp, #0x28]
+    4510:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    4514:	08 e1 47 fd	ldr	d8, [x8, #0xfc0]
+    4518:	08 00 00 90	adrp	x8, 0 ; 0x4000
+    451c:	08 71 16 91	add	x8, x8, #0x59c
+    4520:	e8 1b 00 fd	str	d8, [sp, #0x30]
+    4524:	56 00 00 90	adrp	x22, 8 ; 0xc000
+    4528:	d6 22 04 91	add	x22, x22, #0x108
+    452c:	e8 db 03 a9	stp	x8, x22, [sp, #0x38]
+    4530:	f3 27 00 f9	str	x19, [sp, #0x48]
+    4534:	54 00 00 90	adrp	x20, 8 ; 0xc000
+    4538:	94 32 40 f9	ldr	x20, [x20, #0x60] ; literal pool symbol address: __dispatch_main_q
+    453c:	e2 a3 00 91	add	x2, sp, #0x28
+    4540:	e1 03 14 aa	mov	x1, x20
+    4544:	08 0e 00 94	bl	0x7d64 ; symbol stub for: _dispatch_after
+    4548:	00 00 80 d2	mov	x0, #0x0
+    454c:	01 c0 8b 52	mov	w1, #0x5e00
+    4550:	01 5a b6 72	movk	w1, #0xb2d0, lsl #16
+    4554:	0a 0e 00 94	bl	0x7d7c ; symbol stub for: _dispatch_time
+    4558:	f5 03 00 f9	str	x21, [sp]
+    455c:	e8 07 00 fd	str	d8, [sp, #0x8]
+    4560:	08 00 00 90	adrp	x8, 0 ; 0x4000
+    4564:	08 91 16 91	add	x8, x8, #0x5a4
+    4568:	e8 5b 01 a9	stp	x8, x22, [sp, #0x10]
+    456c:	f3 13 00 f9	str	x19, [sp, #0x20]
+    4570:	e2 03 00 91	mov	x2, sp
+    4574:	e1 03 14 aa	mov	x1, x20
+    4578:	fb 0d 00 94	bl	0x7d64 ; symbol stub for: _dispatch_after
+    457c:	e0 03 14 aa	mov	x0, x20
+    4580:	23 0e 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4584:	fd 7b 49 a9	ldp	x29, x30, [sp, #0x90]
+    4588:	f4 4f 48 a9	ldp	x20, x19, [sp, #0x80]
+    458c:	f6 57 47 a9	ldp	x22, x21, [sp, #0x70]
+    4590:	e9 23 46 6d	ldp	d9, d8, [sp, #0x60]
+    4594:	ff 83 02 91	add	sp, sp, #0xa0
+    4598:	c0 03 5f d6	ret
+    459c:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    45a0:	28 10 00 14	b	0x8640 // SEND refreshWeatherData
+    45a4:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    45a8:	26 10 00 14	b	0x8640 // SEND refreshWeatherData
+
+METHOD forceCityUpdate
+    45ac:	f6 57 bd a9	stp	x22, x21, [sp, #-0x30]!
+    45b0:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    45b4:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    45b8:	fd 83 00 91	add	x29, sp, #0x20
+    45bc:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    45c0:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    45c4:	00 68 68 f8	ldr	x0, [x0, x8]
+    45c8:	e0 04 00 b4	cbz	x0, 0x4664
+    45cc:	55 0f 00 94	bl	0x8320 // SEND forecastModel
+    45d0:	fd 03 1d aa	mov	x29, x29
+    45d4:	17 0e 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    45d8:	f3 03 00 aa	mov	x19, x0
+    45dc:	a0 03 00 b4	cbz	x0, 0x4650
+    45e0:	e0 03 13 aa	mov	x0, x19
+    45e4:	a7 0e 00 94	bl	0x8080 // SEND city
+    45e8:	fd 03 1d aa	mov	x29, x29
+    45ec:	11 0e 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    45f0:	f4 03 00 aa	mov	x20, x0
+    45f4:	a0 02 00 b4	cbz	x0, 0x4648
+    45f8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    45fc:	15 25 47 f9	ldr	x21, [x8, #0xe48] // setAutoUpdate:
+    4600:	e0 03 14 aa	mov	x0, x20
+    4604:	e1 03 15 aa	mov	x1, x21
+    4608:	fe 0d 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    460c:	c0 00 00 36	tbz	w0, #0x0, 0x4624
+    4610:	43 00 00 90	adrp	x3, 8 ; 0xc000
+    4614:	63 20 40 f9	ldr	x3, [x3, #0x40] ; literal pool symbol address: ___kCFBooleanTrue
+    4618:	e0 03 14 aa	mov	x0, x20
+    461c:	e2 03 15 aa	mov	x2, x21
+    4620:	f0 0f 00 94	bl	0x85e0 // SEND performSelector:withObject:
+    4624:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4628:	15 29 47 f9	ldr	x21, [x8, #0xe50] // update
+    462c:	e0 03 14 aa	mov	x0, x20
+    4630:	e1 03 15 aa	mov	x1, x21
+    4634:	f3 0d 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    4638:	80 00 00 36	tbz	w0, #0x0, 0x4648
+    463c:	e0 03 14 aa	mov	x0, x20
+    4640:	e2 03 15 aa	mov	x2, x21
+    4644:	df 0f 00 94	bl	0x85c0 // SEND performSelector:
+    4648:	e0 03 14 aa	mov	x0, x20
+    464c:	f0 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4650:	e0 03 13 aa	mov	x0, x19
+    4654:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    4658:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    465c:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    4660:	eb 0d 00 14	b	0x7e0c ; symbol stub for: _objc_release
+    4664:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    4668:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    466c:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    4670:	c0 03 5f d6	ret
+    4674:	01 00 00 14	b	0x4678
+    4678:	3f 04 00 71	cmp	w1, #0x1
+    467c:	c1 00 00 54	b.ne	0x4694
+    4680:	ce 0d 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    4684:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    4688:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    468c:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    4690:	cd 0d 00 14	b	0x7dc4 ; symbol stub for: _objc_end_catch
+    4694:	ae 0d 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD viewWillLayoutSubviews
+    4698:	ff 43 01 d1	sub	sp, sp, #0x50
+    469c:	e9 23 01 6d	stp	d9, d8, [sp, #0x10]
+    46a0:	f6 57 02 a9	stp	x22, x21, [sp, #0x20]
+    46a4:	f4 4f 03 a9	stp	x20, x19, [sp, #0x30]
+    46a8:	fd 7b 04 a9	stp	x29, x30, [sp, #0x40]
+    46ac:	fd 03 01 91	add	x29, sp, #0x40
+    46b0:	f3 03 00 aa	mov	x19, x0
+    46b4:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    46b8:	08 99 47 f9	ldr	x8, [x8, #0xf30] ; Objc class ref: bad class ref
+    46bc:	e0 23 00 a9	stp	x0, x8, [sp]
+    46c0:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    46c4:	01 2d 47 f9	ldr	x1, [x8, #0xe58] // viewWillLayoutSubviews
+    46c8:	e0 03 00 91	mov	x0, sp
+    46cc:	c4 0d 00 94	bl	0x7ddc ; symbol stub for: _objc_msgSendSuper2
+    46d0:	e0 03 13 aa	mov	x0, x19
+    46d4:	7b 11 00 94	bl	0x8cc0 // SEND view
+    46d8:	fd 03 1d aa	mov	x29, x29
+    46dc:	d5 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    46e0:	f4 03 00 aa	mov	x20, x0
+    46e4:	3f 0e 00 94	bl	0x7fe0 // SEND bounds
+    46e8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    46ec:	08 59 8f b9	ldrsw	x8, [x8, #0xf58]
+    46f0:	60 6a 68 f8	ldr	x0, [x19, x8]
+    46f4:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    46f8:	08 e9 47 fd	ldr	d8, [x8, #0xfd0]
+    46fc:	e0 03 67 9e	fmov	d0, xzr
+    4700:	e1 03 67 9e	fmov	d1, xzr
+    4704:	03 41 60 1e	fmov	d3, d8
+    4708:	26 10 00 94	bl	0x87a0 // SEND setFrame:
+    470c:	e0 03 14 aa	mov	x0, x20
+    4710:	bf 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4714:	e0 03 13 aa	mov	x0, x19
+    4718:	6a 11 00 94	bl	0x8cc0 // SEND view
+    471c:	fd 03 1d aa	mov	x29, x29
+    4720:	c4 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4724:	f4 03 00 aa	mov	x20, x0
+    4728:	2e 0e 00 94	bl	0x7fe0 // SEND bounds
+    472c:	49 40 60 1e	fmov	d9, d2
+    4730:	e0 03 13 aa	mov	x0, x19
+    4734:	63 11 00 94	bl	0x8cc0 // SEND view
+    4738:	fd 03 1d aa	mov	x29, x29
+    473c:	bd 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4740:	f5 03 00 aa	mov	x21, x0
+    4744:	27 0e 00 94	bl	0x7fe0 // SEND bounds
+    4748:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    474c:	00 ed 47 fd	ldr	d0, [x8, #0xfd8]
+    4750:	63 28 60 1e	fadd	d3, d3, d0
+    4754:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4758:	08 55 8f b9	ldrsw	x8, [x8, #0xf54]
+    475c:	60 6a 68 f8	ldr	x0, [x19, x8]
+    4760:	e0 03 67 9e	fmov	d0, xzr
+    4764:	01 41 60 1e	fmov	d1, d8
+    4768:	22 41 60 1e	fmov	d2, d9
+    476c:	0d 10 00 94	bl	0x87a0 // SEND setFrame:
+    4770:	e0 03 15 aa	mov	x0, x21
+    4774:	a6 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4778:	e0 03 14 aa	mov	x0, x20
+    477c:	a4 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4780:	fd 7b 44 a9	ldp	x29, x30, [sp, #0x40]
+    4784:	f4 4f 43 a9	ldp	x20, x19, [sp, #0x30]
+    4788:	f6 57 42 a9	ldp	x22, x21, [sp, #0x20]
+    478c:	e9 23 41 6d	ldp	d9, d8, [sp, #0x10]
+    4790:	ff 43 01 91	add	sp, sp, #0x50
+    4794:	c0 03 5f d6	ret
+
+METHOD setupHeaderView
+    4798:	e9 23 b9 6d	stp	d9, d8, [sp, #-0x70]!
+    479c:	fc 6f 01 a9	stp	x28, x27, [sp, #0x10]
+    47a0:	fa 67 02 a9	stp	x26, x25, [sp, #0x20]
+    47a4:	f8 5f 03 a9	stp	x24, x23, [sp, #0x30]
+    47a8:	f6 57 04 a9	stp	x22, x21, [sp, #0x40]
+    47ac:	f4 4f 05 a9	stp	x20, x19, [sp, #0x50]
+    47b0:	fd 7b 06 a9	stp	x29, x30, [sp, #0x60]
+    47b4:	fd 83 01 91	add	x29, sp, #0x60
+    47b8:	ff 43 06 d1	sub	sp, sp, #0x190
+    47bc:	f3 03 00 aa	mov	x19, x0
+    47c0:	48 00 00 90	adrp	x8, 8 ; 0xc000
+    47c4:	08 2d 40 f9	ldr	x8, [x8, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    47c8:	08 01 40 f9	ldr	x8, [x8]
+    47cc:	a8 03 19 f8	stur	x8, [x29, #-0x70]
+    47d0:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    47d4:	00 41 47 f9	ldr	x0, [x8, #0xe80] ; Objc class ref: bad class ref
+    47d8:	72 0d 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    47dc:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    47e0:	19 59 8f b9	ldrsw	x25, [x8, #0xf58]
+    47e4:	68 6a 79 f8	ldr	x8, [x19, x25]
+    47e8:	60 6a 39 f8	str	x0, [x19, x25]
+    47ec:	e0 03 08 aa	mov	x0, x8
+    47f0:	87 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    47f4:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    47f8:	00 3d 47 f9	ldr	x0, [x8, #0xe78] ; Objc class ref: bad class ref
+    47fc:	f5 03 08 aa	mov	x21, x8
+    4800:	28 0e 00 94	bl	0x80a0 // SEND clearColor
+    4804:	fd 03 1d aa	mov	x29, x29
+    4808:	8a 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    480c:	f4 03 00 aa	mov	x20, x0
+    4810:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4814:	e2 03 14 aa	mov	x2, x20
+    4818:	b2 0f 00 94	bl	0x86e0 // SEND setBackgroundColor:
+    481c:	e0 03 14 aa	mov	x0, x20
+    4820:	7b 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4824:	e0 03 13 aa	mov	x0, x19
+    4828:	26 11 00 94	bl	0x8cc0 // SEND view
+    482c:	fd 03 1d aa	mov	x29, x29
+    4830:	80 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4834:	f4 03 00 aa	mov	x20, x0
+    4838:	62 6a 79 f8	ldr	x2, [x19, x25]
+    483c:	c1 0d 00 94	bl	0x7f40 // SEND addSubview:
+    4840:	e0 03 14 aa	mov	x0, x20
+    4844:	72 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4848:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    484c:	00 45 47 f9	ldr	x0, [x8, #0xe88] ; Objc class ref: bad class ref
+    4850:	54 0d 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4854:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4858:	16 5d 8f b9	ldrsw	x22, [x8, #0xf5c]
+    485c:	68 6a 76 f8	ldr	x8, [x19, x22]
+    4860:	60 6a 36 f8	str	x0, [x19, x22]
+    4864:	e0 03 08 aa	mov	x0, x8
+    4868:	69 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    486c:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4870:	22 00 80 52	mov	w2, #0x1
+    4874:	ab 0f 00 94	bl	0x8720 // SEND setContentMode:
+    4878:	a0 3e 47 f9	ldr	x0, [x21, #0xe78]
+    487c:	f8 03 15 aa	mov	x24, x21
+    4880:	28 11 00 94	bl	0x8d20 // SEND whiteColor
+    4884:	fd 03 1d aa	mov	x29, x29
+    4888:	6a 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    488c:	f4 03 00 aa	mov	x20, x0
+    4890:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4894:	e2 03 14 aa	mov	x2, x20
+    4898:	12 10 00 94	bl	0x88e0 // SEND setTintColor:
+    489c:	e0 03 14 aa	mov	x0, x20
+    48a0:	5b 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    48a4:	60 6a 76 f8	ldr	x0, [x19, x22]
+    48a8:	02 00 80 52	mov	w2, #0x0
+    48ac:	15 10 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    48b0:	60 6a 79 f8	ldr	x0, [x19, x25]
+    48b4:	62 6a 76 f8	ldr	x2, [x19, x22]
+    48b8:	a2 0d 00 94	bl	0x7f40 // SEND addSubview:
+    48bc:	77 00 00 90	adrp	x23, 12 ; 0x10000
+    48c0:	e0 4a 47 f9	ldr	x0, [x23, #0xe90] ; Objc class ref: bad class ref
+    48c4:	37 0d 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    48c8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    48cc:	15 61 8f b9	ldrsw	x21, [x8, #0xf60]
+    48d0:	68 6a 75 f8	ldr	x8, [x19, x21]
+    48d4:	60 6a 35 f8	str	x0, [x19, x21]
+    48d8:	e0 03 08 aa	mov	x0, x8
+    48dc:	4c 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    48e0:	7c 00 00 90	adrp	x28, 12 ; 0x10000
+    48e4:	80 4f 47 f9	ldr	x0, [x28, #0xe98] ; Objc class ref: bad class ref
+    48e8:	48 00 00 90	adrp	x8, 8 ; 0xc000
+    48ec:	08 15 40 f9	ldr	x8, [x8, #0x28] ; literal pool symbol address: _UIFontWeightSemibold
+    48f0:	01 01 40 fd	ldr	d1, [x8]
+    48f4:	00 50 66 1e	fmov	d0, #18.00000000
+    48f8:	62 10 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    48fc:	fd 03 1d aa	mov	x29, x29
+    4900:	4c 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4904:	f4 03 00 aa	mov	x20, x0
+    4908:	60 6a 75 f8	ldr	x0, [x19, x21]
+    490c:	e2 03 14 aa	mov	x2, x20
+    4910:	9c 0f 00 94	bl	0x8780 // SEND setFont:
+    4914:	e0 03 14 aa	mov	x0, x20
+    4918:	3d 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    491c:	00 3f 47 f9	ldr	x0, [x24, #0xe78]
+    4920:	00 11 00 94	bl	0x8d20 // SEND whiteColor
+    4924:	fd 03 1d aa	mov	x29, x29
+    4928:	42 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    492c:	f4 03 00 aa	mov	x20, x0
+    4930:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4934:	e2 03 14 aa	mov	x2, x20
+    4938:	e2 0f 00 94	bl	0x88c0 // SEND setTextColor:
+    493c:	e0 03 14 aa	mov	x0, x20
+    4940:	33 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4944:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4948:	02 00 80 52	mov	w2, #0x0
+    494c:	ed 0f 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    4950:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4954:	62 6a 75 f8	ldr	x2, [x19, x21]
+    4958:	7a 0d 00 94	bl	0x7f40 // SEND addSubview:
+    495c:	e0 4a 47 f9	ldr	x0, [x23, #0xe90]
+    4960:	10 0d 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4964:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4968:	1b 65 8f b9	ldrsw	x27, [x8, #0xf64]
+    496c:	68 6a 7b f8	ldr	x8, [x19, x27]
+    4970:	60 6a 3b f8	str	x0, [x19, x27]
+    4974:	e0 03 08 aa	mov	x0, x8
+    4978:	25 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    497c:	80 4f 47 f9	ldr	x0, [x28, #0xe98]
+    4980:	48 00 00 90	adrp	x8, 8 ; 0xc000
+    4984:	08 11 40 f9	ldr	x8, [x8, #0x20] ; literal pool symbol address: _UIFontWeightRegular
+    4988:	08 01 40 fd	ldr	d8, [x8]
+    498c:	00 50 65 1e	fmov	d0, #13.00000000
+    4990:	01 41 60 1e	fmov	d1, d8
+    4994:	3b 10 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    4998:	fd 03 1d aa	mov	x29, x29
+    499c:	25 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    49a0:	f4 03 00 aa	mov	x20, x0
+    49a4:	60 6a 7b f8	ldr	x0, [x19, x27]
+    49a8:	e2 03 14 aa	mov	x2, x20
+    49ac:	75 0f 00 94	bl	0x8780 // SEND setFont:
+    49b0:	e0 03 14 aa	mov	x0, x20
+    49b4:	16 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    49b8:	00 3f 47 f9	ldr	x0, [x24, #0xe78]
+    49bc:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    49c0:	01 f1 47 fd	ldr	d1, [x8, #0xfe0]
+    49c4:	00 10 6e 1e	fmov	d0, #1.00000000
+    49c8:	be 0d 00 94	bl	0x80c0 // SEND colorWithWhite:alpha:
+    49cc:	fd 03 1d aa	mov	x29, x29
+    49d0:	18 0d 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    49d4:	f4 03 00 aa	mov	x20, x0
+    49d8:	60 6a 7b f8	ldr	x0, [x19, x27]
+    49dc:	e2 03 14 aa	mov	x2, x20
+    49e0:	b8 0f 00 94	bl	0x88c0 // SEND setTextColor:
+    49e4:	e0 03 14 aa	mov	x0, x20
+    49e8:	09 0d 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    49ec:	60 6a 7b f8	ldr	x0, [x19, x27]
+    49f0:	02 00 80 52	mov	w2, #0x0
+    49f4:	c3 0f 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    49f8:	60 6a 79 f8	ldr	x0, [x19, x25]
+    49fc:	62 6a 7b f8	ldr	x2, [x19, x27]
+    4a00:	50 0d 00 94	bl	0x7f40 // SEND addSubview:
+    4a04:	e0 4a 47 f9	ldr	x0, [x23, #0xe90]
+    4a08:	e6 0c 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4a0c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4a10:	1a 69 8f b9	ldrsw	x26, [x8, #0xf68]
+    4a14:	68 6a 7a f8	ldr	x8, [x19, x26]
+    4a18:	60 6a 3a f8	str	x0, [x19, x26]
+    4a1c:	e0 03 08 aa	mov	x0, x8
+    4a20:	fb 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4a24:	80 4f 47 f9	ldr	x0, [x28, #0xe98]
+    4a28:	00 10 65 1e	fmov	d0, #12.00000000
+    4a2c:	01 41 60 1e	fmov	d1, d8
+    4a30:	14 10 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    4a34:	fd 03 1d aa	mov	x29, x29
+    4a38:	fe 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4a3c:	f4 03 00 aa	mov	x20, x0
+    4a40:	60 6a 7a f8	ldr	x0, [x19, x26]
+    4a44:	e2 03 14 aa	mov	x2, x20
+    4a48:	4e 0f 00 94	bl	0x8780 // SEND setFont:
+    4a4c:	e0 03 14 aa	mov	x0, x20
+    4a50:	ef 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4a54:	00 3f 47 f9	ldr	x0, [x24, #0xe78]
+    4a58:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    4a5c:	01 f5 47 fd	ldr	d1, [x8, #0xfe8]
+    4a60:	00 10 6e 1e	fmov	d0, #1.00000000
+    4a64:	97 0d 00 94	bl	0x80c0 // SEND colorWithWhite:alpha:
+    4a68:	fd 03 1d aa	mov	x29, x29
+    4a6c:	f1 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4a70:	f4 03 00 aa	mov	x20, x0
+    4a74:	60 6a 7a f8	ldr	x0, [x19, x26]
+    4a78:	e2 03 14 aa	mov	x2, x20
+    4a7c:	91 0f 00 94	bl	0x88c0 // SEND setTextColor:
+    4a80:	e0 03 14 aa	mov	x0, x20
+    4a84:	e2 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4a88:	60 6a 7a f8	ldr	x0, [x19, x26]
+    4a8c:	02 00 80 52	mov	w2, #0x0
+    4a90:	9c 0f 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    4a94:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4a98:	62 6a 7a f8	ldr	x2, [x19, x26]
+    4a9c:	29 0d 00 94	bl	0x7f40 // SEND addSubview:
+    4aa0:	e0 4a 47 f9	ldr	x0, [x23, #0xe90]
+    4aa4:	bf 0c 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4aa8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4aac:	18 6d 8f b9	ldrsw	x24, [x8, #0xf6c]
+    4ab0:	68 6a 78 f8	ldr	x8, [x19, x24]
+    4ab4:	60 6a 38 f8	str	x0, [x19, x24]
+    4ab8:	e0 03 08 aa	mov	x0, x8
+    4abc:	d4 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4ac0:	80 4f 47 f9	ldr	x0, [x28, #0xe98]
+    4ac4:	48 00 00 90	adrp	x8, 8 ; 0xc000
+    4ac8:	08 09 40 f9	ldr	x8, [x8, #0x10] ; literal pool symbol address: _UIFontWeightLight
+    4acc:	01 01 40 fd	ldr	d1, [x8]
+    4ad0:	68 08 e8 d2	mov	x8, #0x4043000000000000
+    4ad4:	00 01 67 9e	fmov	d0, x8
+    4ad8:	ea 0f 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    4adc:	fd 03 1d aa	mov	x29, x29
+    4ae0:	d4 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4ae4:	f4 03 00 aa	mov	x20, x0
+    4ae8:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4aec:	e2 03 14 aa	mov	x2, x20
+    4af0:	24 0f 00 94	bl	0x8780 // SEND setFont:
+    4af4:	e0 03 14 aa	mov	x0, x20
+    4af8:	c5 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4afc:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4b00:	00 3d 47 f9	ldr	x0, [x8, #0xe78] ; Objc class ref: bad class ref
+    4b04:	87 10 00 94	bl	0x8d20 // SEND whiteColor
+    4b08:	fd 03 1d aa	mov	x29, x29
+    4b0c:	c9 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4b10:	f4 03 00 aa	mov	x20, x0
+    4b14:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4b18:	e2 03 14 aa	mov	x2, x20
+    4b1c:	69 0f 00 94	bl	0x88c0 // SEND setTextColor:
+    4b20:	e0 03 14 aa	mov	x0, x20
+    4b24:	ba 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4b28:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4b2c:	42 00 80 52	mov	w2, #0x2
+    4b30:	5c 0f 00 94	bl	0x88a0 // SEND setTextAlignment:
+    4b34:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4b38:	02 00 80 52	mov	w2, #0x0
+    4b3c:	71 0f 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    4b40:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4b44:	62 6a 78 f8	ldr	x2, [x19, x24]
+    4b48:	fe 0c 00 94	bl	0x7f40 // SEND addSubview:
+    4b4c:	e0 4a 47 f9	ldr	x0, [x23, #0xe90]
+    4b50:	94 0c 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    4b54:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4b58:	17 71 8f b9	ldrsw	x23, [x8, #0xf70]
+    4b5c:	68 6a 77 f8	ldr	x8, [x19, x23]
+    4b60:	60 6a 37 f8	str	x0, [x19, x23]
+    4b64:	e0 03 08 aa	mov	x0, x8
+    4b68:	a9 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4b6c:	80 4f 47 f9	ldr	x0, [x28, #0xe98]
+    4b70:	00 50 65 1e	fmov	d0, #13.00000000
+    4b74:	01 41 60 1e	fmov	d1, d8
+    4b78:	c2 0f 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    4b7c:	fd 03 1d aa	mov	x29, x29
+    4b80:	ac 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4b84:	f4 03 00 aa	mov	x20, x0
+    4b88:	60 6a 77 f8	ldr	x0, [x19, x23]
+    4b8c:	e2 03 14 aa	mov	x2, x20
+    4b90:	fc 0e 00 94	bl	0x8780 // SEND setFont:
+    4b94:	e0 03 14 aa	mov	x0, x20
+    4b98:	9d 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4b9c:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4ba0:	00 3d 47 f9	ldr	x0, [x8, #0xe78] ; Objc class ref: bad class ref
+    4ba4:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    4ba8:	01 f9 47 fd	ldr	d1, [x8, #0xff0]
+    4bac:	00 10 6e 1e	fmov	d0, #1.00000000
+    4bb0:	44 0d 00 94	bl	0x80c0 // SEND colorWithWhite:alpha:
+    4bb4:	fd 03 1d aa	mov	x29, x29
+    4bb8:	9e 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4bbc:	f4 03 00 aa	mov	x20, x0
+    4bc0:	60 6a 77 f8	ldr	x0, [x19, x23]
+    4bc4:	e2 03 14 aa	mov	x2, x20
+    4bc8:	3e 0f 00 94	bl	0x88c0 // SEND setTextColor:
+    4bcc:	e0 03 14 aa	mov	x0, x20
+    4bd0:	8f 0c 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    4bd4:	60 6a 77 f8	ldr	x0, [x19, x23]
+    4bd8:	42 00 80 52	mov	w2, #0x2
+    4bdc:	31 0f 00 94	bl	0x88a0 // SEND setTextAlignment:
+    4be0:	60 6a 77 f8	ldr	x0, [x19, x23]
+    4be4:	02 00 80 52	mov	w2, #0x0
+    4be8:	46 0f 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    4bec:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4bf0:	62 6a 77 f8	ldr	x2, [x19, x23]
+    4bf4:	d3 0c 00 94	bl	0x7f40 // SEND addSubview:
+    4bf8:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4bfc:	08 51 47 f9	ldr	x8, [x8, #0xea0] ; Objc class ref: bad class ref
+    4c00:	e8 4b 00 f9	str	x8, [sp, #0x90]
+    4c04:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4c08:	2e 0e 00 94	bl	0x84c0 // SEND leadingAnchor
+    4c0c:	fd 03 1d aa	mov	x29, x29
+    4c10:	88 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4c14:	f4 03 00 aa	mov	x20, x0
+    4c18:	a0 83 11 f8	stur	x0, [x29, #-0xe8]
+    4c1c:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4c20:	28 0e 00 94	bl	0x84c0 // SEND leadingAnchor
+    4c24:	fd 03 1d aa	mov	x29, x29
+    4c28:	82 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4c2c:	e2 03 00 aa	mov	x2, x0
+    4c30:	a0 03 11 f8	stur	x0, [x29, #-0xf0]
+    4c34:	00 10 66 1e	fmov	d0, #16.00000000
+    4c38:	e0 03 14 aa	mov	x0, x20
+    4c3c:	49 0d 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4c40:	fd 03 1d aa	mov	x29, x29
+    4c44:	7b 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4c48:	e0 7f 00 f9	str	x0, [sp, #0xf8]
+    4c4c:	a0 03 12 f8	stur	x0, [x29, #-0xe0]
+    4c50:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4c54:	03 0d 00 94	bl	0x8060 // SEND centerYAnchor
+    4c58:	fd 03 1d aa	mov	x29, x29
+    4c5c:	75 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4c60:	f4 03 00 aa	mov	x20, x0
+    4c64:	e0 7b 00 f9	str	x0, [sp, #0xf0]
+    4c68:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4c6c:	fd 0c 00 94	bl	0x8060 // SEND centerYAnchor
+    4c70:	fd 03 1d aa	mov	x29, x29
+    4c74:	6f 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4c78:	e2 03 00 aa	mov	x2, x0
+    4c7c:	e0 77 00 f9	str	x0, [sp, #0xe8]
+    4c80:	e0 03 14 aa	mov	x0, x20
+    4c84:	2f 0d 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    4c88:	fd 03 1d aa	mov	x29, x29
+    4c8c:	69 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4c90:	e0 73 00 f9	str	x0, [sp, #0xe0]
+    4c94:	a0 83 12 f8	stur	x0, [x29, #-0xd8]
+    4c98:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4c9c:	31 10 00 94	bl	0x8d60 // SEND widthAnchor
+    4ca0:	fd 03 1d aa	mov	x29, x29
+    4ca4:	63 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4ca8:	e0 6f 00 f9	str	x0, [sp, #0xd8]
+    4cac:	28 00 00 90	adrp	x8, 4 ; 0x8000
+    4cb0:	08 fd 47 fd	ldr	d8, [x8, #0xff8]
+    4cb4:	00 41 60 1e	fmov	d0, d8
+    4cb8:	32 0d 00 94	bl	0x8180 // SEND constraintEqualToConstant:
+    4cbc:	fd 03 1d aa	mov	x29, x29
+    4cc0:	5c 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4cc4:	e0 6b 00 f9	str	x0, [sp, #0xd0]
+    4cc8:	a0 03 13 f8	stur	x0, [x29, #-0xd0]
+    4ccc:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4cd0:	9c 0d 00 94	bl	0x8340 // SEND heightAnchor
+    4cd4:	fd 03 1d aa	mov	x29, x29
+    4cd8:	56 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4cdc:	e0 67 00 f9	str	x0, [sp, #0xc8]
+    4ce0:	00 41 60 1e	fmov	d0, d8
+    4ce4:	27 0d 00 94	bl	0x8180 // SEND constraintEqualToConstant:
+    4ce8:	fd 03 1d aa	mov	x29, x29
+    4cec:	51 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4cf0:	e0 63 00 f9	str	x0, [sp, #0xc0]
+    4cf4:	a0 83 13 f8	stur	x0, [x29, #-0xc8]
+    4cf8:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4cfc:	f1 0d 00 94	bl	0x84c0 // SEND leadingAnchor
+    4d00:	fd 03 1d aa	mov	x29, x29
+    4d04:	4b 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4d08:	f4 03 00 aa	mov	x20, x0
+    4d0c:	e0 5f 00 f9	str	x0, [sp, #0xb8]
+    4d10:	60 6a 76 f8	ldr	x0, [x19, x22]
+    4d14:	b3 0f 00 94	bl	0x8be0 // SEND trailingAnchor
+    4d18:	fd 03 1d aa	mov	x29, x29
+    4d1c:	45 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4d20:	e2 03 00 aa	mov	x2, x0
+    4d24:	e0 5b 00 f9	str	x0, [sp, #0xb0]
+    4d28:	00 50 66 1e	fmov	d0, #18.00000000
+    4d2c:	e0 03 14 aa	mov	x0, x20
+    4d30:	0c 0d 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4d34:	fd 03 1d aa	mov	x29, x29
+    4d38:	3e 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4d3c:	e0 57 00 f9	str	x0, [sp, #0xa8]
+    4d40:	a0 03 14 f8	stur	x0, [x29, #-0xc0]
+    4d44:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4d48:	9e 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4d4c:	fd 03 1d aa	mov	x29, x29
+    4d50:	38 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4d54:	f4 03 00 aa	mov	x20, x0
+    4d58:	e0 53 00 f9	str	x0, [sp, #0xa0]
+    4d5c:	f9 3f 00 f9	str	x25, [sp, #0x78]
+    4d60:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4d64:	97 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4d68:	fd 03 1d aa	mov	x29, x29
+    4d6c:	31 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4d70:	e2 03 00 aa	mov	x2, x0
+    4d74:	e0 4f 00 f9	str	x0, [sp, #0x98]
+    4d78:	00 10 65 1e	fmov	d0, #12.00000000
+    4d7c:	e0 03 14 aa	mov	x0, x20
+    4d80:	f8 0c 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4d84:	fd 03 1d aa	mov	x29, x29
+    4d88:	2a 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4d8c:	e0 47 00 f9	str	x0, [sp, #0x88]
+    4d90:	a0 83 14 f8	stur	x0, [x29, #-0xb8]
+    4d94:	60 6a 7b f8	ldr	x0, [x19, x27]
+    4d98:	ca 0d 00 94	bl	0x84c0 // SEND leadingAnchor
+    4d9c:	fd 03 1d aa	mov	x29, x29
+    4da0:	24 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4da4:	f4 03 00 aa	mov	x20, x0
+    4da8:	e0 43 00 f9	str	x0, [sp, #0x80]
+    4dac:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4db0:	c4 0d 00 94	bl	0x84c0 // SEND leadingAnchor
+    4db4:	fd 03 1d aa	mov	x29, x29
+    4db8:	1e 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4dbc:	e2 03 00 aa	mov	x2, x0
+    4dc0:	e0 3b 00 f9	str	x0, [sp, #0x70]
+    4dc4:	e0 03 14 aa	mov	x0, x20
+    4dc8:	de 0c 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    4dcc:	fd 03 1d aa	mov	x29, x29
+    4dd0:	18 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4dd4:	e0 37 00 f9	str	x0, [sp, #0x68]
+    4dd8:	a0 03 15 f8	stur	x0, [x29, #-0xb0]
+    4ddc:	60 6a 7b f8	ldr	x0, [x19, x27]
+    4de0:	78 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4de4:	fd 03 1d aa	mov	x29, x29
+    4de8:	12 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4dec:	f4 03 00 aa	mov	x20, x0
+    4df0:	e0 33 00 f9	str	x0, [sp, #0x60]
+    4df4:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4df8:	72 0c 00 94	bl	0x7fc0 // SEND bottomAnchor
+    4dfc:	fd 03 1d aa	mov	x29, x29
+    4e00:	0c 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e04:	e2 03 00 aa	mov	x2, x0
+    4e08:	e0 2f 00 f9	str	x0, [sp, #0x58]
+    4e0c:	00 10 60 1e	fmov	d0, #2.00000000
+    4e10:	e0 03 14 aa	mov	x0, x20
+    4e14:	d3 0c 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4e18:	fd 03 1d aa	mov	x29, x29
+    4e1c:	05 0c 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e20:	e0 2b 00 f9	str	x0, [sp, #0x50]
+    4e24:	a0 83 15 f8	stur	x0, [x29, #-0xa8]
+    4e28:	60 6a 7a f8	ldr	x0, [x19, x26]
+    4e2c:	a5 0d 00 94	bl	0x84c0 // SEND leadingAnchor
+    4e30:	fd 03 1d aa	mov	x29, x29
+    4e34:	ff 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e38:	f4 03 00 aa	mov	x20, x0
+    4e3c:	e0 27 00 f9	str	x0, [sp, #0x48]
+    4e40:	60 6a 75 f8	ldr	x0, [x19, x21]
+    4e44:	9f 0d 00 94	bl	0x84c0 // SEND leadingAnchor
+    4e48:	fd 03 1d aa	mov	x29, x29
+    4e4c:	f9 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e50:	e2 03 00 aa	mov	x2, x0
+    4e54:	e0 23 00 f9	str	x0, [sp, #0x40]
+    4e58:	e0 03 14 aa	mov	x0, x20
+    4e5c:	b9 0c 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    4e60:	fd 03 1d aa	mov	x29, x29
+    4e64:	f3 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e68:	e0 1f 00 f9	str	x0, [sp, #0x38]
+    4e6c:	a0 03 16 f8	stur	x0, [x29, #-0xa0]
+    4e70:	60 6a 7a f8	ldr	x0, [x19, x26]
+    4e74:	53 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4e78:	fd 03 1d aa	mov	x29, x29
+    4e7c:	ed 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e80:	f4 03 00 aa	mov	x20, x0
+    4e84:	e0 1b 00 f9	str	x0, [sp, #0x30]
+    4e88:	60 6a 7b f8	ldr	x0, [x19, x27]
+    4e8c:	4d 0c 00 94	bl	0x7fc0 // SEND bottomAnchor
+    4e90:	fd 03 1d aa	mov	x29, x29
+    4e94:	e7 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4e98:	e2 03 00 aa	mov	x2, x0
+    4e9c:	e0 17 00 f9	str	x0, [sp, #0x28]
+    4ea0:	00 10 60 1e	fmov	d0, #2.00000000
+    4ea4:	e0 03 14 aa	mov	x0, x20
+    4ea8:	ae 0c 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4eac:	fd 03 1d aa	mov	x29, x29
+    4eb0:	e0 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4eb4:	e0 13 00 f9	str	x0, [sp, #0x20]
+    4eb8:	a0 83 16 f8	stur	x0, [x29, #-0x98]
+    4ebc:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4ec0:	48 0f 00 94	bl	0x8be0 // SEND trailingAnchor
+    4ec4:	fd 03 1d aa	mov	x29, x29
+    4ec8:	da 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4ecc:	f4 03 00 aa	mov	x20, x0
+    4ed0:	e0 0f 00 f9	str	x0, [sp, #0x18]
+    4ed4:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4ed8:	42 0f 00 94	bl	0x8be0 // SEND trailingAnchor
+    4edc:	fd 03 1d aa	mov	x29, x29
+    4ee0:	d4 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4ee4:	e2 03 00 aa	mov	x2, x0
+    4ee8:	e0 0b 00 f9	str	x0, [sp, #0x10]
+    4eec:	00 10 76 1e	fmov	d0, #-16.00000000
+    4ef0:	e0 03 14 aa	mov	x0, x20
+    4ef4:	9b 0c 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4ef8:	fd 03 1d aa	mov	x29, x29
+    4efc:	cd 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f00:	e0 07 00 f9	str	x0, [sp, #0x8]
+    4f04:	a0 03 17 f8	stur	x0, [x29, #-0x90]
+    4f08:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4f0c:	2d 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4f10:	fd 03 1d aa	mov	x29, x29
+    4f14:	c7 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f18:	f4 03 00 aa	mov	x20, x0
+    4f1c:	e0 03 00 f9	str	x0, [sp]
+    4f20:	60 6a 79 f8	ldr	x0, [x19, x25]
+    4f24:	27 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4f28:	fd 03 1d aa	mov	x29, x29
+    4f2c:	c1 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f30:	f9 03 00 aa	mov	x25, x0
+    4f34:	00 90 64 1e	fmov	d0, #10.00000000
+    4f38:	e0 03 14 aa	mov	x0, x20
+    4f3c:	e2 03 19 aa	mov	x2, x25
+    4f40:	88 0c 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4f44:	fd 03 1d aa	mov	x29, x29
+    4f48:	ba 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f4c:	fa 03 00 aa	mov	x26, x0
+    4f50:	a0 83 17 f8	stur	x0, [x29, #-0x88]
+    4f54:	60 6a 77 f8	ldr	x0, [x19, x23]
+    4f58:	22 0f 00 94	bl	0x8be0 // SEND trailingAnchor
+    4f5c:	fd 03 1d aa	mov	x29, x29
+    4f60:	b4 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f64:	fb 03 00 aa	mov	x27, x0
+    4f68:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4f6c:	1d 0f 00 94	bl	0x8be0 // SEND trailingAnchor
+    4f70:	fd 03 1d aa	mov	x29, x29
+    4f74:	af 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f78:	fc 03 00 aa	mov	x28, x0
+    4f7c:	e0 03 1b aa	mov	x0, x27
+    4f80:	e2 03 1c aa	mov	x2, x28
+    4f84:	6f 0c 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    4f88:	fd 03 1d aa	mov	x29, x29
+    4f8c:	a9 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4f90:	f4 03 00 aa	mov	x20, x0
+    4f94:	a0 03 18 f8	stur	x0, [x29, #-0x80]
+    4f98:	60 6a 77 f8	ldr	x0, [x19, x23]
+    4f9c:	09 0f 00 94	bl	0x8bc0 // SEND topAnchor
+    4fa0:	fd 03 1d aa	mov	x29, x29
+    4fa4:	a3 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4fa8:	f5 03 00 aa	mov	x21, x0
+    4fac:	60 6a 78 f8	ldr	x0, [x19, x24]
+    4fb0:	04 0c 00 94	bl	0x7fc0 // SEND bottomAnchor
+    4fb4:	fd 03 1d aa	mov	x29, x29
+    4fb8:	9e 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4fbc:	f6 03 00 aa	mov	x22, x0
+    4fc0:	e0 03 67 9e	fmov	d0, xzr
+    4fc4:	e0 03 15 aa	mov	x0, x21
+    4fc8:	e2 03 16 aa	mov	x2, x22
+    4fcc:	65 0c 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    4fd0:	fd 03 1d aa	mov	x29, x29
+    4fd4:	97 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4fd8:	f7 03 00 aa	mov	x23, x0
+    4fdc:	a0 83 18 f8	stur	x0, [x29, #-0x78]
+    4fe0:	68 00 00 90	adrp	x8, 12 ; 0x10000
+    4fe4:	00 55 47 f9	ldr	x0, [x8, #0xea8] ; Objc class ref: bad class ref
+    4fe8:	a2 83 03 d1	sub	x2, x29, #0xe0
+    4fec:	c3 01 80 52	mov	w3, #0xe
+    4ff0:	ec 0b 00 94	bl	0x7fa0 // SEND arrayWithObjects:count:
+    4ff4:	fd 03 1d aa	mov	x29, x29
+    4ff8:	8e 0b 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    4ffc:	f8 03 00 aa	mov	x24, x0
+    5000:	e0 4b 40 f9	ldr	x0, [sp, #0x90]
+    5004:	e2 03 18 aa	mov	x2, x24
+    5008:	ae 0b 00 94	bl	0x7ec0 // SEND activateConstraints:
+    500c:	e0 03 18 aa	mov	x0, x24
+    5010:	7f 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5014:	e0 03 17 aa	mov	x0, x23
+    5018:	7d 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    501c:	e0 03 16 aa	mov	x0, x22
+    5020:	7b 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5024:	e0 03 15 aa	mov	x0, x21
+    5028:	79 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    502c:	e0 03 14 aa	mov	x0, x20
+    5030:	77 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5034:	e0 03 1c aa	mov	x0, x28
+    5038:	75 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    503c:	e0 03 1b aa	mov	x0, x27
+    5040:	73 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5044:	e0 03 1a aa	mov	x0, x26
+    5048:	71 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    504c:	e0 03 19 aa	mov	x0, x25
+    5050:	6f 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5054:	e0 03 40 f9	ldr	x0, [sp]
+    5058:	6d 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    505c:	e0 07 40 f9	ldr	x0, [sp, #0x8]
+    5060:	6b 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5064:	e0 0b 40 f9	ldr	x0, [sp, #0x10]
+    5068:	69 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    506c:	e0 0f 40 f9	ldr	x0, [sp, #0x18]
+    5070:	67 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5074:	e0 13 40 f9	ldr	x0, [sp, #0x20]
+    5078:	65 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    507c:	e0 17 40 f9	ldr	x0, [sp, #0x28]
+    5080:	63 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5084:	e0 1b 40 f9	ldr	x0, [sp, #0x30]
+    5088:	61 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    508c:	e0 1f 40 f9	ldr	x0, [sp, #0x38]
+    5090:	5f 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5094:	e0 23 40 f9	ldr	x0, [sp, #0x40]
+    5098:	5d 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    509c:	e0 27 40 f9	ldr	x0, [sp, #0x48]
+    50a0:	5b 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50a4:	e0 2b 40 f9	ldr	x0, [sp, #0x50]
+    50a8:	59 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50ac:	e0 2f 40 f9	ldr	x0, [sp, #0x58]
+    50b0:	57 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50b4:	e0 33 40 f9	ldr	x0, [sp, #0x60]
+    50b8:	55 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50bc:	e0 37 40 f9	ldr	x0, [sp, #0x68]
+    50c0:	53 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50c4:	e0 3b 40 f9	ldr	x0, [sp, #0x70]
+    50c8:	51 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50cc:	e0 43 40 f9	ldr	x0, [sp, #0x80]
+    50d0:	4f 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50d4:	e0 47 40 f9	ldr	x0, [sp, #0x88]
+    50d8:	4d 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50dc:	e0 4f 40 f9	ldr	x0, [sp, #0x98]
+    50e0:	4b 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50e4:	e0 53 40 f9	ldr	x0, [sp, #0xa0]
+    50e8:	49 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50ec:	e0 57 40 f9	ldr	x0, [sp, #0xa8]
+    50f0:	47 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50f4:	e0 5b 40 f9	ldr	x0, [sp, #0xb0]
+    50f8:	45 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    50fc:	e0 5f 40 f9	ldr	x0, [sp, #0xb8]
+    5100:	43 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5104:	e0 63 40 f9	ldr	x0, [sp, #0xc0]
+    5108:	41 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    510c:	e0 67 40 f9	ldr	x0, [sp, #0xc8]
+    5110:	3f 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5114:	e0 6b 40 f9	ldr	x0, [sp, #0xd0]
+    5118:	3d 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    511c:	e0 6f 40 f9	ldr	x0, [sp, #0xd8]
+    5120:	3b 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5124:	e0 73 40 f9	ldr	x0, [sp, #0xe0]
+    5128:	39 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    512c:	e0 77 40 f9	ldr	x0, [sp, #0xe8]
+    5130:	37 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5134:	e0 7b 40 f9	ldr	x0, [sp, #0xf0]
+    5138:	35 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    513c:	e0 7f 40 f9	ldr	x0, [sp, #0xf8]
+    5140:	33 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5144:	a0 03 51 f8	ldur	x0, [x29, #-0xf0]
+    5148:	31 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    514c:	a0 83 51 f8	ldur	x0, [x29, #-0xe8]
+    5150:	2f 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5154:	55 00 00 f0	adrp	x21, 11 ; 0x10000
+    5158:	a0 5a 47 f9	ldr	x0, [x21, #0xeb0] ; Objc class ref: bad class ref
+    515c:	0e 0b 00 94	bl	0x7d94 ; symbol stub for: _objc_alloc
+    5160:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5164:	03 31 47 f9	ldr	x3, [x8, #0xe60] // handleDoubleTap:
+    5168:	e2 03 13 aa	mov	x2, x19
+    516c:	ad 0c 00 94	bl	0x8420 // SEND initWithTarget:action:
+    5170:	f4 03 00 aa	mov	x20, x0
+    5174:	42 00 80 52	mov	w2, #0x2
+    5178:	a2 0d 00 94	bl	0x8800 // SEND setNumberOfTapsRequired:
+    517c:	e0 03 14 aa	mov	x0, x20
+    5180:	22 00 80 52	mov	w2, #0x1
+    5184:	a7 0d 00 94	bl	0x8820 // SEND setNumberOfTouchesRequired:
+    5188:	f6 3f 40 f9	ldr	x22, [sp, #0x78]
+    518c:	60 6a 76 f8	ldr	x0, [x19, x22]
+    5190:	e2 03 14 aa	mov	x2, x20
+    5194:	5b 0b 00 94	bl	0x7f00 // SEND addGestureRecognizer:
+    5198:	a0 5a 47 f9	ldr	x0, [x21, #0xeb0]
+    519c:	fe 0a 00 94	bl	0x7d94 ; symbol stub for: _objc_alloc
+    51a0:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    51a4:	03 35 47 f9	ldr	x3, [x8, #0xe68] // handleTwoFingerDoubleTap:
+    51a8:	e2 03 13 aa	mov	x2, x19
+    51ac:	9d 0c 00 94	bl	0x8420 // SEND initWithTarget:action:
+    51b0:	f5 03 00 aa	mov	x21, x0
+    51b4:	42 00 80 52	mov	w2, #0x2
+    51b8:	92 0d 00 94	bl	0x8800 // SEND setNumberOfTapsRequired:
+    51bc:	e0 03 15 aa	mov	x0, x21
+    51c0:	42 00 80 52	mov	w2, #0x2
+    51c4:	97 0d 00 94	bl	0x8820 // SEND setNumberOfTouchesRequired:
+    51c8:	60 6a 76 f8	ldr	x0, [x19, x22]
+    51cc:	e2 03 15 aa	mov	x2, x21
+    51d0:	4c 0b 00 94	bl	0x7f00 // SEND addGestureRecognizer:
+    51d4:	60 6a 76 f8	ldr	x0, [x19, x22]
+    51d8:	22 00 80 52	mov	w2, #0x1
+    51dc:	d1 0d 00 94	bl	0x8920 // SEND setUserInteractionEnabled:
+    51e0:	e0 03 15 aa	mov	x0, x21
+    51e4:	0a 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    51e8:	e0 03 14 aa	mov	x0, x20
+    51ec:	08 0b 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    51f0:	a8 03 59 f8	ldur	x8, [x29, #-0x70]
+    51f4:	29 00 00 f0	adrp	x9, 7 ; 0xc000
+    51f8:	29 2d 40 f9	ldr	x9, [x9, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    51fc:	29 01 40 f9	ldr	x9, [x9]
+    5200:	3f 01 08 eb	cmp	x9, x8
+    5204:	41 01 00 54	b.ne	0x522c
+    5208:	ff 43 06 91	add	sp, sp, #0x190
+    520c:	fd 7b 46 a9	ldp	x29, x30, [sp, #0x60]
+    5210:	f4 4f 45 a9	ldp	x20, x19, [sp, #0x50]
+    5214:	f6 57 44 a9	ldp	x22, x21, [sp, #0x40]
+    5218:	f8 5f 43 a9	ldp	x24, x23, [sp, #0x30]
+    521c:	fa 67 42 a9	ldp	x26, x25, [sp, #0x20]
+    5220:	fc 6f 41 a9	ldp	x28, x27, [sp, #0x10]
+    5224:	e9 23 c7 6c	ldp	d9, d8, [sp], #0x70
+    5228:	c0 03 5f d6	ret
+    522c:	cb 0a 00 94	bl	0x7d58 ; symbol stub for: ___stack_chk_fail
+
+METHOD setupHourlyContainer
+    5230:	ff c3 04 d1	sub	sp, sp, #0x130
+    5234:	fc 6f 0d a9	stp	x28, x27, [sp, #0xd0]
+    5238:	fa 67 0e a9	stp	x26, x25, [sp, #0xe0]
+    523c:	f8 5f 0f a9	stp	x24, x23, [sp, #0xf0]
+    5240:	f6 57 10 a9	stp	x22, x21, [sp, #0x100]
+    5244:	f4 4f 11 a9	stp	x20, x19, [sp, #0x110]
+    5248:	fd 7b 12 a9	stp	x29, x30, [sp, #0x120]
+    524c:	fd 83 04 91	add	x29, sp, #0x120
+    5250:	f3 03 00 aa	mov	x19, x0
+    5254:	28 00 00 f0	adrp	x8, 7 ; 0xc000
+    5258:	08 2d 40 f9	ldr	x8, [x8, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    525c:	08 01 40 f9	ldr	x8, [x8]
+    5260:	a8 03 1a f8	stur	x8, [x29, #-0x60]
+    5264:	55 00 00 f0	adrp	x21, 11 ; 0x10000
+    5268:	a0 42 47 f9	ldr	x0, [x21, #0xe80] ; Objc class ref: bad class ref
+    526c:	cd 0a 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    5270:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5274:	17 55 8f b9	ldrsw	x23, [x8, #0xf54]
+    5278:	68 6a 77 f8	ldr	x8, [x19, x23]
+    527c:	60 6a 37 f8	str	x0, [x19, x23]
+    5280:	e0 03 08 aa	mov	x0, x8
+    5284:	e2 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5288:	56 00 00 f0	adrp	x22, 11 ; 0x10000
+    528c:	c0 3e 47 f9	ldr	x0, [x22, #0xe78] ; Objc class ref: bad class ref
+    5290:	84 0b 00 94	bl	0x80a0 // SEND clearColor
+    5294:	fd 03 1d aa	mov	x29, x29
+    5298:	e6 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    529c:	f4 03 00 aa	mov	x20, x0
+    52a0:	60 6a 77 f8	ldr	x0, [x19, x23]
+    52a4:	e2 03 14 aa	mov	x2, x20
+    52a8:	0e 0d 00 94	bl	0x86e0 // SEND setBackgroundColor:
+    52ac:	e0 03 14 aa	mov	x0, x20
+    52b0:	d7 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    52b4:	60 6a 77 f8	ldr	x0, [x19, x23]
+    52b8:	e0 03 67 9e	fmov	d0, xzr
+    52bc:	01 0d 00 94	bl	0x86c0 // SEND setAlpha:
+    52c0:	e0 03 13 aa	mov	x0, x19
+    52c4:	7f 0e 00 94	bl	0x8cc0 // SEND view
+    52c8:	fd 03 1d aa	mov	x29, x29
+    52cc:	d9 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    52d0:	f4 03 00 aa	mov	x20, x0
+    52d4:	62 6a 77 f8	ldr	x2, [x19, x23]
+    52d8:	1a 0b 00 94	bl	0x7f40 // SEND addSubview:
+    52dc:	e0 03 14 aa	mov	x0, x20
+    52e0:	cb 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    52e4:	a0 42 47 f9	ldr	x0, [x21, #0xe80]
+    52e8:	ae 0a 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    52ec:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    52f0:	15 75 8f b9	ldrsw	x21, [x8, #0xf74]
+    52f4:	68 6a 75 f8	ldr	x8, [x19, x21]
+    52f8:	60 6a 35 f8	str	x0, [x19, x21]
+    52fc:	e0 03 08 aa	mov	x0, x8
+    5300:	c3 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5304:	c0 3e 47 f9	ldr	x0, [x22, #0xe78]
+    5308:	28 00 00 90	adrp	x8, 4 ; 0x9000
+    530c:	01 01 40 fd	ldr	d1, [x8]
+    5310:	00 10 6e 1e	fmov	d0, #1.00000000
+    5314:	6b 0b 00 94	bl	0x80c0 // SEND colorWithWhite:alpha:
+    5318:	fd 03 1d aa	mov	x29, x29
+    531c:	c5 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5320:	f4 03 00 aa	mov	x20, x0
+    5324:	60 6a 75 f8	ldr	x0, [x19, x21]
+    5328:	e2 03 14 aa	mov	x2, x20
+    532c:	ed 0c 00 94	bl	0x86e0 // SEND setBackgroundColor:
+    5330:	e0 03 14 aa	mov	x0, x20
+    5334:	b6 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5338:	60 6a 75 f8	ldr	x0, [x19, x21]
+    533c:	02 00 80 52	mov	w2, #0x0
+    5340:	70 0d 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    5344:	60 6a 77 f8	ldr	x0, [x19, x23]
+    5348:	62 6a 75 f8	ldr	x2, [x19, x21]
+    534c:	fd 0a 00 94	bl	0x7f40 // SEND addSubview:
+    5350:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5354:	00 5d 47 f9	ldr	x0, [x8, #0xeb8] ; Objc class ref: bad class ref
+    5358:	92 0a 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    535c:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5360:	16 79 8f b9	ldrsw	x22, [x8, #0xf78]
+    5364:	68 6a 76 f8	ldr	x8, [x19, x22]
+    5368:	60 6a 36 f8	str	x0, [x19, x22]
+    536c:	e0 03 08 aa	mov	x0, x8
+    5370:	a7 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5374:	60 6a 76 f8	ldr	x0, [x19, x22]
+    5378:	02 00 80 52	mov	w2, #0x0
+    537c:	39 0d 00 94	bl	0x8860 // SEND setShowsHorizontalScrollIndicator:
+    5380:	60 6a 76 f8	ldr	x0, [x19, x22]
+    5384:	02 00 80 52	mov	w2, #0x0
+    5388:	5e 0d 00 94	bl	0x8900 // SEND setTranslatesAutoresizingMaskIntoConstraints:
+    538c:	60 6a 77 f8	ldr	x0, [x19, x23]
+    5390:	62 6a 76 f8	ldr	x2, [x19, x22]
+    5394:	eb 0a 00 94	bl	0x7f40 // SEND addSubview:
+    5398:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    539c:	08 51 47 f9	ldr	x8, [x8, #0xea0] ; Objc class ref: bad class ref
+    53a0:	e8 1b 00 f9	str	x8, [sp, #0x30]
+    53a4:	60 6a 75 f8	ldr	x0, [x19, x21]
+    53a8:	46 0c 00 94	bl	0x84c0 // SEND leadingAnchor
+    53ac:	fd 03 1d aa	mov	x29, x29
+    53b0:	a0 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    53b4:	f4 03 00 aa	mov	x20, x0
+    53b8:	e0 3f 00 f9	str	x0, [sp, #0x78]
+    53bc:	60 6a 77 f8	ldr	x0, [x19, x23]
+    53c0:	40 0c 00 94	bl	0x84c0 // SEND leadingAnchor
+    53c4:	fd 03 1d aa	mov	x29, x29
+    53c8:	9a 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    53cc:	e2 03 00 aa	mov	x2, x0
+    53d0:	e0 3b 00 f9	str	x0, [sp, #0x70]
+    53d4:	00 10 66 1e	fmov	d0, #16.00000000
+    53d8:	e0 03 14 aa	mov	x0, x20
+    53dc:	61 0b 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    53e0:	fd 03 1d aa	mov	x29, x29
+    53e4:	93 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    53e8:	e0 37 00 f9	str	x0, [sp, #0x68]
+    53ec:	e0 43 00 f9	str	x0, [sp, #0x80]
+    53f0:	60 6a 75 f8	ldr	x0, [x19, x21]
+    53f4:	fb 0d 00 94	bl	0x8be0 // SEND trailingAnchor
+    53f8:	fd 03 1d aa	mov	x29, x29
+    53fc:	8d 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5400:	f4 03 00 aa	mov	x20, x0
+    5404:	e0 33 00 f9	str	x0, [sp, #0x60]
+    5408:	60 6a 77 f8	ldr	x0, [x19, x23]
+    540c:	f5 0d 00 94	bl	0x8be0 // SEND trailingAnchor
+    5410:	fd 03 1d aa	mov	x29, x29
+    5414:	87 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5418:	e2 03 00 aa	mov	x2, x0
+    541c:	e0 2f 00 f9	str	x0, [sp, #0x58]
+    5420:	00 10 76 1e	fmov	d0, #-16.00000000
+    5424:	e0 03 14 aa	mov	x0, x20
+    5428:	4e 0b 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    542c:	fd 03 1d aa	mov	x29, x29
+    5430:	80 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5434:	e0 2b 00 f9	str	x0, [sp, #0x50]
+    5438:	e0 47 00 f9	str	x0, [sp, #0x88]
+    543c:	60 6a 75 f8	ldr	x0, [x19, x21]
+    5440:	e0 0d 00 94	bl	0x8bc0 // SEND topAnchor
+    5444:	fd 03 1d aa	mov	x29, x29
+    5448:	7a 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    544c:	f4 03 00 aa	mov	x20, x0
+    5450:	e0 27 00 f9	str	x0, [sp, #0x48]
+    5454:	60 6a 77 f8	ldr	x0, [x19, x23]
+    5458:	da 0d 00 94	bl	0x8bc0 // SEND topAnchor
+    545c:	fd 03 1d aa	mov	x29, x29
+    5460:	74 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5464:	e2 03 00 aa	mov	x2, x0
+    5468:	e0 23 00 f9	str	x0, [sp, #0x40]
+    546c:	e0 03 14 aa	mov	x0, x20
+    5470:	34 0b 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    5474:	fd 03 1d aa	mov	x29, x29
+    5478:	6e 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    547c:	e0 1f 00 f9	str	x0, [sp, #0x38]
+    5480:	e0 4b 00 f9	str	x0, [sp, #0x90]
+    5484:	60 6a 75 f8	ldr	x0, [x19, x21]
+    5488:	ae 0b 00 94	bl	0x8340 // SEND heightAnchor
+    548c:	fd 03 1d aa	mov	x29, x29
+    5490:	68 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5494:	e0 17 00 f9	str	x0, [sp, #0x28]
+    5498:	00 10 6c 1e	fmov	d0, #0.50000000
+    549c:	39 0b 00 94	bl	0x8180 // SEND constraintEqualToConstant:
+    54a0:	fd 03 1d aa	mov	x29, x29
+    54a4:	63 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    54a8:	e0 13 00 f9	str	x0, [sp, #0x20]
+    54ac:	e0 4f 00 f9	str	x0, [sp, #0x98]
+    54b0:	60 6a 76 f8	ldr	x0, [x19, x22]
+    54b4:	03 0c 00 94	bl	0x84c0 // SEND leadingAnchor
+    54b8:	fd 03 1d aa	mov	x29, x29
+    54bc:	5d 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    54c0:	f4 03 00 aa	mov	x20, x0
+    54c4:	e0 0f 00 f9	str	x0, [sp, #0x18]
+    54c8:	60 6a 77 f8	ldr	x0, [x19, x23]
+    54cc:	fd 0b 00 94	bl	0x84c0 // SEND leadingAnchor
+    54d0:	fd 03 1d aa	mov	x29, x29
+    54d4:	57 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    54d8:	e2 03 00 aa	mov	x2, x0
+    54dc:	e0 0b 00 f9	str	x0, [sp, #0x10]
+    54e0:	e0 03 14 aa	mov	x0, x20
+    54e4:	17 0b 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    54e8:	fd 03 1d aa	mov	x29, x29
+    54ec:	51 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    54f0:	e0 07 00 f9	str	x0, [sp, #0x8]
+    54f4:	e0 53 00 f9	str	x0, [sp, #0xa0]
+    54f8:	60 6a 76 f8	ldr	x0, [x19, x22]
+    54fc:	b9 0d 00 94	bl	0x8be0 // SEND trailingAnchor
+    5500:	fd 03 1d aa	mov	x29, x29
+    5504:	4b 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5508:	f9 03 00 aa	mov	x25, x0
+    550c:	60 6a 77 f8	ldr	x0, [x19, x23]
+    5510:	b4 0d 00 94	bl	0x8be0 // SEND trailingAnchor
+    5514:	fd 03 1d aa	mov	x29, x29
+    5518:	46 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    551c:	fa 03 00 aa	mov	x26, x0
+    5520:	e0 03 19 aa	mov	x0, x25
+    5524:	e2 03 1a aa	mov	x2, x26
+    5528:	06 0b 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    552c:	fd 03 1d aa	mov	x29, x29
+    5530:	40 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5534:	fb 03 00 aa	mov	x27, x0
+    5538:	e0 57 00 f9	str	x0, [sp, #0xa8]
+    553c:	60 6a 76 f8	ldr	x0, [x19, x22]
+    5540:	a0 0d 00 94	bl	0x8bc0 // SEND topAnchor
+    5544:	fd 03 1d aa	mov	x29, x29
+    5548:	3a 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    554c:	fc 03 00 aa	mov	x28, x0
+    5550:	60 6a 75 f8	ldr	x0, [x19, x21]
+    5554:	9b 0a 00 94	bl	0x7fc0 // SEND bottomAnchor
+    5558:	fd 03 1d aa	mov	x29, x29
+    555c:	35 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5560:	f4 03 00 aa	mov	x20, x0
+    5564:	00 10 64 1e	fmov	d0, #8.00000000
+    5568:	e0 03 1c aa	mov	x0, x28
+    556c:	e2 03 14 aa	mov	x2, x20
+    5570:	fc 0a 00 94	bl	0x8160 // SEND constraintEqualToAnchor:constant:
+    5574:	fd 03 1d aa	mov	x29, x29
+    5578:	2e 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    557c:	f5 03 00 aa	mov	x21, x0
+    5580:	e0 5b 00 f9	str	x0, [sp, #0xb0]
+    5584:	60 6a 76 f8	ldr	x0, [x19, x22]
+    5588:	8e 0a 00 94	bl	0x7fc0 // SEND bottomAnchor
+    558c:	fd 03 1d aa	mov	x29, x29
+    5590:	28 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5594:	f6 03 00 aa	mov	x22, x0
+    5598:	60 6a 77 f8	ldr	x0, [x19, x23]
+    559c:	89 0a 00 94	bl	0x7fc0 // SEND bottomAnchor
+    55a0:	fd 03 1d aa	mov	x29, x29
+    55a4:	23 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    55a8:	f3 03 00 aa	mov	x19, x0
+    55ac:	e0 03 16 aa	mov	x0, x22
+    55b0:	e2 03 13 aa	mov	x2, x19
+    55b4:	e3 0a 00 94	bl	0x8140 // SEND constraintEqualToAnchor:
+    55b8:	fd 03 1d aa	mov	x29, x29
+    55bc:	1d 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    55c0:	f7 03 00 aa	mov	x23, x0
+    55c4:	e0 5f 00 f9	str	x0, [sp, #0xb8]
+    55c8:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    55cc:	00 55 47 f9	ldr	x0, [x8, #0xea8] ; Objc class ref: bad class ref
+    55d0:	e2 03 02 91	add	x2, sp, #0x80
+    55d4:	03 01 80 52	mov	w3, #0x8
+    55d8:	72 0a 00 94	bl	0x7fa0 // SEND arrayWithObjects:count:
+    55dc:	fd 03 1d aa	mov	x29, x29
+    55e0:	14 0a 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    55e4:	f8 03 00 aa	mov	x24, x0
+    55e8:	e0 1b 40 f9	ldr	x0, [sp, #0x30]
+    55ec:	e2 03 18 aa	mov	x2, x24
+    55f0:	34 0a 00 94	bl	0x7ec0 // SEND activateConstraints:
+    55f4:	e0 03 18 aa	mov	x0, x24
+    55f8:	05 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    55fc:	e0 03 17 aa	mov	x0, x23
+    5600:	03 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5604:	e0 03 13 aa	mov	x0, x19
+    5608:	01 0a 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    560c:	e0 03 16 aa	mov	x0, x22
+    5610:	ff 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5614:	e0 03 15 aa	mov	x0, x21
+    5618:	fd 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    561c:	e0 03 14 aa	mov	x0, x20
+    5620:	fb 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5624:	e0 03 1c aa	mov	x0, x28
+    5628:	f9 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    562c:	e0 03 1b aa	mov	x0, x27
+    5630:	f7 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5634:	e0 03 1a aa	mov	x0, x26
+    5638:	f5 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    563c:	e0 03 19 aa	mov	x0, x25
+    5640:	f3 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5644:	e0 07 40 f9	ldr	x0, [sp, #0x8]
+    5648:	f1 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    564c:	e0 0b 40 f9	ldr	x0, [sp, #0x10]
+    5650:	ef 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5654:	e0 0f 40 f9	ldr	x0, [sp, #0x18]
+    5658:	ed 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    565c:	e0 13 40 f9	ldr	x0, [sp, #0x20]
+    5660:	eb 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5664:	e0 17 40 f9	ldr	x0, [sp, #0x28]
+    5668:	e9 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    566c:	e0 1f 40 f9	ldr	x0, [sp, #0x38]
+    5670:	e7 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5674:	e0 23 40 f9	ldr	x0, [sp, #0x40]
+    5678:	e5 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    567c:	e0 27 40 f9	ldr	x0, [sp, #0x48]
+    5680:	e3 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5684:	e0 2b 40 f9	ldr	x0, [sp, #0x50]
+    5688:	e1 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    568c:	e0 2f 40 f9	ldr	x0, [sp, #0x58]
+    5690:	df 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5694:	e0 33 40 f9	ldr	x0, [sp, #0x60]
+    5698:	dd 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    569c:	e0 37 40 f9	ldr	x0, [sp, #0x68]
+    56a0:	db 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    56a4:	e0 3b 40 f9	ldr	x0, [sp, #0x70]
+    56a8:	d9 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    56ac:	e0 3f 40 f9	ldr	x0, [sp, #0x78]
+    56b0:	d7 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    56b4:	a8 03 5a f8	ldur	x8, [x29, #-0x60]
+    56b8:	29 00 00 f0	adrp	x9, 7 ; 0xc000
+    56bc:	29 2d 40 f9	ldr	x9, [x9, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    56c0:	29 01 40 f9	ldr	x9, [x9]
+    56c4:	3f 01 08 eb	cmp	x9, x8
+    56c8:	21 01 00 54	b.ne	0x56ec
+    56cc:	fd 7b 52 a9	ldp	x29, x30, [sp, #0x120]
+    56d0:	f4 4f 51 a9	ldp	x20, x19, [sp, #0x110]
+    56d4:	f6 57 50 a9	ldp	x22, x21, [sp, #0x100]
+    56d8:	f8 5f 4f a9	ldp	x24, x23, [sp, #0xf0]
+    56dc:	fa 67 4e a9	ldp	x26, x25, [sp, #0xe0]
+    56e0:	fc 6f 4d a9	ldp	x28, x27, [sp, #0xd0]
+    56e4:	ff c3 04 91	add	sp, sp, #0x130
+    56e8:	c0 03 5f d6	ret
+    56ec:	9b 09 00 94	bl	0x7d58 ; symbol stub for: ___stack_chk_fail
+
+METHOD handleDoubleTap:
+    56f0:	f6 57 bd a9	stp	x22, x21, [sp, #-0x30]!
+    56f4:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    56f8:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    56fc:	fd 83 00 91	add	x29, sp, #0x20
+    5700:	f3 03 00 aa	mov	x19, x0
+    5704:	e0 03 02 aa	mov	x0, x2
+    5708:	c4 09 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    570c:	f4 03 00 aa	mov	x20, x0
+    5710:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5714:	15 45 8f b9	ldrsw	x21, [x8, #0xf44]
+    5718:	68 6a 75 f8	ldr	x8, [x19, x21]
+    571c:	08 05 00 91	add	x8, x8, #0x1
+    5720:	e9 f3 00 b2	mov	x9, #0x5555555555555555
+    5724:	c9 aa 8a f2	movk	x9, #0x5556
+    5728:	09 7d 49 9b	smulh	x9, x8, x9
+    572c:	29 fd 49 8b	add	x9, x9, x9, lsr #63
+    5730:	29 05 09 8b	add	x9, x9, x9, lsl #1
+    5734:	08 01 09 cb	sub	x8, x8, x9
+    5738:	68 6a 35 f8	str	x8, [x19, x21]
+    573c:	1f 09 00 f1	cmp	x8, #0x2
+    5740:	01 01 00 54	b.ne	0x5760
+    5744:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5748:	08 49 8f b9	ldrsw	x8, [x8, #0xf48]
+    574c:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5750:	60 00 00 b4	cbz	x0, 0x575c
+    5754:	63 0b 00 94	bl	0x84e0 // SEND length
+    5758:	40 00 00 b5	cbnz	x0, 0x5760
+    575c:	7f 6a 35 f8	str	xzr, [x19, x21]
+    5760:	e0 03 13 aa	mov	x0, x19
+    5764:	27 0d 00 94	bl	0x8c00 // SEND updateCityLabel
+    5768:	e0 03 14 aa	mov	x0, x20
+    576c:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    5770:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    5774:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    5778:	a5 09 00 14	b	0x7e0c ; symbol stub for: _objc_release
+
+METHOD handleTwoFingerDoubleTap:
+    577c:	89 0c 00 14	b	0x89a0 // SEND showCustomNameAlert
+
+METHOD showCustomNameAlert
+    5780:	ff c3 02 d1	sub	sp, sp, #0xb0
+    5784:	e9 23 06 6d	stp	d9, d8, [sp, #0x60]
+    5788:	f8 5f 07 a9	stp	x24, x23, [sp, #0x70]
+    578c:	f6 57 08 a9	stp	x22, x21, [sp, #0x80]
+    5790:	f4 4f 09 a9	stp	x20, x19, [sp, #0x90]
+    5794:	fd 7b 0a a9	stp	x29, x30, [sp, #0xa0]
+    5798:	fd 83 02 91	add	x29, sp, #0xa0
+    579c:	f5 03 00 aa	mov	x21, x0
+    57a0:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    57a4:	00 61 47 f9	ldr	x0, [x8, #0xec0] ; Objc class ref: bad class ref
+    57a8:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    57ac:	42 60 0e 91	add	x2, x2, #0x398 // @自定义地标名称
+    57b0:	23 00 00 f0	adrp	x3, 7 ; 0xc000
+    57b4:	63 e0 0e 91	add	x3, x3, #0x3b8 // @输入您想显示的地标名称
+    57b8:	24 00 80 52	mov	w4, #0x1
+    57bc:	f1 09 00 94	bl	0x7f80 // SEND alertControllerWithTitle:message:preferredStyle:
+    57c0:	fd 03 1d aa	mov	x29, x29
+    57c4:	9b 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    57c8:	f4 03 00 aa	mov	x20, x0
+    57cc:	37 00 00 f0	adrp	x23, 7 ; 0xc000
+    57d0:	f7 1a 40 f9	ldr	x23, [x23, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    57d4:	f7 1f 00 f9	str	x23, [sp, #0x38]
+    57d8:	08 00 00 f0	adrp	x8, 3 ; 0x8000
+    57dc:	08 e1 47 fd	ldr	d8, [x8, #0xfc0]
+    57e0:	08 00 00 90	adrp	x8, 0 ; 0x5000
+    57e4:	08 61 25 91	add	x8, x8, #0x958
+    57e8:	e8 23 00 fd	str	d8, [sp, #0x40]
+    57ec:	29 00 00 f0	adrp	x9, 7 ; 0xc000
+    57f0:	29 e1 04 91	add	x9, x9, #0x138
+    57f4:	e8 a7 04 a9	stp	x8, x9, [sp, #0x48]
+    57f8:	f5 2f 00 f9	str	x21, [sp, #0x58]
+    57fc:	e2 e3 00 91	add	x2, sp, #0x38
+    5800:	d8 09 00 94	bl	0x7f60 // SEND addTextFieldWithConfigurationHandler:
+    5804:	56 00 00 f0	adrp	x22, 11 ; 0x10000
+    5808:	c0 66 47 f9	ldr	x0, [x22, #0xec8] ; Objc class ref: bad class ref
+    580c:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5810:	42 e0 0f 91	add	x2, x2, #0x3f8 // @取消
+    5814:	23 00 80 52	mov	w3, #0x1
+    5818:	04 00 80 d2	mov	x4, #0x0
+    581c:	a1 09 00 94	bl	0x7ea0 // SEND actionWithTitle:style:handler:
+    5820:	fd 03 1d aa	mov	x29, x29
+    5824:	83 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5828:	f3 03 00 aa	mov	x19, x0
+    582c:	d6 66 47 f9	ldr	x22, [x22, #0xec8]
+    5830:	f7 07 00 f9	str	x23, [sp, #0x8]
+    5834:	e8 0b 00 fd	str	d8, [sp, #0x10]
+    5838:	08 00 00 90	adrp	x8, 0 ; 0x5000
+    583c:	08 d1 26 91	add	x8, x8, #0x9b4
+    5840:	29 00 00 f0	adrp	x9, 7 ; 0xc000
+    5844:	29 a1 05 91	add	x9, x9, #0x168
+    5848:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    584c:	e0 03 14 aa	mov	x0, x20
+    5850:	72 09 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    5854:	f4 03 00 aa	mov	x20, x0
+    5858:	e0 d7 02 a9	stp	x0, x21, [sp, #0x28]
+    585c:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5860:	42 60 10 91	add	x2, x2, #0x418 // @确定
+    5864:	e4 23 00 91	add	x4, sp, #0x8
+    5868:	e0 03 16 aa	mov	x0, x22
+    586c:	03 00 80 d2	mov	x3, #0x0
+    5870:	8c 09 00 94	bl	0x7ea0 // SEND actionWithTitle:style:handler:
+    5874:	fd 03 1d aa	mov	x29, x29
+    5878:	6e 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    587c:	f6 03 00 aa	mov	x22, x0
+    5880:	e0 03 14 aa	mov	x0, x20
+    5884:	e2 03 13 aa	mov	x2, x19
+    5888:	96 09 00 94	bl	0x7ee0 // SEND addAction:
+    588c:	e0 03 14 aa	mov	x0, x20
+    5890:	e2 03 16 aa	mov	x2, x22
+    5894:	93 09 00 94	bl	0x7ee0 // SEND addAction:
+    5898:	e0 03 15 aa	mov	x0, x21
+    589c:	5f 09 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    58a0:	f7 03 00 aa	mov	x23, x0
+    58a4:	5f 0b 00 94	bl	0x8620 // SEND presentedViewController
+    58a8:	fd 03 1d aa	mov	x29, x29
+    58ac:	61 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    58b0:	f5 03 00 aa	mov	x21, x0
+    58b4:	56 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    58b8:	35 02 00 b4	cbz	x21, 0x58fc
+    58bc:	e0 03 17 aa	mov	x0, x23
+    58c0:	58 0b 00 94	bl	0x8620 // SEND presentedViewController
+    58c4:	fd 03 1d aa	mov	x29, x29
+    58c8:	5a 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    58cc:	f5 03 00 aa	mov	x21, x0
+    58d0:	e0 03 17 aa	mov	x0, x23
+    58d4:	4e 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    58d8:	e0 03 15 aa	mov	x0, x21
+    58dc:	51 0b 00 94	bl	0x8620 // SEND presentedViewController
+    58e0:	fd 03 1d aa	mov	x29, x29
+    58e4:	53 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    58e8:	f8 03 00 aa	mov	x24, x0
+    58ec:	48 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    58f0:	f7 03 15 aa	mov	x23, x21
+    58f4:	58 fe ff b5	cbnz	x24, 0x58bc
+    58f8:	02 00 00 14	b	0x5900
+    58fc:	f5 03 17 aa	mov	x21, x23
+    5900:	e0 03 15 aa	mov	x0, x21
+    5904:	e2 03 14 aa	mov	x2, x20
+    5908:	23 00 80 52	mov	w3, #0x1
+    590c:	04 00 80 d2	mov	x4, #0x0
+    5910:	3c 0b 00 94	bl	0x8600 // SEND presentViewController:animated:completion:
+    5914:	e0 03 15 aa	mov	x0, x21
+    5918:	3d 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    591c:	e0 03 16 aa	mov	x0, x22
+    5920:	3b 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5924:	e0 17 40 f9	ldr	x0, [sp, #0x28]
+    5928:	39 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    592c:	e0 03 13 aa	mov	x0, x19
+    5930:	37 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5934:	e0 03 14 aa	mov	x0, x20
+    5938:	35 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    593c:	fd 7b 4a a9	ldp	x29, x30, [sp, #0xa0]
+    5940:	f4 4f 49 a9	ldp	x20, x19, [sp, #0x90]
+    5944:	f6 57 48 a9	ldp	x22, x21, [sp, #0x80]
+    5948:	f8 5f 47 a9	ldp	x24, x23, [sp, #0x70]
+    594c:	e9 23 46 6d	ldp	d9, d8, [sp, #0x60]
+    5950:	ff c3 02 91	add	sp, sp, #0xb0
+    5954:	c0 03 5f d6	ret
+    5958:	f4 4f be a9	stp	x20, x19, [sp, #-0x20]!
+    595c:	fd 7b 01 a9	stp	x29, x30, [sp, #0x10]
+    5960:	fd 43 00 91	add	x29, sp, #0x10
+    5964:	f3 03 00 aa	mov	x19, x0
+    5968:	e0 03 01 aa	mov	x0, x1
+    596c:	2b 09 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    5970:	f4 03 00 aa	mov	x20, x0
+    5974:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5978:	42 60 0f 91	add	x2, x2, #0x3d8 // @例如：我的家
+    597c:	b1 0b 00 94	bl	0x8840 // SEND setPlaceholder:
+    5980:	68 12 40 f9	ldr	x8, [x19, #0x20]
+    5984:	49 00 00 f0	adrp	x9, 11 ; 0x10000
+    5988:	29 49 8f b9	ldrsw	x9, [x9, #0xf48]
+    598c:	02 69 69 f8	ldr	x2, [x8, x9]
+    5990:	e0 03 14 aa	mov	x0, x20
+    5994:	bb 0b 00 94	bl	0x8880 // SEND setText:
+    5998:	e0 03 14 aa	mov	x0, x20
+    599c:	22 00 80 52	mov	w2, #0x1
+    59a0:	58 0b 00 94	bl	0x8700 // SEND setClearButtonMode:
+    59a4:	e0 03 14 aa	mov	x0, x20
+    59a8:	fd 7b 41 a9	ldp	x29, x30, [sp, #0x10]
+    59ac:	f4 4f c2 a8	ldp	x20, x19, [sp], #0x20
+    59b0:	17 09 00 14	b	0x7e0c ; symbol stub for: _objc_release
+    59b4:	f8 5f bc a9	stp	x24, x23, [sp, #-0x40]!
+    59b8:	f6 57 01 a9	stp	x22, x21, [sp, #0x10]
+    59bc:	f4 4f 02 a9	stp	x20, x19, [sp, #0x20]
+    59c0:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    59c4:	fd c3 00 91	add	x29, sp, #0x30
+    59c8:	f3 03 00 aa	mov	x19, x0
+    59cc:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    59d0:	64 0c 00 94	bl	0x8b60 // SEND textFields
+    59d4:	fd 03 1d aa	mov	x29, x29
+    59d8:	16 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    59dc:	f5 03 00 aa	mov	x21, x0
+    59e0:	38 0a 00 94	bl	0x82c0 // SEND firstObject
+    59e4:	fd 03 1d aa	mov	x29, x29
+    59e8:	12 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    59ec:	f4 03 00 aa	mov	x20, x0
+    59f0:	e0 03 15 aa	mov	x0, x21
+    59f4:	06 09 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    59f8:	e0 03 14 aa	mov	x0, x20
+    59fc:	51 0c 00 94	bl	0x8b40 // SEND text
+    5a00:	fd 03 1d aa	mov	x29, x29
+    5a04:	0b 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5a08:	f6 03 00 aa	mov	x22, x0
+    5a0c:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5a10:	00 69 47 f9	ldr	x0, [x8, #0xed0] ; Objc class ref: bad class ref
+    5a14:	cb 0c 00 94	bl	0x8d40 // SEND whitespaceAndNewlineCharacterSet
+    5a18:	fd 03 1d aa	mov	x29, x29
+    5a1c:	05 09 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5a20:	f7 03 00 aa	mov	x23, x0
+    5a24:	e0 03 16 aa	mov	x0, x22
+    5a28:	e2 03 17 aa	mov	x2, x23
+    5a2c:	e5 0b 00 94	bl	0x89c0 // SEND stringByTrimmingCharactersInSet:
+    5a30:	fd 03 1d aa	mov	x29, x29
+    5a34:	ff 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5a38:	f5 03 00 aa	mov	x21, x0
+    5a3c:	e0 03 17 aa	mov	x0, x23
+    5a40:	f3 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5a44:	e0 03 16 aa	mov	x0, x22
+    5a48:	f1 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5a4c:	e0 03 15 aa	mov	x0, x21
+    5a50:	a4 0a 00 94	bl	0x84e0 // SEND length
+    5a54:	c0 01 00 b4	cbz	x0, 0x5a8c
+    5a58:	68 16 40 f9	ldr	x8, [x19, #0x28]
+    5a5c:	49 00 00 f0	adrp	x9, 11 ; 0x10000
+    5a60:	29 49 8f b9	ldrsw	x9, [x9, #0xf48]
+    5a64:	00 01 09 8b	add	x0, x8, x9
+    5a68:	e1 03 15 aa	mov	x1, x21
+    5a6c:	f4 08 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    5a70:	68 16 40 f9	ldr	x8, [x19, #0x28]
+    5a74:	49 00 00 f0	adrp	x9, 11 ; 0x10000
+    5a78:	29 45 8f b9	ldrsw	x9, [x9, #0xf44]
+    5a7c:	4a 00 80 52	mov	w10, #0x2
+    5a80:	0a 69 29 f8	str	x10, [x8, x9]
+    5a84:	60 16 40 f9	ldr	x0, [x19, #0x28]
+    5a88:	5e 0c 00 94	bl	0x8c00 // SEND updateCityLabel
+    5a8c:	e0 03 15 aa	mov	x0, x21
+    5a90:	df 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5a94:	e0 03 14 aa	mov	x0, x20
+    5a98:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    5a9c:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    5aa0:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    5aa4:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+    5aa8:	d9 08 00 14	b	0x7e0c ; symbol stub for: _objc_release
+    5aac:	f4 4f be a9	stp	x20, x19, [sp, #-0x20]!
+    5ab0:	fd 7b 01 a9	stp	x29, x30, [sp, #0x10]
+    5ab4:	fd 43 00 91	add	x29, sp, #0x10
+    5ab8:	f3 03 01 aa	mov	x19, x1
+    5abc:	20 10 40 f9	ldr	x0, [x1, #0x20]
+    5ac0:	d6 08 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    5ac4:	60 16 40 f9	ldr	x0, [x19, #0x28]
+    5ac8:	fd 7b 41 a9	ldp	x29, x30, [sp, #0x10]
+    5acc:	f4 4f c2 a8	ldp	x20, x19, [sp], #0x20
+    5ad0:	d2 08 00 14	b	0x7e18 ; symbol stub for: _objc_retain
+    5ad4:	f4 4f be a9	stp	x20, x19, [sp, #-0x20]!
+    5ad8:	fd 7b 01 a9	stp	x29, x30, [sp, #0x10]
+    5adc:	fd 43 00 91	add	x29, sp, #0x10
+    5ae0:	f3 03 00 aa	mov	x19, x0
+    5ae4:	00 14 40 f9	ldr	x0, [x0, #0x28]
+    5ae8:	c9 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5aec:	60 12 40 f9	ldr	x0, [x19, #0x20]
+    5af0:	fd 7b 41 a9	ldp	x29, x30, [sp, #0x10]
+    5af4:	f4 4f c2 a8	ldp	x20, x19, [sp], #0x20
+    5af8:	c5 08 00 14	b	0x7e0c ; symbol stub for: _objc_release
+
+METHOD updateWeatherDisplay
+    5afc:	f8 5f bc a9	stp	x24, x23, [sp, #-0x40]!
+    5b00:	f6 57 01 a9	stp	x22, x21, [sp, #0x10]
+    5b04:	f4 4f 02 a9	stp	x20, x19, [sp, #0x20]
+    5b08:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    5b0c:	fd c3 00 91	add	x29, sp, #0x30
+    5b10:	f4 03 00 aa	mov	x20, x0
+    5b14:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5b18:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    5b1c:	00 68 68 f8	ldr	x0, [x0, x8]
+    5b20:	60 03 00 b4	cbz	x0, 0x5b8c
+    5b24:	ff 09 00 94	bl	0x8320 // SEND forecastModel
+    5b28:	fd 03 1d aa	mov	x29, x29
+    5b2c:	c1 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5b30:	f3 03 00 aa	mov	x19, x0
+    5b34:	e0 0e 00 b4	cbz	x0, 0x5d10
+    5b38:	e0 03 13 aa	mov	x0, x19
+    5b3c:	51 09 00 94	bl	0x8080 // SEND city
+    5b40:	fd 03 1d aa	mov	x29, x29
+    5b44:	bb 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5b48:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5b4c:	17 7d 8f b9	ldrsw	x23, [x8, #0xf7c]
+    5b50:	88 6a 77 f8	ldr	x8, [x20, x23]
+    5b54:	80 6a 37 f8	str	x0, [x20, x23]
+    5b58:	e0 03 08 aa	mov	x0, x8
+    5b5c:	ac 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5b60:	88 6a 77 f8	ldr	x8, [x20, x23]
+    5b64:	68 0d 00 b4	cbz	x8, 0x5d10
+    5b68:	e0 03 14 aa	mov	x0, x20
+    5b6c:	25 0c 00 94	bl	0x8c00 // SEND updateCityLabel
+    5b70:	80 6a 77 f8	ldr	x0, [x20, x23]
+    5b74:	e3 0b 00 94	bl	0x8b00 // SEND temperature
+    5b78:	fd 03 1d aa	mov	x29, x29
+    5b7c:	ad 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5b80:	00 01 00 b4	cbz	x0, 0x5ba0
+    5b84:	a2 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5b88:	10 00 00 14	b	0x5bc8
+    5b8c:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    5b90:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    5b94:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    5b98:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+    5b9c:	c0 03 5f d6	ret
+    5ba0:	80 6a 77 f8	ldr	x0, [x20, x23]
+    5ba4:	a7 09 00 94	bl	0x8240 // SEND dayForecasts
+    5ba8:	fd 03 1d aa	mov	x29, x29
+    5bac:	a1 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5bb0:	f5 03 00 aa	mov	x21, x0
+    5bb4:	7b 09 00 94	bl	0x81a0 // SEND count
+    5bb8:	f6 03 00 aa	mov	x22, x0
+    5bbc:	e0 03 15 aa	mov	x0, x21
+    5bc0:	93 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5bc4:	76 07 00 b4	cbz	x22, 0x5cb0
+    5bc8:	80 6a 77 f8	ldr	x0, [x20, x23]
+    5bcc:	45 09 00 94	bl	0x80e0 // SEND conditionCode
+    5bd0:	e2 03 00 aa	mov	x2, x0
+    5bd4:	e0 03 14 aa	mov	x0, x20
+    5bd8:	4a 09 00 94	bl	0x8100 // SEND conditionStringForCode:
+    5bdc:	fd 03 1d aa	mov	x29, x29
+    5be0:	94 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5be4:	f5 03 00 aa	mov	x21, x0
+    5be8:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5bec:	08 65 8f b9	ldrsw	x8, [x8, #0xf64]
+    5bf0:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5bf4:	e2 03 15 aa	mov	x2, x21
+    5bf8:	22 0b 00 94	bl	0x8880 // SEND setText:
+    5bfc:	e0 03 15 aa	mov	x0, x21
+    5c00:	83 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5c04:	80 6a 77 f8	ldr	x0, [x20, x23]
+    5c08:	be 0b 00 94	bl	0x8b00 // SEND temperature
+    5c0c:	fd 03 1d aa	mov	x29, x29
+    5c10:	88 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5c14:	f5 03 00 aa	mov	x21, x0
+    5c18:	e0 03 14 aa	mov	x0, x20
+    5c1c:	e2 03 15 aa	mov	x2, x21
+    5c20:	c0 0b 00 94	bl	0x8b20 // SEND temperatureString:
+    5c24:	fd 03 1d aa	mov	x29, x29
+    5c28:	82 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5c2c:	f6 03 00 aa	mov	x22, x0
+    5c30:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5c34:	08 6d 8f b9	ldrsw	x8, [x8, #0xf6c]
+    5c38:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5c3c:	e2 03 16 aa	mov	x2, x22
+    5c40:	10 0b 00 94	bl	0x8880 // SEND setText:
+    5c44:	e0 03 16 aa	mov	x0, x22
+    5c48:	71 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5c4c:	e0 03 15 aa	mov	x0, x21
+    5c50:	6f 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5c54:	e0 03 14 aa	mov	x0, x20
+    5c58:	ca 09 00 94	bl	0x8380 // SEND highLowTemperatureString
+    5c5c:	fd 03 1d aa	mov	x29, x29
+    5c60:	74 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5c64:	f5 03 00 aa	mov	x21, x0
+    5c68:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5c6c:	08 71 8f b9	ldrsw	x8, [x8, #0xf70]
+    5c70:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5c74:	e2 03 15 aa	mov	x2, x21
+    5c78:	02 0b 00 94	bl	0x8880 // SEND setText:
+    5c7c:	e0 03 15 aa	mov	x0, x21
+    5c80:	63 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5c84:	e0 03 14 aa	mov	x0, x20
+    5c88:	ee 0b 00 94	bl	0x8c40 // SEND updatePrecipitation
+    5c8c:	e0 03 14 aa	mov	x0, x20
+    5c90:	fc 0b 00 94	bl	0x8c80 // SEND updateWeatherIcon
+    5c94:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5c98:	08 41 8f b9	ldrsw	x8, [x8, #0xf40]
+    5c9c:	88 6a 68 38	ldrb	w8, [x20, x8]
+    5ca0:	88 03 00 34	cbz	w8, 0x5d10
+    5ca4:	e0 03 14 aa	mov	x0, x20
+    5ca8:	de 0b 00 94	bl	0x8c20 // SEND updateHourlyForecast
+    5cac:	19 00 00 14	b	0x5d10
+    5cb0:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5cb4:	08 65 8f b9	ldrsw	x8, [x8, #0xf64]
+    5cb8:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5cbc:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5cc0:	42 e0 10 91	add	x2, x2, #0x438 // @加载中...
+    5cc4:	ef 0a 00 94	bl	0x8880 // SEND setText:
+    5cc8:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5ccc:	08 6d 8f b9	ldrsw	x8, [x8, #0xf6c]
+    5cd0:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5cd4:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5cd8:	42 60 11 91	add	x2, x2, #0x458 // @--°
+    5cdc:	e9 0a 00 94	bl	0x8880 // SEND setText:
+    5ce0:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5ce4:	08 71 8f b9	ldrsw	x8, [x8, #0xf70]
+    5ce8:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5cec:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5cf0:	42 e0 11 91	add	x2, x2, #0x478 // @-- / --
+    5cf4:	e3 0a 00 94	bl	0x8880 // SEND setText:
+    5cf8:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5cfc:	08 69 8f b9	ldrsw	x8, [x8, #0xf68]
+    5d00:	80 6a 68 f8	ldr	x0, [x20, x8]
+    5d04:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5d08:	42 60 12 91	add	x2, x2, #0x498 // @
+    5d0c:	dd 0a 00 94	bl	0x8880 // SEND setText:
+    5d10:	e0 03 13 aa	mov	x0, x19
+    5d14:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    5d18:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    5d1c:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    5d20:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+    5d24:	3a 08 00 14	b	0x7e0c ; symbol stub for: _objc_release
+    5d28:	02 00 00 14	b	0x5d30
+    5d2c:	01 00 00 14	b	0x5d30
+    5d30:	3f 04 00 71	cmp	w1, #0x1
+    5d34:	e1 00 00 54	b.ne	0x5d50
+    5d38:	20 08 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    5d3c:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    5d40:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    5d44:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    5d48:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+    5d4c:	1e 08 00 14	b	0x7dc4 ; symbol stub for: _objc_end_catch
+    5d50:	ff 07 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD updateCityLabel
+    5d54:	ff 43 02 d1	sub	sp, sp, #0x90
+    5d58:	e9 23 04 6d	stp	d9, d8, [sp, #0x40]
+    5d5c:	f8 5f 05 a9	stp	x24, x23, [sp, #0x50]
+    5d60:	f6 57 06 a9	stp	x22, x21, [sp, #0x60]
+    5d64:	f4 4f 07 a9	stp	x20, x19, [sp, #0x70]
+    5d68:	fd 7b 08 a9	stp	x29, x30, [sp, #0x80]
+    5d6c:	fd 03 02 91	add	x29, sp, #0x80
+    5d70:	f3 03 00 aa	mov	x19, x0
+    5d74:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5d78:	18 7d 8f b9	ldrsw	x24, [x8, #0xf7c]
+    5d7c:	00 68 78 f8	ldr	x0, [x0, x24]
+    5d80:	c0 13 00 b4	cbz	x0, 0x5ff8
+    5d84:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5d88:	08 45 8f b9	ldrsw	x8, [x8, #0xf44]
+    5d8c:	68 6a 68 f8	ldr	x8, [x19, x8]
+    5d90:	1f 09 00 f1	cmp	x8, #0x2
+    5d94:	e0 08 00 54	b.eq	0x5eb0
+    5d98:	1f 05 00 f1	cmp	x8, #0x1
+    5d9c:	20 06 00 54	b.eq	0x5e60
+    5da0:	08 06 00 b5	cbnz	x8, 0x5e60
+    5da4:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5da8:	42 e0 12 91	add	x2, x2, #0x4b8 // @latitude
+    5dac:	bd 0b 00 94	bl	0x8ca0 // SEND valueForKey:
+    5db0:	fd 03 1d aa	mov	x29, x29
+    5db4:	1f 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5db8:	f4 03 00 aa	mov	x20, x0
+    5dbc:	31 09 00 94	bl	0x8280 // SEND doubleValue
+    5dc0:	08 40 60 1e	fmov	d8, d0
+    5dc4:	e0 03 14 aa	mov	x0, x20
+    5dc8:	11 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5dcc:	60 6a 78 f8	ldr	x0, [x19, x24]
+    5dd0:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5dd4:	42 60 13 91	add	x2, x2, #0x4d8 // @longitude
+    5dd8:	b2 0b 00 94	bl	0x8ca0 // SEND valueForKey:
+    5ddc:	fd 03 1d aa	mov	x29, x29
+    5de0:	14 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5de4:	f4 03 00 aa	mov	x20, x0
+    5de8:	26 09 00 94	bl	0x8280 // SEND doubleValue
+    5dec:	09 40 60 1e	fmov	d9, d0
+    5df0:	e0 03 14 aa	mov	x0, x20
+    5df4:	06 08 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5df8:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5dfc:	00 6d 47 f9	ldr	x0, [x8, #0xed8] ; Objc class ref: bad class ref
+    5e00:	e8 27 00 6d	stp	d8, d9, [sp]
+    5e04:	22 00 00 f0	adrp	x2, 7 ; 0xc000
+    5e08:	42 e0 13 91	add	x2, x2, #0x4f8 // @%.4f,%.4f
+    5e0c:	fd 0a 00 94	bl	0x8a00 // SEND stringWithFormat:
+    5e10:	fd 03 1d aa	mov	x29, x29
+    5e14:	07 08 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5e18:	f4 03 00 aa	mov	x20, x0
+    5e1c:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5e20:	15 81 8f b9	ldrsw	x21, [x8, #0xf80]
+    5e24:	68 6a 75 f8	ldr	x8, [x19, x21]
+    5e28:	68 06 00 b4	cbz	x8, 0x5ef4
+    5e2c:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5e30:	08 85 8f b9	ldrsw	x8, [x8, #0xf84]
+    5e34:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5e38:	e0 05 00 b4	cbz	x0, 0x5ef4
+    5e3c:	e2 03 14 aa	mov	x2, x20
+    5e40:	90 09 00 94	bl	0x8480 // SEND isEqualToString:
+    5e44:	80 05 00 34	cbz	w0, 0x5ef4
+    5e48:	62 6a 75 f8	ldr	x2, [x19, x21]
+    5e4c:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5e50:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    5e54:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5e58:	8a 0a 00 94	bl	0x8880 // SEND setText:
+    5e5c:	65 00 00 14	b	0x5ff0
+    5e60:	b8 09 00 94	bl	0x8540 // SEND name
+    5e64:	fd 03 1d aa	mov	x29, x29
+    5e68:	f2 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5e6c:	f4 03 00 aa	mov	x20, x0
+    5e70:	28 00 00 f0	adrp	x8, 7 ; 0xc000
+    5e74:	08 61 14 91	add	x8, x8, #0x518 // @--
+    5e78:	1f 00 00 f1	cmp	x0, #0x0
+    5e7c:	02 01 80 9a	csel	x2, x8, x0, eq
+    5e80:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5e84:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    5e88:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5e8c:	7d 0a 00 94	bl	0x8880 // SEND setText:
+    5e90:	e0 03 14 aa	mov	x0, x20
+    5e94:	fd 7b 48 a9	ldp	x29, x30, [sp, #0x80]
+    5e98:	f4 4f 47 a9	ldp	x20, x19, [sp, #0x70]
+    5e9c:	f6 57 46 a9	ldp	x22, x21, [sp, #0x60]
+    5ea0:	f8 5f 45 a9	ldp	x24, x23, [sp, #0x50]
+    5ea4:	e9 23 44 6d	ldp	d9, d8, [sp, #0x40]
+    5ea8:	ff 43 02 91	add	sp, sp, #0x90
+    5eac:	d8 07 00 14	b	0x7e0c ; symbol stub for: _objc_release
+    5eb0:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5eb4:	08 49 8f b9	ldrsw	x8, [x8, #0xf48]
+    5eb8:	68 6a 68 f8	ldr	x8, [x19, x8]
+    5ebc:	29 00 00 f0	adrp	x9, 7 ; 0xc000
+    5ec0:	29 61 14 91	add	x9, x9, #0x518 // @--
+    5ec4:	1f 01 00 f1	cmp	x8, #0x0
+    5ec8:	22 01 88 9a	csel	x2, x9, x8, eq
+    5ecc:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5ed0:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    5ed4:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5ed8:	fd 7b 48 a9	ldp	x29, x30, [sp, #0x80]
+    5edc:	f4 4f 47 a9	ldp	x20, x19, [sp, #0x70]
+    5ee0:	f6 57 46 a9	ldp	x22, x21, [sp, #0x60]
+    5ee4:	f8 5f 45 a9	ldp	x24, x23, [sp, #0x50]
+    5ee8:	e9 23 44 6d	ldp	d9, d8, [sp, #0x40]
+    5eec:	ff 43 02 91	add	sp, sp, #0x90
+    5ef0:	64 0a 00 14	b	0x8880 // SEND setText:
+    5ef4:	08 21 60 1e	fcmp	d8, #0.0
+    5ef8:	40 06 00 54	b.eq	0x5fc0
+    5efc:	28 21 60 1e	fcmp	d9, #0.0
+    5f00:	00 06 00 54	b.eq	0x5fc0
+    5f04:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5f08:	00 71 47 f9	ldr	x0, [x8, #0xee0] ; Objc class ref: bad class ref
+    5f0c:	a2 07 00 94	bl	0x7d94 ; symbol stub for: _objc_alloc
+    5f10:	00 41 60 1e	fmov	d0, d8
+    5f14:	21 41 60 1e	fmov	d1, d9
+    5f18:	3a 09 00 94	bl	0x8400 // SEND initWithLatitude:longitude:
+    5f1c:	f5 03 00 aa	mov	x21, x0
+    5f20:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5f24:	00 75 47 f9	ldr	x0, [x8, #0xee8] ; Objc class ref: bad class ref
+    5f28:	9e 07 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    5f2c:	f6 03 00 aa	mov	x22, x0
+    5f30:	28 00 00 f0	adrp	x8, 7 ; 0xc000
+    5f34:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    5f38:	e8 0b 00 f9	str	x8, [sp, #0x10]
+    5f3c:	08 00 00 f0	adrp	x8, 3 ; 0x8000
+    5f40:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    5f44:	08 00 00 b0	adrp	x8, 1 ; 0x6000
+    5f48:	08 51 02 91	add	x8, x8, #0x94
+    5f4c:	e0 0f 00 fd	str	d0, [sp, #0x18]
+    5f50:	29 00 00 f0	adrp	x9, 7 ; 0xc000
+    5f54:	29 21 07 91	add	x9, x9, #0x1c8
+    5f58:	e8 27 02 a9	stp	x8, x9, [sp, #0x20]
+    5f5c:	f3 1b 00 f9	str	x19, [sp, #0x30]
+    5f60:	e0 03 14 aa	mov	x0, x20
+    5f64:	ad 07 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    5f68:	e0 1f 00 f9	str	x0, [sp, #0x38]
+    5f6c:	e3 43 00 91	add	x3, sp, #0x10
+    5f70:	e0 03 16 aa	mov	x0, x22
+    5f74:	e2 03 15 aa	mov	x2, x21
+    5f78:	ca 09 00 94	bl	0x86a0 // SEND reverseGeocodeLocation:completionHandler:
+    5f7c:	60 6a 78 f8	ldr	x0, [x19, x24]
+    5f80:	70 09 00 94	bl	0x8540 // SEND name
+    5f84:	fd 03 1d aa	mov	x29, x29
+    5f88:	aa 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5f8c:	f7 03 00 aa	mov	x23, x0
+    5f90:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5f94:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    5f98:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5f9c:	e2 03 17 aa	mov	x2, x23
+    5fa0:	38 0a 00 94	bl	0x8880 // SEND setText:
+    5fa4:	e0 03 17 aa	mov	x0, x23
+    5fa8:	99 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5fac:	e0 1f 40 f9	ldr	x0, [sp, #0x38]
+    5fb0:	97 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5fb4:	e0 03 16 aa	mov	x0, x22
+    5fb8:	95 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5fbc:	0b 00 00 14	b	0x5fe8
+    5fc0:	60 6a 78 f8	ldr	x0, [x19, x24]
+    5fc4:	5f 09 00 94	bl	0x8540 // SEND name
+    5fc8:	fd 03 1d aa	mov	x29, x29
+    5fcc:	99 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    5fd0:	f5 03 00 aa	mov	x21, x0
+    5fd4:	48 00 00 f0	adrp	x8, 11 ; 0x10000
+    5fd8:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    5fdc:	60 6a 68 f8	ldr	x0, [x19, x8]
+    5fe0:	e2 03 15 aa	mov	x2, x21
+    5fe4:	27 0a 00 94	bl	0x8880 // SEND setText:
+    5fe8:	e0 03 15 aa	mov	x0, x21
+    5fec:	88 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5ff0:	e0 03 14 aa	mov	x0, x20
+    5ff4:	86 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    5ff8:	fd 7b 48 a9	ldp	x29, x30, [sp, #0x80]
+    5ffc:	f4 4f 47 a9	ldp	x20, x19, [sp, #0x70]
+    6000:	f6 57 46 a9	ldp	x22, x21, [sp, #0x60]
+    6004:	f8 5f 45 a9	ldp	x24, x23, [sp, #0x50]
+    6008:	e9 23 44 6d	ldp	d9, d8, [sp, #0x40]
+    600c:	ff 43 02 91	add	sp, sp, #0x90
+    6010:	c0 03 5f d6	ret
+    6014:	04 00 00 14	b	0x6024
+    6018:	03 00 00 14	b	0x6024
+    601c:	02 00 00 14	b	0x6024
+    6020:	01 00 00 14	b	0x6024
+    6024:	f4 03 00 aa	mov	x20, x0
+    6028:	3f 04 00 71	cmp	w1, #0x1
+    602c:	01 03 00 54	b.ne	0x608c
+    6030:	e0 03 14 aa	mov	x0, x20
+    6034:	61 07 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    6038:	fd 03 1d aa	mov	x29, x29
+    603c:	7d 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6040:	f4 03 00 aa	mov	x20, x0
+    6044:	60 6a 78 f8	ldr	x0, [x19, x24]
+    6048:	3e 09 00 94	bl	0x8540 // SEND name
+    604c:	fd 03 1d aa	mov	x29, x29
+    6050:	78 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6054:	f5 03 00 aa	mov	x21, x0
+    6058:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    605c:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    6060:	60 6a 68 f8	ldr	x0, [x19, x8]
+    6064:	e2 03 15 aa	mov	x2, x21
+    6068:	06 0a 00 94	bl	0x8880 // SEND setText:
+    606c:	e0 03 15 aa	mov	x0, x21
+    6070:	67 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6074:	e0 03 14 aa	mov	x0, x20
+    6078:	65 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    607c:	52 07 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    6080:	de ff ff 17	b	0x5ff8
+    6084:	f4 03 00 aa	mov	x20, x0
+    6088:	4f 07 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    608c:	e0 03 14 aa	mov	x0, x20
+    6090:	2f 07 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+    6094:	ff c3 01 d1	sub	sp, sp, #0x70
+    6098:	f8 5f 03 a9	stp	x24, x23, [sp, #0x30]
+    609c:	f6 57 04 a9	stp	x22, x21, [sp, #0x40]
+    60a0:	f4 4f 05 a9	stp	x20, x19, [sp, #0x50]
+    60a4:	fd 7b 06 a9	stp	x29, x30, [sp, #0x60]
+    60a8:	fd 83 01 91	add	x29, sp, #0x60
+    60ac:	f4 03 02 aa	mov	x20, x2
+    60b0:	f5 03 00 aa	mov	x21, x0
+    60b4:	e0 03 01 aa	mov	x0, x1
+    60b8:	58 07 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    60bc:	f3 03 00 aa	mov	x19, x0
+    60c0:	94 08 00 b5	cbnz	x20, 0x61d0
+    60c4:	e0 03 13 aa	mov	x0, x19
+    60c8:	36 08 00 94	bl	0x81a0 // SEND count
+    60cc:	20 08 00 b4	cbz	x0, 0x61d0
+    60d0:	e0 03 13 aa	mov	x0, x19
+    60d4:	02 00 80 d2	mov	x2, #0x0
+    60d8:	2a 09 00 94	bl	0x8580 // SEND objectAtIndexedSubscript:
+    60dc:	fd 03 1d aa	mov	x29, x29
+    60e0:	54 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    60e4:	f4 03 00 aa	mov	x20, x0
+    60e8:	56 0a 00 94	bl	0x8a40 // SEND subLocality
+    60ec:	fd 03 1d aa	mov	x29, x29
+    60f0:	50 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    60f4:	f6 03 00 aa	mov	x22, x0
+    60f8:	80 00 00 b4	cbz	x0, 0x6108
+    60fc:	e0 03 16 aa	mov	x0, x22
+    6100:	f8 08 00 94	bl	0x84e0 // SEND length
+    6104:	40 01 00 b5	cbnz	x0, 0x612c
+    6108:	e0 03 14 aa	mov	x0, x20
+    610c:	45 0a 00 94	bl	0x8a20 // SEND subAdministrativeArea
+    6110:	fd 03 1d aa	mov	x29, x29
+    6114:	47 07 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6118:	f7 03 00 aa	mov	x23, x0
+    611c:	e0 03 16 aa	mov	x0, x22
+    6120:	3b 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6124:	f6 03 17 aa	mov	x22, x23
+    6128:	d7 04 00 b4	cbz	x23, 0x61c0
+    612c:	e0 03 16 aa	mov	x0, x22
+    6130:	ec 08 00 94	bl	0x84e0 // SEND length
+    6134:	60 04 00 b4	cbz	x0, 0x61c0
+    6138:	a8 12 40 f9	ldr	x8, [x21, #0x20]
+    613c:	49 00 00 d0	adrp	x9, 10 ; 0x10000
+    6140:	29 81 8f b9	ldrsw	x9, [x9, #0xf80]
+    6144:	00 01 09 8b	add	x0, x8, x9
+    6148:	e1 03 16 aa	mov	x1, x22
+    614c:	3c 07 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    6150:	a8 06 42 a9	ldp	x8, x1, [x21, #0x20]
+    6154:	49 00 00 d0	adrp	x9, 10 ; 0x10000
+    6158:	29 85 8f b9	ldrsw	x9, [x9, #0xf84]
+    615c:	00 01 09 8b	add	x0, x8, x9
+    6160:	37 07 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    6164:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6168:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    616c:	e8 03 00 f9	str	x8, [sp]
+    6170:	08 00 00 d0	adrp	x8, 2 ; 0x8000
+    6174:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    6178:	e0 07 00 fd	str	d0, [sp, #0x8]
+    617c:	08 00 00 90	adrp	x8, 0 ; 0x6000
+    6180:	08 c1 07 91	add	x8, x8, #0x1f0
+    6184:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6188:	29 61 06 91	add	x9, x9, #0x198
+    618c:	e8 27 01 a9	stp	x8, x9, [sp, #0x10]
+    6190:	a8 12 40 f9	ldr	x8, [x21, #0x20]
+    6194:	e8 13 00 f9	str	x8, [sp, #0x20]
+    6198:	e0 03 16 aa	mov	x0, x22
+    619c:	1f 07 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    61a0:	f6 03 00 aa	mov	x22, x0
+    61a4:	e0 17 00 f9	str	x0, [sp, #0x28]
+    61a8:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    61ac:	00 30 40 f9	ldr	x0, [x0, #0x60] ; literal pool symbol address: __dispatch_main_q
+    61b0:	e1 03 00 91	mov	x1, sp
+    61b4:	ef 06 00 94	bl	0x7d70 ; symbol stub for: _dispatch_async
+    61b8:	e0 17 40 f9	ldr	x0, [sp, #0x28]
+    61bc:	14 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    61c0:	e0 03 16 aa	mov	x0, x22
+    61c4:	12 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    61c8:	e0 03 14 aa	mov	x0, x20
+    61cc:	10 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    61d0:	e0 03 13 aa	mov	x0, x19
+    61d4:	0e 07 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    61d8:	fd 7b 46 a9	ldp	x29, x30, [sp, #0x60]
+    61dc:	f4 4f 45 a9	ldp	x20, x19, [sp, #0x50]
+    61e0:	f6 57 44 a9	ldp	x22, x21, [sp, #0x40]
+    61e4:	f8 5f 43 a9	ldp	x24, x23, [sp, #0x30]
+    61e8:	ff c3 01 91	add	sp, sp, #0x70
+    61ec:	c0 03 5f d6	ret
+    61f0:	08 10 40 f9	ldr	x8, [x0, #0x20]
+    61f4:	49 00 00 d0	adrp	x9, 10 ; 0x10000
+    61f8:	29 45 8f b9	ldrsw	x9, [x9, #0xf44]
+    61fc:	09 69 69 f8	ldr	x9, [x8, x9]
+    6200:	49 00 00 b4	cbz	x9, 0x6208
+    6204:	c0 03 5f d6	ret
+    6208:	02 14 40 f9	ldr	x2, [x0, #0x28]
+    620c:	49 00 00 d0	adrp	x9, 10 ; 0x10000
+    6210:	29 61 8f b9	ldrsw	x9, [x9, #0xf60]
+    6214:	00 69 69 f8	ldr	x0, [x8, x9]
+    6218:	9a 09 00 14	b	0x8880 // SEND setText:
+
+METHOD updatePrecipitation
+    621c:	ff 83 01 d1	sub	sp, sp, #0x60
+    6220:	e9 23 01 6d	stp	d9, d8, [sp, #0x10]
+    6224:	f8 5f 02 a9	stp	x24, x23, [sp, #0x20]
+    6228:	f6 57 03 a9	stp	x22, x21, [sp, #0x30]
+    622c:	f4 4f 04 a9	stp	x20, x19, [sp, #0x40]
+    6230:	fd 7b 05 a9	stp	x29, x30, [sp, #0x50]
+    6234:	fd 43 01 91	add	x29, sp, #0x50
+    6238:	f3 03 00 aa	mov	x19, x0
+    623c:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6240:	17 7d 8f b9	ldrsw	x23, [x8, #0xf7c]
+    6244:	00 68 77 f8	ldr	x0, [x0, x23]
+    6248:	58 00 00 d0	adrp	x24, 10 ; 0x10000
+    624c:	e0 09 00 b4	cbz	x0, 0x6388
+    6250:	54 08 00 94	bl	0x83a0 // SEND hourlyForecasts
+    6254:	fd 03 1d aa	mov	x29, x29
+    6258:	f6 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    625c:	f4 03 00 aa	mov	x20, x0
+    6260:	e8 03 27 1e	fmov	s8, wzr
+    6264:	00 03 00 b4	cbz	x0, 0x62c4
+    6268:	e0 03 14 aa	mov	x0, x20
+    626c:	cd 07 00 94	bl	0x81a0 // SEND count
+    6270:	a0 02 00 b4	cbz	x0, 0x62c4
+    6274:	e0 03 14 aa	mov	x0, x20
+    6278:	02 00 80 d2	mov	x2, #0x0
+    627c:	c1 08 00 94	bl	0x8580 // SEND objectAtIndexedSubscript:
+    6280:	fd 03 1d aa	mov	x29, x29
+    6284:	eb 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6288:	f5 03 00 aa	mov	x21, x0
+    628c:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    6290:	42 e0 14 91	add	x2, x2, #0x538 // @percentPrecipitation
+    6294:	83 0a 00 94	bl	0x8ca0 // SEND valueForKey:
+    6298:	fd 03 1d aa	mov	x29, x29
+    629c:	e5 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    62a0:	f6 03 00 aa	mov	x22, x0
+    62a4:	80 00 00 b4	cbz	x0, 0x62b4
+    62a8:	e0 03 16 aa	mov	x0, x22
+    62ac:	0d 08 00 94	bl	0x82e0 // SEND floatValue
+    62b0:	08 40 20 1e	fmov	s8, s0
+    62b4:	e0 03 16 aa	mov	x0, x22
+    62b8:	d5 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    62bc:	e0 03 15 aa	mov	x0, x21
+    62c0:	d3 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    62c4:	60 6a 77 f8	ldr	x0, [x19, x23]
+    62c8:	de 07 00 94	bl	0x8240 // SEND dayForecasts
+    62cc:	fd 03 1d aa	mov	x29, x29
+    62d0:	d8 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    62d4:	f5 03 00 aa	mov	x21, x0
+    62d8:	20 03 00 b4	cbz	x0, 0x633c
+    62dc:	e0 03 15 aa	mov	x0, x21
+    62e0:	b0 07 00 94	bl	0x81a0 // SEND count
+    62e4:	c0 02 00 b4	cbz	x0, 0x633c
+    62e8:	e0 03 15 aa	mov	x0, x21
+    62ec:	02 00 80 d2	mov	x2, #0x0
+    62f0:	a4 08 00 94	bl	0x8580 // SEND objectAtIndexedSubscript:
+    62f4:	fd 03 1d aa	mov	x29, x29
+    62f8:	ce 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    62fc:	f6 03 00 aa	mov	x22, x0
+    6300:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    6304:	42 e0 14 91	add	x2, x2, #0x538 // @percentPrecipitation
+    6308:	66 0a 00 94	bl	0x8ca0 // SEND valueForKey:
+    630c:	fd 03 1d aa	mov	x29, x29
+    6310:	c8 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6314:	f7 03 00 aa	mov	x23, x0
+    6318:	a0 00 00 b4	cbz	x0, 0x632c
+    631c:	e0 03 17 aa	mov	x0, x23
+    6320:	f0 07 00 94	bl	0x82e0 // SEND floatValue
+    6324:	00 20 28 1e	fcmp	s0, s8
+    6328:	08 cc 28 1e	fcsel	s8, s0, s8, gt
+    632c:	e0 03 17 aa	mov	x0, x23
+    6330:	b7 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6334:	e0 03 16 aa	mov	x0, x22
+    6338:	b5 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    633c:	00 10 2e 1e	fmov	s0, #1.00000000
+    6340:	00 21 20 1e	fcmp	s8, s0
+    6344:	ca 00 00 54	b.ge	0x635c
+    6348:	08 21 20 1e	fcmp	s8, #0.0
+    634c:	cd 02 00 54	b.le	0x63a4
+    6350:	08 59 a8 52	mov	w8, #0x42c80000
+    6354:	00 01 27 1e	fmov	s0, w8
+    6358:	08 09 20 1e	fmul	s8, s8, s0
+    635c:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6360:	00 6d 47 f9	ldr	x0, [x8, #0xed8] ; Objc class ref: bad class ref
+    6364:	00 c1 22 1e	fcvt	d0, s8
+    6368:	e0 03 00 fd	str	d0, [sp]
+    636c:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    6370:	42 60 15 91	add	x2, x2, #0x558 // @降水概率: %.0f%%
+    6374:	a3 09 00 94	bl	0x8a00 // SEND stringWithFormat:
+    6378:	fd 03 1d aa	mov	x29, x29
+    637c:	ad 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6380:	f6 03 00 aa	mov	x22, x0
+    6384:	0a 00 00 14	b	0x63ac
+    6388:	08 6b 8f b9	ldrsw	x8, [x24, #0xf68]
+    638c:	60 6a 68 f8	ldr	x0, [x19, x8]
+    6390:	36 00 00 d0	adrp	x22, 6 ; 0xc000
+    6394:	d6 62 12 91	add	x22, x22, #0x498 // @
+    6398:	e2 03 16 aa	mov	x2, x22
+    639c:	39 09 00 94	bl	0x8880 // SEND setText:
+    63a0:	0b 00 00 14	b	0x63cc
+    63a4:	36 00 00 d0	adrp	x22, 6 ; 0xc000
+    63a8:	d6 e2 15 91	add	x22, x22, #0x578 // @降水概率: 0%
+    63ac:	e0 03 15 aa	mov	x0, x21
+    63b0:	97 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    63b4:	e0 03 14 aa	mov	x0, x20
+    63b8:	95 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    63bc:	08 6b 8f b9	ldrsw	x8, [x24, #0xf68]
+    63c0:	60 6a 68 f8	ldr	x0, [x19, x8]
+    63c4:	e2 03 16 aa	mov	x2, x22
+    63c8:	2e 09 00 94	bl	0x8880 // SEND setText:
+    63cc:	e0 03 16 aa	mov	x0, x22
+    63d0:	fd 7b 45 a9	ldp	x29, x30, [sp, #0x50]
+    63d4:	f4 4f 44 a9	ldp	x20, x19, [sp, #0x40]
+    63d8:	f6 57 43 a9	ldp	x22, x21, [sp, #0x30]
+    63dc:	f8 5f 42 a9	ldp	x24, x23, [sp, #0x20]
+    63e0:	e9 23 41 6d	ldp	d9, d8, [sp, #0x10]
+    63e4:	ff 83 01 91	add	sp, sp, #0x60
+    63e8:	89 06 00 14	b	0x7e0c ; symbol stub for: _objc_release
+    63ec:	01 00 00 14	b	0x63f0
+    63f0:	3f 04 00 71	cmp	w1, #0x1
+    63f4:	c1 01 00 54	b.ne	0x642c
+    63f8:	70 06 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    63fc:	72 06 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    6400:	cd ff ff 17	b	0x6334
+    6404:	0a 00 00 14	b	0x642c
+    6408:	09 00 00 14	b	0x642c
+    640c:	08 00 00 14	b	0x642c
+    6410:	3f 04 00 71	cmp	w1, #0x1
+    6414:	c1 00 00 54	b.ne	0x642c
+    6418:	68 06 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    641c:	6a 06 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    6420:	e8 03 27 1e	fmov	s8, wzr
+    6424:	a6 ff ff 17	b	0x62bc
+    6428:	01 00 00 14	b	0x642c
+    642c:	3f 04 00 71	cmp	w1, #0x1
+    6430:	c1 00 00 54	b.ne	0x6448
+    6434:	61 06 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    6438:	63 06 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    643c:	36 00 00 d0	adrp	x22, 6 ; 0xc000
+    6440:	d6 62 12 91	add	x22, x22, #0x498 // @
+    6444:	de ff ff 17	b	0x63bc
+    6448:	41 06 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD temperatureString:
+    644c:	ff c3 00 d1	sub	sp, sp, #0x30
+    6450:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    6454:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    6458:	fd 83 00 91	add	x29, sp, #0x20
+    645c:	e0 03 02 aa	mov	x0, x2
+    6460:	6e 06 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    6464:	f3 03 00 aa	mov	x19, x0
+    6468:	40 08 00 b4	cbz	x0, 0x6570
+    646c:	54 00 00 d0	adrp	x20, 10 ; 0x10000
+    6470:	80 6e 47 f9	ldr	x0, [x20, #0xed8] ; Objc class ref: bad class ref
+    6474:	5d 06 00 94	bl	0x7de8 ; symbol stub for: _objc_opt_class
+    6478:	e1 03 00 aa	mov	x1, x0
+    647c:	e0 03 13 aa	mov	x0, x19
+    6480:	5d 06 00 94	bl	0x7df4 ; symbol stub for: _objc_opt_isKindOfClass
+    6484:	80 00 00 36	tbz	w0, #0x0, 0x6494
+    6488:	e0 03 13 aa	mov	x0, x19
+    648c:	63 06 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    6490:	2f 00 00 14	b	0x654c
+    6494:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6498:	01 25 45 f9	ldr	x1, [x8, #0xa48] // celsius
+    649c:	e0 03 13 aa	mov	x0, x19
+    64a0:	58 06 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    64a4:	60 01 00 36	tbz	w0, #0x0, 0x64d0
+    64a8:	e0 03 13 aa	mov	x0, x19
+    64ac:	e5 06 00 94	bl	0x8040 // SEND celsius
+    64b0:	80 6e 47 f9	ldr	x0, [x20, #0xed8]
+    64b4:	e0 03 00 fd	str	d0, [sp]
+    64b8:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    64bc:	42 60 16 91	add	x2, x2, #0x598 // @%.0f°
+    64c0:	50 09 00 94	bl	0x8a00 // SEND stringWithFormat:
+    64c4:	fd 03 1d aa	mov	x29, x29
+    64c8:	5a 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    64cc:	20 00 00 14	b	0x654c
+    64d0:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    64d4:	01 6d 45 f9	ldr	x1, [x8, #0xad8] // doubleValue
+    64d8:	e0 03 13 aa	mov	x0, x19
+    64dc:	49 06 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    64e0:	60 01 00 36	tbz	w0, #0x0, 0x650c
+    64e4:	e0 03 13 aa	mov	x0, x19
+    64e8:	66 07 00 94	bl	0x8280 // SEND doubleValue
+    64ec:	80 6e 47 f9	ldr	x0, [x20, #0xed8]
+    64f0:	e0 03 00 fd	str	d0, [sp]
+    64f4:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    64f8:	42 60 16 91	add	x2, x2, #0x598 // @%.0f°
+    64fc:	41 09 00 94	bl	0x8a00 // SEND stringWithFormat:
+    6500:	fd 03 1d aa	mov	x29, x29
+    6504:	4b 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6508:	11 00 00 14	b	0x654c
+    650c:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6510:	00 79 47 f9	ldr	x0, [x8, #0xef0] ; Objc class ref: bad class ref
+    6514:	35 06 00 94	bl	0x7de8 ; symbol stub for: _objc_opt_class
+    6518:	e1 03 00 aa	mov	x1, x0
+    651c:	e0 03 13 aa	mov	x0, x19
+    6520:	35 06 00 94	bl	0x7df4 ; symbol stub for: _objc_opt_isKindOfClass
+    6524:	60 02 00 36	tbz	w0, #0x0, 0x6570
+    6528:	e0 03 13 aa	mov	x0, x19
+    652c:	55 07 00 94	bl	0x8280 // SEND doubleValue
+    6530:	80 6e 47 f9	ldr	x0, [x20, #0xed8]
+    6534:	e0 03 00 fd	str	d0, [sp]
+    6538:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    653c:	42 60 16 91	add	x2, x2, #0x598 // @%.0f°
+    6540:	30 09 00 94	bl	0x8a00 // SEND stringWithFormat:
+    6544:	fd 03 1d aa	mov	x29, x29
+    6548:	3a 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    654c:	f4 03 00 aa	mov	x20, x0
+    6550:	0a 00 00 14	b	0x6578
+    6554:	03 00 00 14	b	0x6560
+    6558:	02 00 00 14	b	0x6560
+    655c:	01 00 00 14	b	0x6560
+    6560:	3f 04 00 71	cmp	w1, #0x1
+    6564:	81 01 00 54	b.ne	0x6594
+    6568:	14 06 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    656c:	16 06 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    6570:	34 00 00 d0	adrp	x20, 6 ; 0xc000
+    6574:	94 62 11 91	add	x20, x20, #0x458 // @--°
+    6578:	e0 03 13 aa	mov	x0, x19
+    657c:	24 06 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6580:	e0 03 14 aa	mov	x0, x20
+    6584:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    6588:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    658c:	ff c3 00 91	add	sp, sp, #0x30
+    6590:	07 06 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    6594:	ee 05 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD highLowTemperatureString
+    6598:	ff 43 01 d1	sub	sp, sp, #0x50
+    659c:	f8 5f 01 a9	stp	x24, x23, [sp, #0x10]
+    65a0:	f6 57 02 a9	stp	x22, x21, [sp, #0x20]
+    65a4:	f4 4f 03 a9	stp	x20, x19, [sp, #0x30]
+    65a8:	fd 7b 04 a9	stp	x29, x30, [sp, #0x40]
+    65ac:	fd 03 01 91	add	x29, sp, #0x40
+    65b0:	f5 03 00 aa	mov	x21, x0
+    65b4:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    65b8:	08 7d 8f b9	ldrsw	x8, [x8, #0xf7c]
+    65bc:	00 68 68 f8	ldr	x0, [x0, x8]
+    65c0:	20 07 00 94	bl	0x8240 // SEND dayForecasts
+    65c4:	fd 03 1d aa	mov	x29, x29
+    65c8:	1a 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    65cc:	f4 03 00 aa	mov	x20, x0
+    65d0:	a0 06 00 b4	cbz	x0, 0x66a4
+    65d4:	e0 03 14 aa	mov	x0, x20
+    65d8:	f2 06 00 94	bl	0x81a0 // SEND count
+    65dc:	40 06 00 b4	cbz	x0, 0x66a4
+    65e0:	33 00 00 d0	adrp	x19, 6 ; 0xc000
+    65e4:	73 62 14 91	add	x19, x19, #0x518 // @--
+    65e8:	e0 03 14 aa	mov	x0, x20
+    65ec:	02 00 80 d2	mov	x2, #0x0
+    65f0:	e4 07 00 94	bl	0x8580 // SEND objectAtIndexedSubscript:
+    65f4:	fd 03 1d aa	mov	x29, x29
+    65f8:	0e 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    65fc:	f6 03 00 aa	mov	x22, x0
+    6600:	58 07 00 94	bl	0x8360 // SEND high
+    6604:	fd 03 1d aa	mov	x29, x29
+    6608:	0a 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    660c:	f7 03 00 aa	mov	x23, x0
+    6610:	ff 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6614:	f7 01 00 b4	cbz	x23, 0x6650
+    6618:	e0 03 16 aa	mov	x0, x22
+    661c:	51 07 00 94	bl	0x8360 // SEND high
+    6620:	fd 03 1d aa	mov	x29, x29
+    6624:	03 06 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6628:	f7 03 00 aa	mov	x23, x0
+    662c:	e0 03 15 aa	mov	x0, x21
+    6630:	e2 03 17 aa	mov	x2, x23
+    6634:	3b 09 00 94	bl	0x8b20 // SEND temperatureString:
+    6638:	fd 03 1d aa	mov	x29, x29
+    663c:	fd 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6640:	f8 03 00 aa	mov	x24, x0
+    6644:	e0 03 17 aa	mov	x0, x23
+    6648:	f1 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    664c:	f3 03 18 aa	mov	x19, x24
+    6650:	e0 03 16 aa	mov	x0, x22
+    6654:	b3 07 00 94	bl	0x8520 // SEND low
+    6658:	fd 03 1d aa	mov	x29, x29
+    665c:	f5 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6660:	f7 03 00 aa	mov	x23, x0
+    6664:	ea 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6668:	77 02 00 b4	cbz	x23, 0x66b4
+    666c:	e0 03 16 aa	mov	x0, x22
+    6670:	ac 07 00 94	bl	0x8520 // SEND low
+    6674:	fd 03 1d aa	mov	x29, x29
+    6678:	ee 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    667c:	f7 03 00 aa	mov	x23, x0
+    6680:	e0 03 15 aa	mov	x0, x21
+    6684:	e2 03 17 aa	mov	x2, x23
+    6688:	26 09 00 94	bl	0x8b20 // SEND temperatureString:
+    668c:	fd 03 1d aa	mov	x29, x29
+    6690:	e8 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6694:	f5 03 00 aa	mov	x21, x0
+    6698:	e0 03 17 aa	mov	x0, x23
+    669c:	dc 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    66a0:	07 00 00 14	b	0x66bc
+    66a4:	35 00 00 d0	adrp	x21, 6 ; 0xc000
+    66a8:	b5 62 14 91	add	x21, x21, #0x518 // @--
+    66ac:	f3 03 15 aa	mov	x19, x21
+    66b0:	05 00 00 14	b	0x66c4
+    66b4:	35 00 00 d0	adrp	x21, 6 ; 0xc000
+    66b8:	b5 62 14 91	add	x21, x21, #0x518 // @--
+    66bc:	e0 03 16 aa	mov	x0, x22
+    66c0:	d3 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    66c4:	e0 03 14 aa	mov	x0, x20
+    66c8:	d1 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    66cc:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    66d0:	00 6d 47 f9	ldr	x0, [x8, #0xed8] ; Objc class ref: bad class ref
+    66d4:	f3 57 00 a9	stp	x19, x21, [sp]
+    66d8:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    66dc:	42 e0 16 91	add	x2, x2, #0x5b8 // @%@ / %@
+    66e0:	c8 08 00 94	bl	0x8a00 // SEND stringWithFormat:
+    66e4:	fd 03 1d aa	mov	x29, x29
+    66e8:	d2 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    66ec:	f4 03 00 aa	mov	x20, x0
+    66f0:	e0 03 15 aa	mov	x0, x21
+    66f4:	c6 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    66f8:	e0 03 13 aa	mov	x0, x19
+    66fc:	c4 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6700:	e0 03 14 aa	mov	x0, x20
+    6704:	fd 7b 44 a9	ldp	x29, x30, [sp, #0x40]
+    6708:	f4 4f 43 a9	ldp	x20, x19, [sp, #0x30]
+    670c:	f6 57 42 a9	ldp	x22, x21, [sp, #0x20]
+    6710:	f8 5f 41 a9	ldp	x24, x23, [sp, #0x10]
+    6714:	ff 43 01 91	add	sp, sp, #0x50
+    6718:	a5 05 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    671c:	33 00 00 d0	adrp	x19, 6 ; 0xc000
+    6720:	73 62 14 91	add	x19, x19, #0x518 // @--
+    6724:	01 00 00 14	b	0x6728
+    6728:	3f 04 00 71	cmp	w1, #0x1
+    672c:	c1 00 00 54	b.ne	0x6744
+    6730:	a2 05 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    6734:	a4 05 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    6738:	35 00 00 d0	adrp	x21, 6 ; 0xc000
+    673c:	b5 62 14 91	add	x21, x21, #0x518 // @--
+    6740:	e3 ff ff 17	b	0x66cc
+    6744:	82 05 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD conditionStringForCode:
+    6748:	f6 57 bd a9	stp	x22, x21, [sp, #-0x30]!
+    674c:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    6750:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    6754:	fd 83 00 91	add	x29, sp, #0x20
+    6758:	f3 03 02 aa	mov	x19, x2
+    675c:	f4 03 00 aa	mov	x20, x0
+    6760:	21 00 00 90	adrp	x1, 4 ; 0xa000
+    6764:	21 a0 09 91	add	x1, x1, #0x268 ; literal pool for: "WAConditionsLineStringFromConditionCode"
+    6768:	20 00 80 92	mov	x0, #-0x2
+    676c:	87 05 00 94	bl	0x7d88 ; symbol stub for: _dlsym
+    6770:	e8 03 00 aa	mov	x8, x0
+    6774:	80 01 00 b4	cbz	x0, 0x67a4
+    6778:	e0 03 13 aa	mov	x0, x19
+    677c:	00 01 3f d6	blr	x8
+    6780:	fd 03 1d aa	mov	x29, x29
+    6784:	ab 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6788:	f5 03 00 aa	mov	x21, x0
+    678c:	80 00 00 b4	cbz	x0, 0x679c
+    6790:	e0 03 15 aa	mov	x0, x21
+    6794:	53 07 00 94	bl	0x84e0 // SEND length
+    6798:	20 01 00 b5	cbnz	x0, 0x67bc
+    679c:	e0 03 15 aa	mov	x0, x21
+    67a0:	9b 05 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    67a4:	e0 03 14 aa	mov	x0, x20
+    67a8:	e2 03 13 aa	mov	x2, x19
+    67ac:	55 07 00 94	bl	0x8500 // SEND localizedConditionForCode:
+    67b0:	fd 03 1d aa	mov	x29, x29
+    67b4:	9f 05 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    67b8:	f5 03 00 aa	mov	x21, x0
+    67bc:	e0 03 15 aa	mov	x0, x21
+    67c0:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    67c4:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    67c8:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    67cc:	78 05 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    67d0:	01 00 00 14	b	0x67d4
+    67d4:	3f 04 00 71	cmp	w1, #0x1
+    67d8:	81 00 00 54	b.ne	0x67e8
+    67dc:	77 05 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    67e0:	79 05 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    67e4:	f0 ff ff 17	b	0x67a4
+    67e8:	59 05 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD localizedConditionForCode:
+    67ec:	fc 6f bc a9	stp	x28, x27, [sp, #-0x40]!
+    67f0:	f6 57 01 a9	stp	x22, x21, [sp, #0x10]
+    67f4:	f4 4f 02 a9	stp	x20, x19, [sp, #0x20]
+    67f8:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    67fc:	fd c3 00 91	add	x29, sp, #0x30
+    6800:	ff 43 0c d1	sub	sp, sp, #0x310
+    6804:	f3 03 02 aa	mov	x19, x2
+    6808:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    680c:	08 2d 40 f9	ldr	x8, [x8, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    6810:	08 01 40 f9	ldr	x8, [x8]
+    6814:	a8 83 1c f8	stur	x8, [x29, #-0x38]
+    6818:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    681c:	08 c1 36 91	add	x8, x8, #0xdb0
+    6820:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6824:	29 21 37 91	add	x9, x9, #0xdc8
+    6828:	e8 a7 00 a9	stp	x8, x9, [sp, #0x8]
+    682c:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6830:	08 61 17 91	add	x8, x8, #0x5d8 // @龙卷风
+    6834:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6838:	29 e1 17 91	add	x9, x9, #0x5f8 // @热带风暴
+    683c:	e8 a7 18 a9	stp	x8, x9, [sp, #0x188]
+    6840:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6844:	08 81 37 91	add	x8, x8, #0xde0
+    6848:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    684c:	29 e1 37 91	add	x9, x9, #0xdf8
+    6850:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    6854:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6858:	08 61 18 91	add	x8, x8, #0x618 // @飓风
+    685c:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6860:	29 e1 18 91	add	x9, x9, #0x638 // @强雷暴
+    6864:	e8 a7 19 a9	stp	x8, x9, [sp, #0x198]
+    6868:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    686c:	08 41 38 91	add	x8, x8, #0xe10
+    6870:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6874:	29 a1 38 91	add	x9, x9, #0xe28
+    6878:	e8 a7 02 a9	stp	x8, x9, [sp, #0x28]
+    687c:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6880:	08 61 19 91	add	x8, x8, #0x658 // @雷暴
+    6884:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6888:	29 e1 19 91	add	x9, x9, #0x678 // @雨夹雪
+    688c:	e8 a7 1a a9	stp	x8, x9, [sp, #0x1a8]
+    6890:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6894:	08 01 39 91	add	x8, x8, #0xe40
+    6898:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    689c:	29 61 39 91	add	x9, x9, #0xe58
+    68a0:	e8 a7 03 a9	stp	x8, x9, [sp, #0x38]
+    68a4:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    68a8:	08 61 1a 91	add	x8, x8, #0x698 // @雨夹冰
+    68ac:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    68b0:	29 e1 1a 91	add	x9, x9, #0x6b8 // @雪夹冰
+    68b4:	e8 a7 1b a9	stp	x8, x9, [sp, #0x1b8]
+    68b8:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    68bc:	08 c1 39 91	add	x8, x8, #0xe70
+    68c0:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    68c4:	29 21 3a 91	add	x9, x9, #0xe88
+    68c8:	e8 a7 04 a9	stp	x8, x9, [sp, #0x48]
+    68cc:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    68d0:	08 61 1b 91	add	x8, x8, #0x6d8 // @冻毛毛雨
+    68d4:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    68d8:	29 e1 1b 91	add	x9, x9, #0x6f8 // @毛毛雨
+    68dc:	e8 a7 1c a9	stp	x8, x9, [sp, #0x1c8]
+    68e0:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    68e4:	08 81 3a 91	add	x8, x8, #0xea0
+    68e8:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    68ec:	29 e1 3a 91	add	x9, x9, #0xeb8
+    68f0:	e8 a7 05 a9	stp	x8, x9, [sp, #0x58]
+    68f4:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    68f8:	08 61 1c 91	add	x8, x8, #0x718 // @冻雨
+    68fc:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6900:	29 e1 1c 91	add	x9, x9, #0x738 // @阵雨
+    6904:	e8 a7 1d a9	stp	x8, x9, [sp, #0x1d8]
+    6908:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    690c:	08 41 3b 91	add	x8, x8, #0xed0
+    6910:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6914:	4a a1 3b 91	add	x10, x10, #0xee8
+    6918:	e8 ab 06 a9	stp	x8, x10, [sp, #0x68]
+    691c:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6920:	08 61 1d 91	add	x8, x8, #0x758 // @阵雪
+    6924:	e9 a3 1e a9	stp	x9, x8, [sp, #0x1e8]
+    6928:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    692c:	4a 01 3c 91	add	x10, x10, #0xf00
+    6930:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6934:	6b 61 3c 91	add	x11, x11, #0xf18
+    6938:	ea af 07 a9	stp	x10, x11, [sp, #0x78]
+    693c:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6940:	4a e1 1d 91	add	x10, x10, #0x778 // @小阵雪
+    6944:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6948:	6b 61 1e 91	add	x11, x11, #0x798 // @风吹雪
+    694c:	ea af 1f a9	stp	x10, x11, [sp, #0x1f8]
+    6950:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6954:	4a c1 3c 91	add	x10, x10, #0xf30
+    6958:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    695c:	6b 21 3d 91	add	x11, x11, #0xf48
+    6960:	ea af 08 a9	stp	x10, x11, [sp, #0x88]
+    6964:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6968:	4a e1 1e 91	add	x10, x10, #0x7b8 // @雪
+    696c:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6970:	6b 61 1f 91	add	x11, x11, #0x7d8 // @冰雹
+    6974:	ea 07 01 f9	str	x10, [sp, #0x208]
+    6978:	eb 0b 01 f9	str	x11, [sp, #0x210]
+    697c:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6980:	4a 81 3d 91	add	x10, x10, #0xf60
+    6984:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6988:	6b e1 3d 91	add	x11, x11, #0xf78
+    698c:	ea af 09 a9	stp	x10, x11, [sp, #0x98]
+    6990:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6994:	4a e1 1f 91	add	x10, x10, #0x7f8 // @冰雨
+    6998:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    699c:	6b 61 20 91	add	x11, x11, #0x818 // @浮尘
+    69a0:	ea 0f 01 f9	str	x10, [sp, #0x218]
+    69a4:	eb 13 01 f9	str	x11, [sp, #0x220]
+    69a8:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    69ac:	4a 41 3e 91	add	x10, x10, #0xf90
+    69b0:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    69b4:	6b a1 3e 91	add	x11, x11, #0xfa8
+    69b8:	ea af 0a a9	stp	x10, x11, [sp, #0xa8]
+    69bc:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    69c0:	4a e1 20 91	add	x10, x10, #0x838 // @雾
+    69c4:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    69c8:	6b 61 21 91	add	x11, x11, #0x858 // @霾
+    69cc:	ea 17 01 f9	str	x10, [sp, #0x228]
+    69d0:	eb 1b 01 f9	str	x11, [sp, #0x230]
+    69d4:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    69d8:	4a 01 3f 91	add	x10, x10, #0xfc0
+    69dc:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    69e0:	6b 61 3f 91	add	x11, x11, #0xfd8
+    69e4:	ea af 0b a9	stp	x10, x11, [sp, #0xb8]
+    69e8:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    69ec:	4a e1 21 91	add	x10, x10, #0x878 // @烟
+    69f0:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    69f4:	6b 61 22 91	add	x11, x11, #0x898 // @大风
+    69f8:	ea 1f 01 f9	str	x10, [sp, #0x238]
+    69fc:	eb 23 01 f9	str	x11, [sp, #0x240]
+    6a00:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6a04:	4a c1 3f 91	add	x10, x10, #0xff0
+    6a08:	2b 00 00 f0	adrp	x11, 7 ; 0xd000
+    6a0c:	6b 21 00 91	add	x11, x11, #0x8
+    6a10:	ea af 0c a9	stp	x10, x11, [sp, #0xc8]
+    6a14:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6a18:	4a e1 22 91	add	x10, x10, #0x8b8 // @有风
+    6a1c:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6a20:	6b 61 23 91	add	x11, x11, #0x8d8 // @寒冷
+    6a24:	ea 27 01 f9	str	x10, [sp, #0x248]
+    6a28:	eb 2b 01 f9	str	x11, [sp, #0x250]
+    6a2c:	2a 00 00 f0	adrp	x10, 7 ; 0xd000
+    6a30:	4a 81 00 91	add	x10, x10, #0x20
+    6a34:	2b 00 00 f0	adrp	x11, 7 ; 0xd000
+    6a38:	6b e1 00 91	add	x11, x11, #0x38
+    6a3c:	ea af 0d a9	stp	x10, x11, [sp, #0xd8]
+    6a40:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6a44:	4a e1 23 91	add	x10, x10, #0x8f8 // @多云
+    6a48:	ea 2f 01 f9	str	x10, [sp, #0x258]
+    6a4c:	ea 33 01 f9	str	x10, [sp, #0x260]
+    6a50:	2b 00 00 f0	adrp	x11, 7 ; 0xd000
+    6a54:	6b 41 01 91	add	x11, x11, #0x50
+    6a58:	2c 00 00 f0	adrp	x12, 7 ; 0xd000
+    6a5c:	8c a1 01 91	add	x12, x12, #0x68
+    6a60:	eb b3 0e a9	stp	x11, x12, [sp, #0xe8]
+    6a64:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6a68:	6b 61 24 91	add	x11, x11, #0x918 // @晴间多云
+    6a6c:	ea 37 01 f9	str	x10, [sp, #0x268]
+    6a70:	eb 3b 01 f9	str	x11, [sp, #0x270]
+    6a74:	2c 00 00 f0	adrp	x12, 7 ; 0xd000
+    6a78:	8c 01 02 91	add	x12, x12, #0x80
+    6a7c:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6a80:	ad 61 02 91	add	x13, x13, #0x98
+    6a84:	ec b7 0f a9	stp	x12, x13, [sp, #0xf8]
+    6a88:	2c 00 00 d0	adrp	x12, 6 ; 0xc000
+    6a8c:	8c e1 24 91	add	x12, x12, #0x938 // @晴朗
+    6a90:	eb 3f 01 f9	str	x11, [sp, #0x278]
+    6a94:	ec 43 01 f9	str	x12, [sp, #0x280]
+    6a98:	2b 00 00 f0	adrp	x11, 7 ; 0xd000
+    6a9c:	6b c1 02 91	add	x11, x11, #0xb0
+    6aa0:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6aa4:	ad 21 03 91	add	x13, x13, #0xc8
+    6aa8:	eb b7 10 a9	stp	x11, x13, [sp, #0x108]
+    6aac:	ec 47 01 f9	str	x12, [sp, #0x288]
+    6ab0:	ec 4b 01 f9	str	x12, [sp, #0x290]
+    6ab4:	2b 00 00 f0	adrp	x11, 7 ; 0xd000
+    6ab8:	6b 81 03 91	add	x11, x11, #0xe0
+    6abc:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6ac0:	ad e1 03 91	add	x13, x13, #0xf8
+    6ac4:	eb b7 11 a9	stp	x11, x13, [sp, #0x118]
+    6ac8:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6acc:	6b 61 25 91	add	x11, x11, #0x958 // @雨夹冰雹
+    6ad0:	ec 4f 01 f9	str	x12, [sp, #0x298]
+    6ad4:	eb 53 01 f9	str	x11, [sp, #0x2a0]
+    6ad8:	2b 00 00 f0	adrp	x11, 7 ; 0xd000
+    6adc:	6b 41 04 91	add	x11, x11, #0x110
+    6ae0:	2c 00 00 d0	adrp	x12, 6 ; 0xc000
+    6ae4:	8c e1 25 91	add	x12, x12, #0x978 // @炎热
+    6ae8:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6aec:	ad a1 04 91	add	x13, x13, #0x128
+    6af0:	eb b7 12 a9	stp	x11, x13, [sp, #0x128]
+    6af4:	2b 00 00 d0	adrp	x11, 6 ; 0xc000
+    6af8:	6b 61 26 91	add	x11, x11, #0x998 // @雷阵雨
+    6afc:	ec 57 01 f9	str	x12, [sp, #0x2a8]
+    6b00:	eb 5b 01 f9	str	x11, [sp, #0x2b0]
+    6b04:	2c 00 00 f0	adrp	x12, 7 ; 0xd000
+    6b08:	8c 01 05 91	add	x12, x12, #0x140
+    6b0c:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6b10:	ad 61 05 91	add	x13, x13, #0x158
+    6b14:	ec b7 13 a9	stp	x12, x13, [sp, #0x138]
+    6b18:	eb 5f 01 f9	str	x11, [sp, #0x2b8]
+    6b1c:	eb 63 01 f9	str	x11, [sp, #0x2c0]
+    6b20:	2c 00 00 f0	adrp	x12, 7 ; 0xd000
+    6b24:	8c c1 05 91	add	x12, x12, #0x170
+    6b28:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6b2c:	ad 21 06 91	add	x13, x13, #0x188
+    6b30:	ec b7 14 a9	stp	x12, x13, [sp, #0x148]
+    6b34:	2c 00 00 d0	adrp	x12, 6 ; 0xc000
+    6b38:	8c e1 26 91	add	x12, x12, #0x9b8 // @大雪
+    6b3c:	e9 67 01 f9	str	x9, [sp, #0x2c8]
+    6b40:	ec 6b 01 f9	str	x12, [sp, #0x2d0]
+    6b44:	29 00 00 f0	adrp	x9, 7 ; 0xd000
+    6b48:	29 81 06 91	add	x9, x9, #0x1a0
+    6b4c:	2d 00 00 f0	adrp	x13, 7 ; 0xd000
+    6b50:	ad e1 06 91	add	x13, x13, #0x1b8
+    6b54:	e9 b7 15 a9	stp	x9, x13, [sp, #0x158]
+    6b58:	e8 6f 01 f9	str	x8, [sp, #0x2d8]
+    6b5c:	ec 73 01 f9	str	x12, [sp, #0x2e0]
+    6b60:	29 00 00 f0	adrp	x9, 7 ; 0xd000
+    6b64:	29 41 07 91	add	x9, x9, #0x1d0
+    6b68:	2c 00 00 f0	adrp	x12, 7 ; 0xd000
+    6b6c:	8c a1 07 91	add	x12, x12, #0x1e8
+    6b70:	e9 b3 16 a9	stp	x9, x12, [sp, #0x168]
+    6b74:	ea 77 01 f9	str	x10, [sp, #0x2e8]
+    6b78:	eb 7b 01 f9	str	x11, [sp, #0x2f0]
+    6b7c:	29 00 00 f0	adrp	x9, 7 ; 0xd000
+    6b80:	29 01 08 91	add	x9, x9, #0x200
+    6b84:	2a 00 00 f0	adrp	x10, 7 ; 0xd000
+    6b88:	4a 61 08 91	add	x10, x10, #0x218
+    6b8c:	e9 ab 17 a9	stp	x9, x10, [sp, #0x178]
+    6b90:	e8 7f 01 f9	str	x8, [sp, #0x2f8]
+    6b94:	eb 83 01 f9	str	x11, [sp, #0x300]
+    6b98:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6b9c:	00 7d 47 f9	ldr	x0, [x8, #0xef8] ; Objc class ref: bad class ref
+    6ba0:	e2 23 06 91	add	x2, sp, #0x188
+    6ba4:	e3 23 00 91	add	x3, sp, #0x8
+    6ba8:	04 06 80 52	mov	w4, #0x30
+    6bac:	ad 05 00 94	bl	0x8260 // SEND dictionaryWithObjects:forKeys:count:
+    6bb0:	fd 03 1d aa	mov	x29, x29
+    6bb4:	9f 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6bb8:	f4 03 00 aa	mov	x20, x0
+    6bbc:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6bc0:	00 79 47 f9	ldr	x0, [x8, #0xef0] ; Objc class ref: bad class ref
+    6bc4:	e2 03 13 aa	mov	x2, x19
+    6bc8:	66 06 00 94	bl	0x8560 // SEND numberWithInteger:
+    6bcc:	fd 03 1d aa	mov	x29, x29
+    6bd0:	98 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6bd4:	f5 03 00 aa	mov	x21, x0
+    6bd8:	e0 03 14 aa	mov	x0, x20
+    6bdc:	e2 03 15 aa	mov	x2, x21
+    6be0:	70 06 00 94	bl	0x85a0 // SEND objectForKeyedSubscript:
+    6be4:	fd 03 1d aa	mov	x29, x29
+    6be8:	92 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6bec:	f6 03 00 aa	mov	x22, x0
+    6bf0:	28 00 00 d0	adrp	x8, 6 ; 0xc000
+    6bf4:	08 61 14 91	add	x8, x8, #0x518 // @--
+    6bf8:	1f 00 00 f1	cmp	x0, #0x0
+    6bfc:	00 01 80 9a	csel	x0, x8, x0, eq
+    6c00:	89 04 00 94	bl	0x7e24 ; symbol stub for: _objc_retainAutoreleaseReturnValue
+    6c04:	f3 03 00 aa	mov	x19, x0
+    6c08:	e0 03 16 aa	mov	x0, x22
+    6c0c:	80 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6c10:	e0 03 15 aa	mov	x0, x21
+    6c14:	7e 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6c18:	e0 03 14 aa	mov	x0, x20
+    6c1c:	7c 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6c20:	a8 83 5c f8	ldur	x8, [x29, #-0x38]
+    6c24:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6c28:	29 2d 40 f9	ldr	x9, [x9, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    6c2c:	29 01 40 f9	ldr	x9, [x9]
+    6c30:	3f 01 08 eb	cmp	x9, x8
+    6c34:	01 01 00 54	b.ne	0x6c54
+    6c38:	e0 03 13 aa	mov	x0, x19
+    6c3c:	ff 43 0c 91	add	sp, sp, #0x310
+    6c40:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    6c44:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    6c48:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    6c4c:	fc 6f c4 a8	ldp	x28, x27, [sp], #0x40
+    6c50:	c0 03 5f d6	ret
+    6c54:	41 04 00 94	bl	0x7d58 ; symbol stub for: ___stack_chk_fail
+
+METHOD updateWeatherIcon
+    6c58:	f8 5f bc a9	stp	x24, x23, [sp, #-0x40]!
+    6c5c:	f6 57 01 a9	stp	x22, x21, [sp, #0x10]
+    6c60:	f4 4f 02 a9	stp	x20, x19, [sp, #0x20]
+    6c64:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    6c68:	fd c3 00 91	add	x29, sp, #0x30
+    6c6c:	f3 03 00 aa	mov	x19, x0
+    6c70:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6c74:	14 7d 8f b9	ldrsw	x20, [x8, #0xf7c]
+    6c78:	00 68 74 f8	ldr	x0, [x0, x20]
+    6c7c:	19 05 00 94	bl	0x80e0 // SEND conditionCode
+    6c80:	f5 03 00 aa	mov	x21, x0
+    6c84:	00 01 00 b5	cbnz	x0, 0x6ca4
+    6c88:	60 6a 74 f8	ldr	x0, [x19, x20]
+    6c8c:	9d 07 00 94	bl	0x8b00 // SEND temperature
+    6c90:	fd 03 1d aa	mov	x29, x29
+    6c94:	67 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6c98:	f4 03 00 aa	mov	x20, x0
+    6c9c:	5c 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6ca0:	f4 05 00 b4	cbz	x20, 0x6d5c
+    6ca4:	e0 03 13 aa	mov	x0, x19
+    6ca8:	e2 03 15 aa	mov	x2, x21
+    6cac:	8d 07 00 94	bl	0x8ae0 // SEND systemWeatherImageForConditionCode:
+    6cb0:	fd 03 1d aa	mov	x29, x29
+    6cb4:	5f 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6cb8:	f4 03 00 aa	mov	x20, x0
+    6cbc:	e0 00 00 b4	cbz	x0, 0x6cd8
+    6cc0:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6cc4:	08 5d 8f b9	ldrsw	x8, [x8, #0xf5c]
+    6cc8:	60 6a 68 f8	ldr	x0, [x19, x8]
+    6ccc:	e2 03 14 aa	mov	x2, x20
+    6cd0:	bc 06 00 94	bl	0x87c0 // SEND setImage:
+    6cd4:	3b 00 00 14	b	0x6dc0
+    6cd8:	e0 03 13 aa	mov	x0, x19
+    6cdc:	e2 03 15 aa	mov	x2, x21
+    6ce0:	78 07 00 94	bl	0x8ac0 // SEND systemSymbolForConditionCode:
+    6ce4:	fd 03 1d aa	mov	x29, x29
+    6ce8:	52 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6cec:	f5 03 00 aa	mov	x21, x0
+    6cf0:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6cf4:	00 81 47 f9	ldr	x0, [x8, #0xf00] ; Objc class ref: bad class ref
+    6cf8:	a8 08 e8 d2	mov	x8, #0x4045000000000000
+    6cfc:	00 01 67 9e	fmov	d0, x8
+    6d00:	82 00 80 52	mov	w2, #0x4
+    6d04:	07 05 00 94	bl	0x8120 // SEND configurationWithPointSize:weight:
+    6d08:	fd 03 1d aa	mov	x29, x29
+    6d0c:	49 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6d10:	f6 03 00 aa	mov	x22, x0
+    6d14:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6d18:	00 85 47 f9	ldr	x0, [x8, #0xf08] ; Objc class ref: bad class ref
+    6d1c:	e2 03 15 aa	mov	x2, x21
+    6d20:	e3 03 16 aa	mov	x3, x22
+    6d24:	5f 07 00 94	bl	0x8aa0 // SEND systemImageNamed:withConfiguration:
+    6d28:	fd 03 1d aa	mov	x29, x29
+    6d2c:	41 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6d30:	f7 03 00 aa	mov	x23, x0
+    6d34:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6d38:	08 5d 8f b9	ldrsw	x8, [x8, #0xf5c]
+    6d3c:	60 6a 68 f8	ldr	x0, [x19, x8]
+    6d40:	e2 03 17 aa	mov	x2, x23
+    6d44:	9f 06 00 94	bl	0x87c0 // SEND setImage:
+    6d48:	e0 03 17 aa	mov	x0, x23
+    6d4c:	30 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6d50:	e0 03 16 aa	mov	x0, x22
+    6d54:	2e 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6d58:	18 00 00 14	b	0x6db8
+    6d5c:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6d60:	00 81 47 f9	ldr	x0, [x8, #0xf00] ; Objc class ref: bad class ref
+    6d64:	a8 08 e8 d2	mov	x8, #0x4045000000000000
+    6d68:	00 01 67 9e	fmov	d0, x8
+    6d6c:	82 00 80 52	mov	w2, #0x4
+    6d70:	ec 04 00 94	bl	0x8120 // SEND configurationWithPointSize:weight:
+    6d74:	fd 03 1d aa	mov	x29, x29
+    6d78:	2e 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6d7c:	f4 03 00 aa	mov	x20, x0
+    6d80:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6d84:	00 85 47 f9	ldr	x0, [x8, #0xf08] ; Objc class ref: bad class ref
+    6d88:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    6d8c:	42 60 27 91	add	x2, x2, #0x9d8 // @cloud.fill
+    6d90:	e3 03 14 aa	mov	x3, x20
+    6d94:	43 07 00 94	bl	0x8aa0 // SEND systemImageNamed:withConfiguration:
+    6d98:	fd 03 1d aa	mov	x29, x29
+    6d9c:	25 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6da0:	f5 03 00 aa	mov	x21, x0
+    6da4:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6da8:	08 5d 8f b9	ldrsw	x8, [x8, #0xf5c]
+    6dac:	60 6a 68 f8	ldr	x0, [x19, x8]
+    6db0:	e2 03 15 aa	mov	x2, x21
+    6db4:	83 06 00 94	bl	0x87c0 // SEND setImage:
+    6db8:	e0 03 15 aa	mov	x0, x21
+    6dbc:	14 04 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6dc0:	e0 03 14 aa	mov	x0, x20
+    6dc4:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    6dc8:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    6dcc:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    6dd0:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+    6dd4:	0e 04 00 14	b	0x7e0c ; symbol stub for: _objc_release
+
+METHOD systemWeatherImageForConditionCode:
+    6dd8:	f8 5f bc a9	stp	x24, x23, [sp, #-0x40]!
+    6ddc:	f6 57 01 a9	stp	x22, x21, [sp, #0x10]
+    6de0:	f4 4f 02 a9	stp	x20, x19, [sp, #0x20]
+    6de4:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    6de8:	fd c3 00 91	add	x29, sp, #0x30
+    6dec:	f5 03 00 aa	mov	x21, x0
+    6df0:	74 05 00 94	bl	0x83c0 // SEND imageNameForConditionCode:
+    6df4:	fd 03 1d aa	mov	x29, x29
+    6df8:	0e 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6dfc:	f3 03 00 aa	mov	x19, x0
+    6e00:	00 06 00 b4	cbz	x0, 0x6ec0
+    6e04:	56 00 00 d0	adrp	x22, 10 ; 0x10000
+    6e08:	d4 8a 47 f9	ldr	x20, [x22, #0xf10] ; Objc class ref: bad class ref
+    6e0c:	e0 03 15 aa	mov	x0, x21
+    6e10:	f6 03 00 94	bl	0x7de8 ; symbol stub for: _objc_opt_class
+    6e14:	e2 03 00 aa	mov	x2, x0
+    6e18:	e0 03 14 aa	mov	x0, x20
+    6e1c:	79 04 00 94	bl	0x8000 // SEND bundleForClass:
+    6e20:	fd 03 1d aa	mov	x29, x29
+    6e24:	03 04 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6e28:	f4 03 00 aa	mov	x20, x0
+    6e2c:	57 00 00 d0	adrp	x23, 10 ; 0x10000
+    6e30:	40 01 00 b4	cbz	x0, 0x6e58
+    6e34:	e0 86 47 f9	ldr	x0, [x23, #0xf08]
+    6e38:	e2 03 13 aa	mov	x2, x19
+    6e3c:	e3 03 14 aa	mov	x3, x20
+    6e40:	04 00 80 d2	mov	x4, #0x0
+    6e44:	67 05 00 94	bl	0x83e0 // SEND imageNamed:inBundle:compatibleWithTraitCollection:
+    6e48:	fd 03 1d aa	mov	x29, x29
+    6e4c:	f9 03 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6e50:	f5 03 00 aa	mov	x21, x0
+    6e54:	80 02 00 b5	cbnz	x0, 0x6ea4
+    6e58:	c0 8a 47 f9	ldr	x0, [x22, #0xf10]
+    6e5c:	22 00 00 d0	adrp	x2, 6 ; 0xc000
+    6e60:	42 e0 27 91	add	x2, x2, #0x9f8 // @/System/Library/PrivateFrameworks/WeatherUI.framework
+    6e64:	6f 04 00 94	bl	0x8020 // SEND bundleWithPath:
+    6e68:	fd 03 1d aa	mov	x29, x29
+    6e6c:	f1 03 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6e70:	f6 03 00 aa	mov	x22, x0
+    6e74:	e0 01 00 b4	cbz	x0, 0x6eb0
+    6e78:	e0 86 47 f9	ldr	x0, [x23, #0xf08]
+    6e7c:	e2 03 13 aa	mov	x2, x19
+    6e80:	e3 03 16 aa	mov	x3, x22
+    6e84:	04 00 80 d2	mov	x4, #0x0
+    6e88:	56 05 00 94	bl	0x83e0 // SEND imageNamed:inBundle:compatibleWithTraitCollection:
+    6e8c:	fd 03 1d aa	mov	x29, x29
+    6e90:	e8 03 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    6e94:	f5 03 00 aa	mov	x21, x0
+    6e98:	c0 00 00 b4	cbz	x0, 0x6eb0
+    6e9c:	e0 03 16 aa	mov	x0, x22
+    6ea0:	db 03 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6ea4:	e0 03 14 aa	mov	x0, x20
+    6ea8:	d9 03 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6eac:	06 00 00 14	b	0x6ec4
+    6eb0:	e0 03 16 aa	mov	x0, x22
+    6eb4:	d6 03 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6eb8:	e0 03 14 aa	mov	x0, x20
+    6ebc:	d4 03 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6ec0:	15 00 80 d2	mov	x21, #0x0
+    6ec4:	e0 03 13 aa	mov	x0, x19
+    6ec8:	d1 03 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    6ecc:	e0 03 15 aa	mov	x0, x21
+    6ed0:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    6ed4:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+    6ed8:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+    6edc:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+    6ee0:	b3 03 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    6ee4:	03 00 00 14	b	0x6ef0
+    6ee8:	02 00 00 14	b	0x6ef0
+    6eec:	01 00 00 14	b	0x6ef0
+    6ef0:	3f 04 00 71	cmp	w1, #0x1
+    6ef4:	81 00 00 54	b.ne	0x6f04
+    6ef8:	b0 03 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    6efc:	b2 03 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    6f00:	f0 ff ff 17	b	0x6ec0
+    6f04:	92 03 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD imageNameForConditionCode:
+    6f08:	f6 57 bd a9	stp	x22, x21, [sp, #-0x30]!
+    6f0c:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    6f10:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    6f14:	fd 83 00 91	add	x29, sp, #0x20
+    6f18:	f3 03 02 aa	mov	x19, x2
+    6f1c:	f4 03 00 aa	mov	x20, x0
+    6f20:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6f24:	15 7d 8f b9	ldrsw	x21, [x8, #0xf7c]
+    6f28:	00 68 75 f8	ldr	x0, [x0, x21]
+    6f2c:	20 01 00 b4	cbz	x0, 0x6f50
+    6f30:	48 00 00 d0	adrp	x8, 10 ; 0x10000
+    6f34:	01 a9 45 f9	ldr	x1, [x8, #0xb50] // isDay
+    6f38:	b2 03 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    6f3c:	a0 00 00 36	tbz	w0, #0x0, 0x6f50
+    6f40:	80 6a 75 f8	ldr	x0, [x20, x21]
+    6f44:	47 05 00 94	bl	0x8460 // SEND isDay
+    6f48:	08 00 00 52	eor	w8, w0, #0x1
+    6f4c:	02 00 00 14	b	0x6f54
+    6f50:	08 00 80 52	mov	w8, #0x0
+    6f54:	7f be 00 f1	cmp	x19, #0x2f
+    6f58:	e8 02 00 54	b.hi	0x6fb4
+    6f5c:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6f60:	00 60 28 91	add	x0, x0, #0xa18 // @晴天-夜间
+    6f64:	09 00 00 f0	adrp	x9, 3 ; 0x9000
+    6f68:	29 21 00 91	add	x9, x9, #0x8
+    6f6c:	8a 00 00 10	adr	x10, #16
+    6f70:	2b 69 73 38	ldrb	w11, [x9, x19]
+    6f74:	4a 09 0b 8b	add	x10, x10, x11, lsl #2
+    6f78:	40 01 1f d6	br	x10
+    6f7c:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6f80:	00 60 26 91	add	x0, x0, #0x998 // @雷阵雨
+    6f84:	2a 00 00 14	b	0x702c
+    6f88:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6f8c:	00 e0 19 91	add	x0, x0, #0x678 // @雨夹雪
+    6f90:	27 00 00 14	b	0x702c
+    6f94:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6f98:	00 e0 2c 91	add	x0, x0, #0xb38 // @中雨
+    6f9c:	24 00 00 14	b	0x702c
+    6fa0:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6fa4:	29 e1 2d 91	add	x9, x9, #0xb78 // @小雪-白天
+    6fa8:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6fac:	4a 61 2d 91	add	x10, x10, #0xb58 // @小雪-夜间
+    6fb0:	1c 00 00 14	b	0x7020
+    6fb4:	29 00 00 d0	adrp	x9, 6 ; 0xc000
+    6fb8:	29 e1 29 91	add	x9, x9, #0xa78 // @多云-白天
+    6fbc:	2a 00 00 d0	adrp	x10, 6 ; 0xc000
+    6fc0:	4a 61 29 91	add	x10, x10, #0xa58 // @多云-夜间
+    6fc4:	17 00 00 14	b	0x7020
+    6fc8:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6fcc:	00 60 17 91	add	x0, x0, #0x5d8 // @龙卷风
+    6fd0:	17 00 00 14	b	0x702c
+    6fd4:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6fd8:	00 60 2e 91	add	x0, x0, #0xb98 // @中雪
+    6fdc:	14 00 00 14	b	0x702c
+    6fe0:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6fe4:	00 60 22 91	add	x0, x0, #0x898 // @大风
+    6fe8:	11 00 00 14	b	0x702c
+    6fec:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6ff0:	00 60 29 91	add	x0, x0, #0xa58 // @多云-夜间
+    6ff4:	0e 00 00 14	b	0x702c
+    6ff8:	20 00 00 d0	adrp	x0, 6 ; 0xc000
+    6ffc:	00 e0 28 91	add	x0, x0, #0xa38 // @晴天-白天
+    7000:	0b 00 00 14	b	0x702c
+    7004:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7008:	00 e0 26 91	add	x0, x0, #0x9b8 // @大雪
+    700c:	08 00 00 14	b	0x702c
+    7010:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    7014:	29 61 2c 91	add	x9, x9, #0xb18 // @小雨-白天
+    7018:	2a 00 00 b0	adrp	x10, 5 ; 0xc000
+    701c:	4a e1 2b 91	add	x10, x10, #0xaf8 // @小雨-夜间
+    7020:	1f 01 00 71	cmp	w8, #0x0
+    7024:	40 11 89 9a	csel	x0, x10, x9, ne
+    7028:	7c 03 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    702c:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    7030:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    7034:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    7038:	5d 03 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    703c:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7040:	00 60 1f 91	add	x0, x0, #0x7d8 // @冰雹
+    7044:	fa ff ff 17	b	0x702c
+    7048:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    704c:	00 60 20 91	add	x0, x0, #0x818 // @浮尘
+    7050:	f7 ff ff 17	b	0x702c
+    7054:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7058:	00 e0 20 91	add	x0, x0, #0x838 // @雾
+    705c:	f4 ff ff 17	b	0x702c
+    7060:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7064:	00 e0 2a 91	add	x0, x0, #0xab8 // @轻度雾霾
+    7068:	f1 ff ff 17	b	0x702c
+    706c:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7070:	00 60 2b 91	add	x0, x0, #0xad8 // @中度雾霾
+    7074:	ee ff ff 17	b	0x702c
+    7078:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    707c:	00 60 23 91	add	x0, x0, #0x8d8 // @寒冷
+    7080:	eb ff ff 17	b	0x702c
+    7084:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7088:	00 60 2a 91	add	x0, x0, #0xa98 // @阴天
+    708c:	e8 ff ff 17	b	0x702c
+    7090:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7094:	00 e0 25 91	add	x0, x0, #0x978 // @炎热
+    7098:	e5 ff ff 17	b	0x702c
+
+METHOD systemSymbolForConditionCode:
+    709c:	f6 57 bd a9	stp	x22, x21, [sp, #-0x30]!
+    70a0:	f4 4f 01 a9	stp	x20, x19, [sp, #0x10]
+    70a4:	fd 7b 02 a9	stp	x29, x30, [sp, #0x20]
+    70a8:	fd 83 00 91	add	x29, sp, #0x20
+    70ac:	f3 03 02 aa	mov	x19, x2
+    70b0:	f4 03 00 aa	mov	x20, x0
+    70b4:	01 00 00 f0	adrp	x1, 3 ; 0xa000
+    70b8:	21 4c 0b 91	add	x1, x1, #0x2d3 ; literal pool for: "WASymbolGlyphFromConditionCode"
+    70bc:	20 00 80 92	mov	x0, #-0x2
+    70c0:	32 03 00 94	bl	0x7d88 ; symbol stub for: _dlsym
+    70c4:	e8 03 00 aa	mov	x8, x0
+    70c8:	80 01 00 b4	cbz	x0, 0x70f8
+    70cc:	e0 03 13 aa	mov	x0, x19
+    70d0:	00 01 3f d6	blr	x8
+    70d4:	fd 03 1d aa	mov	x29, x29
+    70d8:	56 03 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    70dc:	f5 03 00 aa	mov	x21, x0
+    70e0:	80 00 00 b4	cbz	x0, 0x70f0
+    70e4:	e0 03 15 aa	mov	x0, x21
+    70e8:	fe 04 00 94	bl	0x84e0 // SEND length
+    70ec:	20 01 00 b5	cbnz	x0, 0x7110
+    70f0:	e0 03 15 aa	mov	x0, x21
+    70f4:	46 03 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    70f8:	e0 03 14 aa	mov	x0, x20
+    70fc:	e2 03 13 aa	mov	x2, x19
+    7100:	20 06 00 94	bl	0x8980 // SEND sfSymbolForConditionCode:
+    7104:	fd 03 1d aa	mov	x29, x29
+    7108:	4a 03 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    710c:	f5 03 00 aa	mov	x21, x0
+    7110:	e0 03 15 aa	mov	x0, x21
+    7114:	fd 7b 42 a9	ldp	x29, x30, [sp, #0x20]
+    7118:	f4 4f 41 a9	ldp	x20, x19, [sp, #0x10]
+    711c:	f6 57 c3 a8	ldp	x22, x21, [sp], #0x30
+    7120:	23 03 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    7124:	01 00 00 14	b	0x7128
+    7128:	3f 04 00 71	cmp	w1, #0x1
+    712c:	81 00 00 54	b.ne	0x713c
+    7130:	22 03 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    7134:	24 03 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    7138:	f0 ff ff 17	b	0x70f8
+    713c:	04 03 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD sfSymbolForConditionCode:
+    7140:	5f bc 00 f1	cmp	x2, #0x2f
+    7144:	a8 00 00 54	b.hi	0x7158
+    7148:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    714c:	08 e1 07 91	add	x8, x8, #0x1f8
+    7150:	00 79 62 f8	ldr	x0, [x8, x2, lsl #3]
+    7154:	c0 03 5f d6	ret
+    7158:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    715c:	00 60 27 91	add	x0, x0, #0x9d8 // @cloud.fill
+    7160:	c0 03 5f d6	ret
+
+METHOD updateHourlyForecast
+    7164:	ff 03 05 d1	sub	sp, sp, #0x140
+    7168:	e9 23 0d 6d	stp	d9, d8, [sp, #0xd0]
+    716c:	fc 6f 0e a9	stp	x28, x27, [sp, #0xe0]
+    7170:	fa 67 0f a9	stp	x26, x25, [sp, #0xf0]
+    7174:	f8 5f 10 a9	stp	x24, x23, [sp, #0x100]
+    7178:	f6 57 11 a9	stp	x22, x21, [sp, #0x110]
+    717c:	f4 4f 12 a9	stp	x20, x19, [sp, #0x120]
+    7180:	fd 7b 13 a9	stp	x29, x30, [sp, #0x130]
+    7184:	fd c3 04 91	add	x29, sp, #0x130
+    7188:	f3 03 00 aa	mov	x19, x0
+    718c:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    7190:	08 2d 40 f9	ldr	x8, [x8, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    7194:	08 01 40 f9	ldr	x8, [x8]
+    7198:	a8 83 19 f8	stur	x8, [x29, #-0x68]
+    719c:	00 e4 00 4f	movi.16b	v0, #0x0
+    71a0:	e0 03 00 ad	stp	q0, q0, [sp]
+    71a4:	e0 03 01 ad	stp	q0, q0, [sp, #0x20]
+    71a8:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    71ac:	19 79 8f b9	ldrsw	x25, [x8, #0xf78]
+    71b0:	00 68 79 f8	ldr	x0, [x0, x25]
+    71b4:	2b 06 00 94	bl	0x8a60 // SEND subviews
+    71b8:	fd 03 1d aa	mov	x29, x29
+    71bc:	1d 03 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    71c0:	f4 03 00 aa	mov	x20, x0
+    71c4:	e2 03 00 91	mov	x2, sp
+    71c8:	e3 23 01 91	add	x3, sp, #0x48
+    71cc:	04 02 80 52	mov	w4, #0x10
+    71d0:	fc 03 00 94	bl	0x81c0 // SEND countByEnumeratingWithState:objects:count:
+    71d4:	00 03 00 b4	cbz	x0, 0x7234
+    71d8:	f5 03 00 aa	mov	x21, x0
+    71dc:	e8 0b 40 f9	ldr	x8, [sp, #0x10]
+    71e0:	16 01 40 f9	ldr	x22, [x8]
+    71e4:	17 00 80 d2	mov	x23, #0x0
+    71e8:	e8 0b 40 f9	ldr	x8, [sp, #0x10]
+    71ec:	08 01 40 f9	ldr	x8, [x8]
+    71f0:	1f 01 16 eb	cmp	x8, x22
+    71f4:	60 00 00 54	b.eq	0x7200
+    71f8:	e0 03 14 aa	mov	x0, x20
+    71fc:	f5 02 00 94	bl	0x7dd0 ; symbol stub for: _objc_enumerationMutation
+    7200:	e8 07 40 f9	ldr	x8, [sp, #0x8]
+    7204:	00 79 77 f8	ldr	x0, [x8, x23, lsl #3]
+    7208:	16 05 00 94	bl	0x8660 // SEND removeFromSuperview
+    720c:	f7 06 00 91	add	x23, x23, #0x1
+    7210:	bf 02 17 eb	cmp	x21, x23
+    7214:	a1 fe ff 54	b.ne	0x71e8
+    7218:	e2 03 00 91	mov	x2, sp
+    721c:	e3 23 01 91	add	x3, sp, #0x48
+    7220:	e0 03 14 aa	mov	x0, x20
+    7224:	04 02 80 52	mov	w4, #0x10
+    7228:	e6 03 00 94	bl	0x81c0 // SEND countByEnumeratingWithState:objects:count:
+    722c:	f5 03 00 aa	mov	x21, x0
+    7230:	a0 fd ff b5	cbnz	x0, 0x71e4
+    7234:	e0 03 14 aa	mov	x0, x20
+    7238:	f5 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    723c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7240:	08 7d 8f b9	ldrsw	x8, [x8, #0xf7c]
+    7244:	60 6a 68 f8	ldr	x0, [x19, x8]
+    7248:	56 04 00 94	bl	0x83a0 // SEND hourlyForecasts
+    724c:	fd 03 1d aa	mov	x29, x29
+    7250:	f8 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7254:	f4 03 00 aa	mov	x20, x0
+    7258:	e0 08 00 b4	cbz	x0, 0x7374
+    725c:	e0 03 14 aa	mov	x0, x20
+    7260:	d0 03 00 94	bl	0x81a0 // SEND count
+    7264:	80 08 00 b4	cbz	x0, 0x7374
+    7268:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    726c:	00 8d 47 f9	ldr	x0, [x8, #0xf18] ; Objc class ref: bad class ref
+    7270:	cc 02 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    7274:	f5 03 00 aa	mov	x21, x0
+    7278:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    727c:	00 91 47 f9	ldr	x0, [x8, #0xf20] ; Objc class ref: bad class ref
+    7280:	e0 03 00 94	bl	0x8200 // SEND currentLocale
+    7284:	fd 03 1d aa	mov	x29, x29
+    7288:	ea 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    728c:	f6 03 00 aa	mov	x22, x0
+    7290:	e0 03 15 aa	mov	x0, x21
+    7294:	e2 03 16 aa	mov	x2, x22
+    7298:	52 05 00 94	bl	0x87e0 // SEND setLocale:
+    729c:	e0 03 16 aa	mov	x0, x22
+    72a0:	db 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    72a4:	e0 03 14 aa	mov	x0, x20
+    72a8:	be 03 00 94	bl	0x81a0 // SEND count
+    72ac:	1f 30 00 f1	cmp	x0, #0xc
+    72b0:	88 01 80 52	mov	w8, #0xc
+    72b4:	1a 30 88 9a	csel	x26, x0, x8, lo
+    72b8:	1a 05 00 b4	cbz	x26, 0x7358
+    72bc:	16 00 80 d2	mov	x22, #0x0
+    72c0:	08 10 65 1e	fmov	d8, #12.00000000
+    72c4:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    72c8:	09 fd 47 fd	ldr	d9, [x8, #0xff8]
+    72cc:	9b 0a e8 d2	mov	x27, #0x4054000000000000
+    72d0:	e0 03 14 aa	mov	x0, x20
+    72d4:	e2 03 16 aa	mov	x2, x22
+    72d8:	aa 04 00 94	bl	0x8580 // SEND objectAtIndexedSubscript:
+    72dc:	fd 03 1d aa	mov	x29, x29
+    72e0:	d4 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    72e4:	f7 03 00 aa	mov	x23, x0
+    72e8:	df 02 00 f1	cmp	x22, #0x0
+    72ec:	e3 17 9f 1a	cset	w3, eq
+    72f0:	e0 03 13 aa	mov	x0, x19
+    72f4:	e2 03 17 aa	mov	x2, x23
+    72f8:	e4 03 15 aa	mov	x4, x21
+    72fc:	b9 03 00 94	bl	0x81e0 // SEND createHourlyItemWithForecast:isNow:formatter:
+    7300:	fd 03 1d aa	mov	x29, x29
+    7304:	cb 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7308:	f8 03 00 aa	mov	x24, x0
+    730c:	63 03 67 9e	fmov	d3, x27
+    7310:	e1 03 67 9e	fmov	d1, xzr
+    7314:	00 41 60 1e	fmov	d0, d8
+    7318:	22 41 60 1e	fmov	d2, d9
+    731c:	21 05 00 94	bl	0x87a0 // SEND setFrame:
+    7320:	60 6a 79 f8	ldr	x0, [x19, x25]
+    7324:	e2 03 18 aa	mov	x2, x24
+    7328:	06 03 00 94	bl	0x7f40 // SEND addSubview:
+    732c:	08 29 69 1e	fadd	d8, d8, d9
+    7330:	e0 03 18 aa	mov	x0, x24
+    7334:	b6 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7338:	e0 03 17 aa	mov	x0, x23
+    733c:	b4 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7340:	d6 06 00 91	add	x22, x22, #0x1
+    7344:	5f 03 16 eb	cmp	x26, x22
+    7348:	41 fc ff 54	b.ne	0x72d0
+    734c:	00 10 65 1e	fmov	d0, #12.00000000
+    7350:	00 29 60 1e	fadd	d0, d8, d0
+    7354:	02 00 00 14	b	0x735c
+    7358:	00 10 67 1e	fmov	d0, #24.00000000
+    735c:	60 6a 79 f8	ldr	x0, [x19, x25]
+    7360:	88 0a e8 d2	mov	x8, #0x4054000000000000
+    7364:	01 01 67 9e	fmov	d1, x8
+    7368:	f6 04 00 94	bl	0x8740 // SEND setContentSize:
+    736c:	e0 03 15 aa	mov	x0, x21
+    7370:	a7 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7374:	e0 03 14 aa	mov	x0, x20
+    7378:	a5 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    737c:	a8 83 59 f8	ldur	x8, [x29, #-0x68]
+    7380:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    7384:	29 2d 40 f9	ldr	x9, [x9, #0x58] ; literal pool symbol address: ___stack_chk_guard
+    7388:	29 01 40 f9	ldr	x9, [x9]
+    738c:	3f 01 08 eb	cmp	x9, x8
+    7390:	41 01 00 54	b.ne	0x73b8
+    7394:	fd 7b 53 a9	ldp	x29, x30, [sp, #0x130]
+    7398:	f4 4f 52 a9	ldp	x20, x19, [sp, #0x120]
+    739c:	f6 57 51 a9	ldp	x22, x21, [sp, #0x110]
+    73a0:	f8 5f 50 a9	ldp	x24, x23, [sp, #0x100]
+    73a4:	fa 67 4f a9	ldp	x26, x25, [sp, #0xf0]
+    73a8:	fc 6f 4e a9	ldp	x28, x27, [sp, #0xe0]
+    73ac:	e9 23 4d 6d	ldp	d9, d8, [sp, #0xd0]
+    73b0:	ff 03 05 91	add	sp, sp, #0x140
+    73b4:	c0 03 5f d6	ret
+    73b8:	68 02 00 94	bl	0x7d58 ; symbol stub for: ___stack_chk_fail
+
+METHOD createHourlyItemWithForecast:isNow:formatter:
+    73bc:	ff 03 02 d1	sub	sp, sp, #0x80
+    73c0:	e9 23 01 6d	stp	d9, d8, [sp, #0x10]
+    73c4:	fc 6f 02 a9	stp	x28, x27, [sp, #0x20]
+    73c8:	fa 67 03 a9	stp	x26, x25, [sp, #0x30]
+    73cc:	f8 5f 04 a9	stp	x24, x23, [sp, #0x40]
+    73d0:	f6 57 05 a9	stp	x22, x21, [sp, #0x50]
+    73d4:	f4 4f 06 a9	stp	x20, x19, [sp, #0x60]
+    73d8:	fd 7b 07 a9	stp	x29, x30, [sp, #0x70]
+    73dc:	fd c3 01 91	add	x29, sp, #0x70
+    73e0:	f4 03 04 aa	mov	x20, x4
+    73e4:	f8 03 03 aa	mov	x24, x3
+    73e8:	f7 03 00 aa	mov	x23, x0
+    73ec:	e0 03 02 aa	mov	x0, x2
+    73f0:	8a 02 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    73f4:	f3 03 00 aa	mov	x19, x0
+    73f8:	e0 03 14 aa	mov	x0, x20
+    73fc:	87 02 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    7400:	fc 03 00 aa	mov	x28, x0
+    7404:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7408:	00 41 47 f9	ldr	x0, [x8, #0xe80] ; Objc class ref: bad class ref
+    740c:	65 02 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    7410:	f5 03 00 aa	mov	x21, x0
+    7414:	54 00 00 b0	adrp	x20, 9 ; 0x10000
+    7418:	80 4a 47 f9	ldr	x0, [x20, #0xe90] ; Objc class ref: bad class ref
+    741c:	61 02 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    7420:	f6 03 00 aa	mov	x22, x0
+    7424:	5b 00 00 b0	adrp	x27, 9 ; 0x10000
+    7428:	60 4f 47 f9	ldr	x0, [x27, #0xe98] ; Objc class ref: bad class ref
+    742c:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    7430:	08 0d 40 f9	ldr	x8, [x8, #0x18] ; literal pool symbol address: _UIFontWeightMedium
+    7434:	08 01 40 fd	ldr	d8, [x8]
+    7438:	00 50 65 1e	fmov	d0, #13.00000000
+    743c:	01 41 60 1e	fmov	d1, d8
+    7440:	90 05 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    7444:	fd 03 1d aa	mov	x29, x29
+    7448:	7a 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    744c:	f9 03 00 aa	mov	x25, x0
+    7450:	e0 03 16 aa	mov	x0, x22
+    7454:	e2 03 19 aa	mov	x2, x25
+    7458:	ca 04 00 94	bl	0x8780 // SEND setFont:
+    745c:	e0 03 19 aa	mov	x0, x25
+    7460:	6b 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7464:	5a 00 00 b0	adrp	x26, 9 ; 0x10000
+    7468:	40 3f 47 f9	ldr	x0, [x26, #0xe78] ; Objc class ref: bad class ref
+    746c:	2d 06 00 94	bl	0x8d20 // SEND whiteColor
+    7470:	fd 03 1d aa	mov	x29, x29
+    7474:	6f 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7478:	f9 03 00 aa	mov	x25, x0
+    747c:	e0 03 16 aa	mov	x0, x22
+    7480:	e2 03 19 aa	mov	x2, x25
+    7484:	0f 05 00 94	bl	0x88c0 // SEND setTextColor:
+    7488:	e0 03 19 aa	mov	x0, x25
+    748c:	60 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7490:	e0 03 16 aa	mov	x0, x22
+    7494:	22 00 80 52	mov	w2, #0x1
+    7498:	02 05 00 94	bl	0x88a0 // SEND setTextAlignment:
+    749c:	d8 00 00 34	cbz	w24, 0x74b4
+    74a0:	22 00 00 b0	adrp	x2, 5 ; 0xc000
+    74a4:	42 e0 34 91	add	x2, x2, #0xd38 // @现在
+    74a8:	e0 03 16 aa	mov	x0, x22
+    74ac:	f5 04 00 94	bl	0x8880 // SEND setText:
+    74b0:	2e 00 00 14	b	0x7568
+    74b4:	e0 03 13 aa	mov	x0, x19
+    74b8:	b2 05 00 94	bl	0x8b80 // SEND time
+    74bc:	fd 03 1d aa	mov	x29, x29
+    74c0:	5c 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    74c4:	f8 03 00 aa	mov	x24, x0
+    74c8:	51 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    74cc:	58 01 00 b4	cbz	x24, 0x74f4
+    74d0:	e0 03 13 aa	mov	x0, x19
+    74d4:	ab 05 00 94	bl	0x8b80 // SEND time
+    74d8:	fd 03 1d aa	mov	x29, x29
+    74dc:	55 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    74e0:	f8 03 00 aa	mov	x24, x0
+    74e4:	e0 03 16 aa	mov	x0, x22
+    74e8:	e2 03 18 aa	mov	x2, x24
+    74ec:	e5 04 00 94	bl	0x8880 // SEND setText:
+    74f0:	1c 00 00 14	b	0x7560
+    74f4:	e0 03 13 aa	mov	x0, x19
+    74f8:	4a 03 00 94	bl	0x8220 // SEND date
+    74fc:	fd 03 1d aa	mov	x29, x29
+    7500:	4c 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7504:	f8 03 00 aa	mov	x24, x0
+    7508:	41 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    750c:	d8 18 00 b4	cbz	x24, 0x7824
+    7510:	22 00 00 b0	adrp	x2, 5 ; 0xc000
+    7514:	42 60 35 91	add	x2, x2, #0xd58 // @ah时
+    7518:	e0 03 1c aa	mov	x0, x28
+    751c:	91 04 00 94	bl	0x8760 // SEND setDateFormat:
+    7520:	e0 03 13 aa	mov	x0, x19
+    7524:	3f 03 00 94	bl	0x8220 // SEND date
+    7528:	fd 03 1d aa	mov	x29, x29
+    752c:	41 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7530:	f8 03 00 aa	mov	x24, x0
+    7534:	e0 03 1c aa	mov	x0, x28
+    7538:	e2 03 18 aa	mov	x2, x24
+    753c:	29 05 00 94	bl	0x89e0 // SEND stringFromDate:
+    7540:	fd 03 1d aa	mov	x29, x29
+    7544:	3b 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7548:	f9 03 00 aa	mov	x25, x0
+    754c:	e0 03 16 aa	mov	x0, x22
+    7550:	e2 03 19 aa	mov	x2, x25
+    7554:	cb 04 00 94	bl	0x8880 // SEND setText:
+    7558:	e0 03 19 aa	mov	x0, x25
+    755c:	2c 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7560:	e0 03 18 aa	mov	x0, x24
+    7564:	2a 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7568:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    756c:	09 fd 47 fd	ldr	d9, [x8, #0xff8]
+    7570:	e0 03 67 9e	fmov	d0, xzr
+    7574:	e1 03 67 9e	fmov	d1, xzr
+    7578:	03 50 66 1e	fmov	d3, #18.00000000
+    757c:	e0 03 16 aa	mov	x0, x22
+    7580:	22 41 60 1e	fmov	d2, d9
+    7584:	87 04 00 94	bl	0x87a0 // SEND setFrame:
+    7588:	e0 03 15 aa	mov	x0, x21
+    758c:	e2 03 16 aa	mov	x2, x22
+    7590:	6c 02 00 94	bl	0x7f40 // SEND addSubview:
+    7594:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7598:	00 45 47 f9	ldr	x0, [x8, #0xe88] ; Objc class ref: bad class ref
+    759c:	01 02 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    75a0:	f8 03 00 aa	mov	x24, x0
+    75a4:	22 00 80 52	mov	w2, #0x1
+    75a8:	5e 04 00 94	bl	0x8720 // SEND setContentMode:
+    75ac:	40 3f 47 f9	ldr	x0, [x26, #0xe78]
+    75b0:	dc 05 00 94	bl	0x8d20 // SEND whiteColor
+    75b4:	fd 03 1d aa	mov	x29, x29
+    75b8:	1e 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    75bc:	f9 03 00 aa	mov	x25, x0
+    75c0:	e0 03 18 aa	mov	x0, x24
+    75c4:	e2 03 19 aa	mov	x2, x25
+    75c8:	c6 04 00 94	bl	0x88e0 // SEND setTintColor:
+    75cc:	e0 03 19 aa	mov	x0, x25
+    75d0:	0f 02 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    75d4:	e0 03 13 aa	mov	x0, x19
+    75d8:	c2 02 00 94	bl	0x80e0 // SEND conditionCode
+    75dc:	e2 03 00 aa	mov	x2, x0
+    75e0:	e0 03 17 aa	mov	x0, x23
+    75e4:	3f 05 00 94	bl	0x8ae0 // SEND systemWeatherImageForConditionCode:
+    75e8:	fd 03 1d aa	mov	x29, x29
+    75ec:	11 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    75f0:	f9 03 00 aa	mov	x25, x0
+    75f4:	a0 00 00 b4	cbz	x0, 0x7608
+    75f8:	e0 03 18 aa	mov	x0, x24
+    75fc:	e2 03 19 aa	mov	x2, x25
+    7600:	70 04 00 94	bl	0x87c0 // SEND setImage:
+    7604:	30 00 00 14	b	0x76c4
+    7608:	e0 03 13 aa	mov	x0, x19
+    760c:	b5 02 00 94	bl	0x80e0 // SEND conditionCode
+    7610:	e2 03 00 aa	mov	x2, x0
+    7614:	e0 03 17 aa	mov	x0, x23
+    7618:	2a 05 00 94	bl	0x8ac0 // SEND systemSymbolForConditionCode:
+    761c:	fd 03 1d aa	mov	x29, x29
+    7620:	04 02 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7624:	fa 03 00 aa	mov	x26, x0
+    7628:	e0 07 00 f9	str	x0, [sp, #0x8]
+    762c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7630:	00 81 47 f9	ldr	x0, [x8, #0xf00] ; Objc class ref: bad class ref
+    7634:	00 d0 66 1e	fmov	d0, #22.00000000
+    7638:	82 00 80 52	mov	w2, #0x4
+    763c:	b9 02 00 94	bl	0x8120 // SEND configurationWithPointSize:weight:
+    7640:	fd 03 1d aa	mov	x29, x29
+    7644:	fb 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7648:	fb 03 00 aa	mov	x27, x0
+    764c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7650:	00 85 47 f9	ldr	x0, [x8, #0xf08] ; Objc class ref: bad class ref
+    7654:	e2 03 1a aa	mov	x2, x26
+    7658:	e3 03 1b aa	mov	x3, x27
+    765c:	11 05 00 94	bl	0x8aa0 // SEND systemImageNamed:withConfiguration:
+    7660:	fd 03 1d aa	mov	x29, x29
+    7664:	f3 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7668:	fa 03 16 aa	mov	x26, x22
+    766c:	f6 03 13 aa	mov	x22, x19
+    7670:	f3 03 15 aa	mov	x19, x21
+    7674:	f5 03 17 aa	mov	x21, x23
+    7678:	f7 03 14 aa	mov	x23, x20
+    767c:	f4 03 1c aa	mov	x20, x28
+    7680:	fc 03 00 aa	mov	x28, x0
+    7684:	e0 03 18 aa	mov	x0, x24
+    7688:	e2 03 1c aa	mov	x2, x28
+    768c:	4d 04 00 94	bl	0x87c0 // SEND setImage:
+    7690:	e0 03 1c aa	mov	x0, x28
+    7694:	fc 03 14 aa	mov	x28, x20
+    7698:	f4 03 17 aa	mov	x20, x23
+    769c:	f7 03 15 aa	mov	x23, x21
+    76a0:	f5 03 13 aa	mov	x21, x19
+    76a4:	f3 03 16 aa	mov	x19, x22
+    76a8:	f6 03 1a aa	mov	x22, x26
+    76ac:	d8 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    76b0:	e0 03 1b aa	mov	x0, x27
+    76b4:	5b 00 00 b0	adrp	x27, 9 ; 0x10000
+    76b8:	d5 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    76bc:	e0 07 40 f9	ldr	x0, [sp, #0x8]
+    76c0:	d3 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    76c4:	00 10 65 1e	fmov	d0, #12.00000000
+    76c8:	01 d0 66 1e	fmov	d1, #22.00000000
+    76cc:	02 d0 67 1e	fmov	d2, #30.00000000
+    76d0:	03 d0 67 1e	fmov	d3, #30.00000000
+    76d4:	e0 03 18 aa	mov	x0, x24
+    76d8:	32 04 00 94	bl	0x87a0 // SEND setFrame:
+    76dc:	e0 03 15 aa	mov	x0, x21
+    76e0:	e2 03 18 aa	mov	x2, x24
+    76e4:	17 02 00 94	bl	0x7f40 // SEND addSubview:
+    76e8:	80 4a 47 f9	ldr	x0, [x20, #0xe90]
+    76ec:	ad 01 00 94	bl	0x7da0 ; symbol stub for: _objc_alloc_init
+    76f0:	fa 03 00 aa	mov	x26, x0
+    76f4:	60 4f 47 f9	ldr	x0, [x27, #0xe98]
+    76f8:	00 d0 65 1e	fmov	d0, #15.00000000
+    76fc:	01 41 60 1e	fmov	d1, d8
+    7700:	e0 04 00 94	bl	0x8a80 // SEND systemFontOfSize:weight:
+    7704:	fd 03 1d aa	mov	x29, x29
+    7708:	ca 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    770c:	fb 03 00 aa	mov	x27, x0
+    7710:	e0 03 1a aa	mov	x0, x26
+    7714:	e2 03 1b aa	mov	x2, x27
+    7718:	1a 04 00 94	bl	0x8780 // SEND setFont:
+    771c:	e0 03 1b aa	mov	x0, x27
+    7720:	bb 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7724:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7728:	00 3d 47 f9	ldr	x0, [x8, #0xe78] ; Objc class ref: bad class ref
+    772c:	7d 05 00 94	bl	0x8d20 // SEND whiteColor
+    7730:	fd 03 1d aa	mov	x29, x29
+    7734:	bf 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7738:	fb 03 00 aa	mov	x27, x0
+    773c:	e0 03 1a aa	mov	x0, x26
+    7740:	e2 03 1b aa	mov	x2, x27
+    7744:	5f 04 00 94	bl	0x88c0 // SEND setTextColor:
+    7748:	e0 03 1b aa	mov	x0, x27
+    774c:	b0 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7750:	e0 03 1a aa	mov	x0, x26
+    7754:	22 00 80 52	mov	w2, #0x1
+    7758:	52 04 00 94	bl	0x88a0 // SEND setTextAlignment:
+    775c:	e0 03 13 aa	mov	x0, x19
+    7760:	e8 04 00 94	bl	0x8b00 // SEND temperature
+    7764:	fd 03 1d aa	mov	x29, x29
+    7768:	b2 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    776c:	fb 03 00 aa	mov	x27, x0
+    7770:	e0 03 17 aa	mov	x0, x23
+    7774:	e2 03 1b aa	mov	x2, x27
+    7778:	ea 04 00 94	bl	0x8b20 // SEND temperatureString:
+    777c:	fd 03 1d aa	mov	x29, x29
+    7780:	ac 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7784:	f7 03 00 aa	mov	x23, x0
+    7788:	e0 03 1a aa	mov	x0, x26
+    778c:	e2 03 17 aa	mov	x2, x23
+    7790:	3c 04 00 94	bl	0x8880 // SEND setText:
+    7794:	e0 03 17 aa	mov	x0, x23
+    7798:	9d 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    779c:	e0 03 1b aa	mov	x0, x27
+    77a0:	9b 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77a4:	88 09 e8 d2	mov	x8, #0x404c000000000000
+    77a8:	01 01 67 9e	fmov	d1, x8
+    77ac:	e0 03 67 9e	fmov	d0, xzr
+    77b0:	03 90 66 1e	fmov	d3, #20.00000000
+    77b4:	e0 03 1a aa	mov	x0, x26
+    77b8:	22 41 60 1e	fmov	d2, d9
+    77bc:	f9 03 00 94	bl	0x87a0 // SEND setFrame:
+    77c0:	e0 03 15 aa	mov	x0, x21
+    77c4:	e2 03 1a aa	mov	x2, x26
+    77c8:	de 01 00 94	bl	0x7f40 // SEND addSubview:
+    77cc:	e0 03 1a aa	mov	x0, x26
+    77d0:	8f 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77d4:	e0 03 19 aa	mov	x0, x25
+    77d8:	8d 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77dc:	e0 03 18 aa	mov	x0, x24
+    77e0:	8b 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77e4:	e0 03 16 aa	mov	x0, x22
+    77e8:	89 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77ec:	e0 03 1c aa	mov	x0, x28
+    77f0:	87 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77f4:	e0 03 13 aa	mov	x0, x19
+    77f8:	85 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    77fc:	e0 03 15 aa	mov	x0, x21
+    7800:	fd 7b 47 a9	ldp	x29, x30, [sp, #0x70]
+    7804:	f4 4f 46 a9	ldp	x20, x19, [sp, #0x60]
+    7808:	f6 57 45 a9	ldp	x22, x21, [sp, #0x50]
+    780c:	f8 5f 44 a9	ldp	x24, x23, [sp, #0x40]
+    7810:	fa 67 43 a9	ldp	x26, x25, [sp, #0x30]
+    7814:	fc 6f 42 a9	ldp	x28, x27, [sp, #0x20]
+    7818:	e9 23 41 6d	ldp	d9, d8, [sp, #0x10]
+    781c:	ff 03 02 91	add	sp, sp, #0x80
+    7820:	63 01 00 14	b	0x7dac ; symbol stub for: _objc_autoreleaseReturnValue
+    7824:	22 00 00 b0	adrp	x2, 5 ; 0xc000
+    7828:	42 60 14 91	add	x2, x2, #0x518 // @--
+    782c:	e0 03 16 aa	mov	x0, x22
+    7830:	14 04 00 94	bl	0x8880 // SEND setText:
+    7834:	4d ff ff 17	b	0x7568
+    7838:	f8 03 00 aa	mov	x24, x0
+    783c:	3f 04 00 71	cmp	w1, #0x1
+    7840:	01 02 00 54	b.ne	0x7880
+    7844:	e0 03 18 aa	mov	x0, x24
+    7848:	5c 01 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    784c:	fd 03 1d aa	mov	x29, x29
+    7850:	78 01 00 94	bl	0x7e30 ; symbol stub for: _objc_retainAutoreleasedReturnValue
+    7854:	f8 03 00 aa	mov	x24, x0
+    7858:	22 00 00 b0	adrp	x2, 5 ; 0xc000
+    785c:	42 60 14 91	add	x2, x2, #0x518 // @--
+    7860:	e0 03 16 aa	mov	x0, x22
+    7864:	07 04 00 94	bl	0x8880 // SEND setText:
+    7868:	e0 03 18 aa	mov	x0, x24
+    786c:	68 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7870:	55 01 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    7874:	3d ff ff 17	b	0x7568
+    7878:	f8 03 00 aa	mov	x24, x0
+    787c:	52 01 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    7880:	e0 03 18 aa	mov	x0, x24
+    7884:	32 01 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+
+METHOD todayModelWantsUpdate:
+    7888:	c0 03 5f d6	ret
+
+METHOD todayModel:forecastWasUpdated:
+    788c:	ff 43 01 d1	sub	sp, sp, #0x50
+    7890:	f4 4f 03 a9	stp	x20, x19, [sp, #0x30]
+    7894:	fd 7b 04 a9	stp	x29, x30, [sp, #0x40]
+    7898:	fd 03 01 91	add	x29, sp, #0x40
+    789c:	f3 03 03 aa	mov	x19, x3
+    78a0:	f4 03 00 aa	mov	x20, x0
+    78a4:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    78a8:	08 89 8f b9	ldrsw	x8, [x8, #0xf88]
+    78ac:	00 00 08 8b	add	x0, x0, x8
+    78b0:	e1 03 03 aa	mov	x1, x3
+    78b4:	62 01 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    78b8:	e0 03 13 aa	mov	x0, x19
+    78bc:	57 01 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    78c0:	f3 03 00 aa	mov	x19, x0
+    78c4:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    78c8:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    78cc:	e8 07 00 f9	str	x8, [sp, #0x8]
+    78d0:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    78d4:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    78d8:	08 00 00 90	adrp	x8, 0 ; 0x7000
+    78dc:	08 71 24 91	add	x8, x8, #0x91c
+    78e0:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    78e4:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    78e8:	29 21 04 91	add	x9, x9, #0x108
+    78ec:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    78f0:	f4 17 00 f9	str	x20, [sp, #0x28]
+    78f4:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    78f8:	00 30 40 f9	ldr	x0, [x0, #0x60] ; literal pool symbol address: __dispatch_main_q
+    78fc:	e1 23 00 91	add	x1, sp, #0x8
+    7900:	1c 01 00 94	bl	0x7d70 ; symbol stub for: _dispatch_async
+    7904:	e0 03 13 aa	mov	x0, x19
+    7908:	41 01 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    790c:	fd 7b 44 a9	ldp	x29, x30, [sp, #0x40]
+    7910:	f4 4f 43 a9	ldp	x20, x19, [sp, #0x30]
+    7914:	ff 43 01 91	add	sp, sp, #0x50
+    7918:	c0 03 5f d6	ret
+    791c:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    7920:	d0 04 00 14	b	0x8c60 // SEND updateWeatherDisplay
+
+METHOD todayModelUpdated:
+    7924:	ff 03 01 d1	sub	sp, sp, #0x40
+    7928:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    792c:	fd c3 00 91	add	x29, sp, #0x30
+    7930:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    7934:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    7938:	e8 07 00 f9	str	x8, [sp, #0x8]
+    793c:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    7940:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    7944:	08 00 00 90	adrp	x8, 0 ; 0x7000
+    7948:	08 f1 25 91	add	x8, x8, #0x97c
+    794c:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    7950:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    7954:	29 21 04 91	add	x9, x9, #0x108
+    7958:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    795c:	e0 17 00 f9	str	x0, [sp, #0x28]
+    7960:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7964:	00 30 40 f9	ldr	x0, [x0, #0x60] ; literal pool symbol address: __dispatch_main_q
+    7968:	e1 23 00 91	add	x1, sp, #0x8
+    796c:	01 01 00 94	bl	0x7d70 ; symbol stub for: _dispatch_async
+    7970:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    7974:	ff 03 01 91	add	sp, sp, #0x40
+    7978:	c0 03 5f d6	ret
+    797c:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    7980:	b8 04 00 14	b	0x8c60 // SEND updateWeatherDisplay
+
+METHOD modelUpdatedForCity:
+    7984:	ff 03 01 d1	sub	sp, sp, #0x40
+    7988:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    798c:	fd c3 00 91	add	x29, sp, #0x30
+    7990:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    7994:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    7998:	e8 07 00 f9	str	x8, [sp, #0x8]
+    799c:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    79a0:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    79a4:	08 00 00 90	adrp	x8, 0 ; 0x7000
+    79a8:	08 71 27 91	add	x8, x8, #0x9dc
+    79ac:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    79b0:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    79b4:	29 21 04 91	add	x9, x9, #0x108
+    79b8:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    79bc:	e0 17 00 f9	str	x0, [sp, #0x28]
+    79c0:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    79c4:	00 30 40 f9	ldr	x0, [x0, #0x60] ; literal pool symbol address: __dispatch_main_q
+    79c8:	e1 23 00 91	add	x1, sp, #0x8
+    79cc:	e9 00 00 94	bl	0x7d70 ; symbol stub for: _dispatch_async
+    79d0:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    79d4:	ff 03 01 91	add	sp, sp, #0x40
+    79d8:	c0 03 5f d6	ret
+    79dc:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    79e0:	a0 04 00 14	b	0x8c60 // SEND updateWeatherDisplay
+
+METHOD refreshWeatherData
+    79e4:	ff 83 01 d1	sub	sp, sp, #0x60
+    79e8:	f6 57 03 a9	stp	x22, x21, [sp, #0x30]
+    79ec:	f4 4f 04 a9	stp	x20, x19, [sp, #0x40]
+    79f0:	fd 7b 05 a9	stp	x29, x30, [sp, #0x50]
+    79f4:	fd 43 01 91	add	x29, sp, #0x50
+    79f8:	f4 03 00 aa	mov	x20, x0
+    79fc:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7a00:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    7a04:	00 68 68 f8	ldr	x0, [x0, x8]
+    7a08:	a0 06 00 b4	cbz	x0, 0x7adc
+    7a0c:	03 01 00 94	bl	0x7e18 ; symbol stub for: _objc_retain
+    7a10:	f3 03 00 aa	mov	x19, x0
+    7a14:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7a18:	15 19 47 f9	ldr	x21, [x8, #0xe30] // setLocationServicesActive:
+    7a1c:	e1 03 15 aa	mov	x1, x21
+    7a20:	f8 00 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    7a24:	c0 00 00 36	tbz	w0, #0x0, 0x7a3c
+    7a28:	23 00 00 b0	adrp	x3, 5 ; 0xc000
+    7a2c:	63 20 40 f9	ldr	x3, [x3, #0x40] ; literal pool symbol address: ___kCFBooleanTrue
+    7a30:	e0 03 13 aa	mov	x0, x19
+    7a34:	e2 03 15 aa	mov	x2, x21
+    7a38:	ea 02 00 94	bl	0x85e0 // SEND performSelector:withObject:
+    7a3c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7a40:	01 e9 44 f9	ldr	x1, [x8, #0x9d0] // _kickstartLocationManager
+    7a44:	e0 03 13 aa	mov	x0, x19
+    7a48:	ee 00 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    7a4c:	60 00 00 36	tbz	w0, #0x0, 0x7a58
+    7a50:	e0 03 13 aa	mov	x0, x19
+    7a54:	03 01 00 94	bl	0x7e60 // SEND _kickstartLocationManager
+    7a58:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7a5c:	01 ed 44 f9	ldr	x1, [x8, #0x9d8] // _reloadForecastData:
+    7a60:	e0 03 13 aa	mov	x0, x19
+    7a64:	e7 00 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    7a68:	80 00 00 36	tbz	w0, #0x0, 0x7a78
+    7a6c:	e0 03 13 aa	mov	x0, x19
+    7a70:	22 00 80 52	mov	w2, #0x1
+    7a74:	03 01 00 94	bl	0x7e80 // SEND _reloadForecastData:
+    7a78:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7a7c:	01 71 45 f9	ldr	x1, [x8, #0xae0] // executeModelUpdateWithCompletion:
+    7a80:	e0 03 13 aa	mov	x0, x19
+    7a84:	df 00 00 94	bl	0x7e00 ; symbol stub for: _objc_opt_respondsToSelector
+    7a88:	20 02 00 36	tbz	w0, #0x0, 0x7acc
+    7a8c:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    7a90:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    7a94:	e8 07 00 f9	str	x8, [sp, #0x8]
+    7a98:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    7a9c:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    7aa0:	08 00 00 90	adrp	x8, 0 ; 0x7000
+    7aa4:	08 21 2c 91	add	x8, x8, #0xb08
+    7aa8:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    7aac:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    7ab0:	29 21 04 91	add	x9, x9, #0x108
+    7ab4:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    7ab8:	f4 17 00 f9	str	x20, [sp, #0x28]
+    7abc:	e2 23 00 91	add	x2, sp, #0x8
+    7ac0:	e0 03 13 aa	mov	x0, x19
+    7ac4:	f7 01 00 94	bl	0x82a0 // SEND executeModelUpdateWithCompletion:
+    7ac8:	03 00 00 14	b	0x7ad4
+    7acc:	e0 03 14 aa	mov	x0, x20
+    7ad0:	64 04 00 94	bl	0x8c60 // SEND updateWeatherDisplay
+    7ad4:	e0 03 13 aa	mov	x0, x19
+    7ad8:	cd 00 00 94	bl	0x7e0c ; symbol stub for: _objc_release
+    7adc:	fd 7b 45 a9	ldp	x29, x30, [sp, #0x50]
+    7ae0:	f4 4f 44 a9	ldp	x20, x19, [sp, #0x40]
+    7ae4:	f6 57 43 a9	ldp	x22, x21, [sp, #0x30]
+    7ae8:	ff 83 01 91	add	sp, sp, #0x60
+    7aec:	c0 03 5f d6	ret
+    7af0:	3f 04 00 71	cmp	w1, #0x1
+    7af4:	81 00 00 54	b.ne	0x7b04
+    7af8:	b0 00 00 94	bl	0x7db8 ; symbol stub for: _objc_begin_catch
+    7afc:	b2 00 00 94	bl	0x7dc4 ; symbol stub for: _objc_end_catch
+    7b00:	f5 ff ff 17	b	0x7ad4
+    7b04:	92 00 00 94	bl	0x7d4c ; symbol stub for: __Unwind_Resume
+    7b08:	ff 03 01 d1	sub	sp, sp, #0x40
+    7b0c:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+    7b10:	fd c3 00 91	add	x29, sp, #0x30
+    7b14:	28 00 00 b0	adrp	x8, 5 ; 0xc000
+    7b18:	08 19 40 f9	ldr	x8, [x8, #0x30] ; literal pool symbol address: __NSConcreteStackBlock
+    7b1c:	e8 07 00 f9	str	x8, [sp, #0x8]
+    7b20:	08 00 00 b0	adrp	x8, 1 ; 0x8000
+    7b24:	00 e1 47 fd	ldr	d0, [x8, #0xfc0]
+    7b28:	e0 0b 00 fd	str	d0, [sp, #0x10]
+    7b2c:	08 00 00 90	adrp	x8, 0 ; 0x7000
+    7b30:	08 91 2d 91	add	x8, x8, #0xb64
+    7b34:	29 00 00 b0	adrp	x9, 5 ; 0xc000
+    7b38:	29 21 04 91	add	x9, x9, #0x108
+    7b3c:	e8 a7 01 a9	stp	x8, x9, [sp, #0x18]
+    7b40:	08 10 40 f9	ldr	x8, [x0, #0x20]
+    7b44:	e8 17 00 f9	str	x8, [sp, #0x28]
+    7b48:	20 00 00 b0	adrp	x0, 5 ; 0xc000
+    7b4c:	00 30 40 f9	ldr	x0, [x0, #0x60] ; literal pool symbol address: __dispatch_main_q
+    7b50:	e1 23 00 91	add	x1, sp, #0x8
+    7b54:	87 00 00 94	bl	0x7d70 ; symbol stub for: _dispatch_async
+    7b58:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+    7b5c:	ff 03 01 91	add	sp, sp, #0x40
+    7b60:	c0 03 5f d6	ret
+    7b64:	00 10 40 f9	ldr	x0, [x0, #0x20]
+    7b68:	3e 04 00 14	b	0x8c60 // SEND updateWeatherDisplay
+
+METHOD weatherModel
+    7b6c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7b70:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    7b74:	00 68 68 f8	ldr	x0, [x0, x8]
+    7b78:	c0 03 5f d6	ret
+
+METHOD setWeatherModel:
+    7b7c:	e1 03 02 aa	mov	x1, x2
+    7b80:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7b84:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    7b88:	00 00 08 8b	add	x0, x0, x8
+    7b8c:	ac 00 00 14	b	0x7e3c ; symbol stub for: _objc_storeStrong
+
+METHOD forecast
+    7b90:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7b94:	08 89 8f b9	ldrsw	x8, [x8, #0xf88]
+    7b98:	00 68 68 f8	ldr	x0, [x0, x8]
+    7b9c:	c0 03 5f d6	ret
+
+METHOD setForecast:
+    7ba0:	e1 03 02 aa	mov	x1, x2
+    7ba4:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7ba8:	08 89 8f b9	ldrsw	x8, [x8, #0xf88]
+    7bac:	00 00 08 8b	add	x0, x0, x8
+    7bb0:	a3 00 00 14	b	0x7e3c ; symbol stub for: _objc_storeStrong
+
+METHOD isInitialized
+    7bb4:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7bb8:	08 3d 8f b9	ldrsw	x8, [x8, #0xf3c]
+    7bbc:	00 68 68 38	ldrb	w0, [x0, x8]
+    7bc0:	c0 03 5f d6	ret
+
+METHOD setIsInitialized:
+    7bc4:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7bc8:	08 3d 8f b9	ldrsw	x8, [x8, #0xf3c]
+    7bcc:	02 68 28 38	strb	w2, [x0, x8]
+    7bd0:	c0 03 5f d6	ret
+
+METHOD .cxx_destruct
+    7bd4:	f4 4f be a9	stp	x20, x19, [sp, #-0x20]!
+    7bd8:	fd 7b 01 a9	stp	x29, x30, [sp, #0x10]
+    7bdc:	fd 43 00 91	add	x29, sp, #0x10
+    7be0:	f3 03 00 aa	mov	x19, x0
+    7be4:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7be8:	08 89 8f b9	ldrsw	x8, [x8, #0xf88]
+    7bec:	00 00 08 8b	add	x0, x0, x8
+    7bf0:	01 00 80 d2	mov	x1, #0x0
+    7bf4:	92 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7bf8:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7bfc:	08 51 8f b9	ldrsw	x8, [x8, #0xf50]
+    7c00:	60 02 08 8b	add	x0, x19, x8
+    7c04:	01 00 80 d2	mov	x1, #0x0
+    7c08:	8d 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c0c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c10:	08 85 8f b9	ldrsw	x8, [x8, #0xf84]
+    7c14:	60 02 08 8b	add	x0, x19, x8
+    7c18:	01 00 80 d2	mov	x1, #0x0
+    7c1c:	88 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c20:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c24:	08 81 8f b9	ldrsw	x8, [x8, #0xf80]
+    7c28:	60 02 08 8b	add	x0, x19, x8
+    7c2c:	01 00 80 d2	mov	x1, #0x0
+    7c30:	83 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c34:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c38:	08 49 8f b9	ldrsw	x8, [x8, #0xf48]
+    7c3c:	60 02 08 8b	add	x0, x19, x8
+    7c40:	01 00 80 d2	mov	x1, #0x0
+    7c44:	7e 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c48:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c4c:	08 7d 8f b9	ldrsw	x8, [x8, #0xf7c]
+    7c50:	60 02 08 8b	add	x0, x19, x8
+    7c54:	01 00 80 d2	mov	x1, #0x0
+    7c58:	79 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c5c:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c60:	08 79 8f b9	ldrsw	x8, [x8, #0xf78]
+    7c64:	60 02 08 8b	add	x0, x19, x8
+    7c68:	01 00 80 d2	mov	x1, #0x0
+    7c6c:	74 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c70:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c74:	08 75 8f b9	ldrsw	x8, [x8, #0xf74]
+    7c78:	60 02 08 8b	add	x0, x19, x8
+    7c7c:	01 00 80 d2	mov	x1, #0x0
+    7c80:	6f 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c84:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c88:	08 55 8f b9	ldrsw	x8, [x8, #0xf54]
+    7c8c:	60 02 08 8b	add	x0, x19, x8
+    7c90:	01 00 80 d2	mov	x1, #0x0
+    7c94:	6a 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7c98:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7c9c:	08 71 8f b9	ldrsw	x8, [x8, #0xf70]
+    7ca0:	60 02 08 8b	add	x0, x19, x8
+    7ca4:	01 00 80 d2	mov	x1, #0x0
+    7ca8:	65 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7cac:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7cb0:	08 6d 8f b9	ldrsw	x8, [x8, #0xf6c]
+    7cb4:	60 02 08 8b	add	x0, x19, x8
+    7cb8:	01 00 80 d2	mov	x1, #0x0
+    7cbc:	60 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7cc0:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7cc4:	08 69 8f b9	ldrsw	x8, [x8, #0xf68]
+    7cc8:	60 02 08 8b	add	x0, x19, x8
+    7ccc:	01 00 80 d2	mov	x1, #0x0
+    7cd0:	5b 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7cd4:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7cd8:	08 65 8f b9	ldrsw	x8, [x8, #0xf64]
+    7cdc:	60 02 08 8b	add	x0, x19, x8
+    7ce0:	01 00 80 d2	mov	x1, #0x0
+    7ce4:	56 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7ce8:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7cec:	08 61 8f b9	ldrsw	x8, [x8, #0xf60]
+    7cf0:	60 02 08 8b	add	x0, x19, x8
+    7cf4:	01 00 80 d2	mov	x1, #0x0
+    7cf8:	51 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7cfc:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7d00:	08 5d 8f b9	ldrsw	x8, [x8, #0xf5c]
+    7d04:	60 02 08 8b	add	x0, x19, x8
+    7d08:	01 00 80 d2	mov	x1, #0x0
+    7d0c:	4c 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7d10:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7d14:	08 59 8f b9	ldrsw	x8, [x8, #0xf58]
+    7d18:	60 02 08 8b	add	x0, x19, x8
+    7d1c:	01 00 80 d2	mov	x1, #0x0
+    7d20:	47 00 00 94	bl	0x7e3c ; symbol stub for: _objc_storeStrong
+    7d24:	48 00 00 b0	adrp	x8, 9 ; 0x10000
+    7d28:	08 4d 8f b9	ldrsw	x8, [x8, #0xf4c]
+    7d2c:	60 02 08 8b	add	x0, x19, x8
+    7d30:	01 00 80 d2	mov	x1, #0x0
+    7d34:	fd 7b 41 a9	ldp	x29, x30, [sp, #0x10]
+    7d38:	f4 4f c2 a8	ldp	x20, x19, [sp], #0x20
+    7d3c:	40 00 00 14	b	0x7e3c ; symbol stub for: _objc_storeStrong
+package/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule 
