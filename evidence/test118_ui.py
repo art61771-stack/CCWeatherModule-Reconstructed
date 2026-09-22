@@ -54,7 +54,7 @@ host=(p/'evidence/host115.m').read_text()
 for token in ['assert(observed==2000)','assert(!weakModule)','assert(beforeCalls==1000)','assert(afterCalls==1000)','assert(begins==n+1&&state.generation==gen&&notices==notifications)','assert(!installed)']:
     assert token in host,token
 assert 'WCCPrefs' not in host
-for token in ['self.slider.minimumValue=50; self.slider.maximumValue=150','WCCSetMainIconPercentForMode']:
+for token in ['self.slider.minimumValue=-1; self.slider.maximumValue=1','self.expandedSlider.minimumValue=50;self.expandedSlider.maximumValue=150','WCCCollapsedSliderPosition(WCCMainIconPercentForMode(NO))','WCCCollapsedSliderPercent(slider.value)','WCCSetMainIconPercentForMode']:
     assert token in s
 for token in ['WCCHourlyScrollView','WCCHourlyLayoutReady','scheduleHourlyLayoutValidation','hourlyLayoutGeneration']:
     assert token in c
