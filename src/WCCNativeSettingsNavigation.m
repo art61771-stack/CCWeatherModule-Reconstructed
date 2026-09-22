@@ -47,7 +47,8 @@
     self.navigationBar.standardAppearance=bar;self.navigationBar.scrollEdgeAppearance=bar;self.navigationBar.compactAppearance=bar;
     UIToolbarAppearance *tool=[UIToolbarAppearance new];
     if(transparent)[tool configureWithTransparentBackground];else [tool configureWithDefaultBackground];
-    self.toolbar.standardAppearance=tool;self.toolbar.scrollEdgeAppearance=tool;self.toolbar.compactAppearance=tool;
+    self.toolbar.standardAppearance=tool;self.toolbar.compactAppearance=tool;
+    if (@available(iOS 15.0, *)) self.toolbar.scrollEdgeAppearance=tool;
     for(UIViewController *vc in self.viewControllers) {
         vc.view.backgroundColor=background;
         // Only direct, app-owned labels; never walk UIKit private subviews.
