@@ -724,7 +724,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     for (NSArray<UILabel *> *group in groups) {
         BOOL enabled=WCCTextShadowEnabled(index++);
         for (UILabel *label in group) {
-            WCCApplyTextShadow(label, enabled, 0, 5.0);
+            WCCApplyTextShadowWithGlow(label, enabled, 0, 5.0);
         }
     }
 }

@@ -41,7 +41,7 @@ FOUNDATION_EXPORT BOOL WCCSetTextShadowEnabled(NSInteger group, BOOL enabled);
 FOUNDATION_EXPORT BOOL WCCCustomGreetingEnabled(void);
 FOUNDATION_EXPORT NSString *WCCCustomGreetingText(void);
 FOUNDATION_EXPORT BOOL WCCSetCustomGreeting(BOOL enabled, NSString *text);
-FOUNDATION_EXPORT NSString *WCCCustomGreetingList(void);
+FOUNDATION_EXPORT BOOL WCCCustomGreetingList(void);
 FOUNDATION_EXPORT BOOL WCCSetCustomGreetingList(NSArray *list);
 FOUNDATION_EXPORT BOOL WCCCustomGreetingRandomEnabled(void);
 FOUNDATION_EXPORT BOOL WCCSetCustomGreetingRandomEnabled(BOOL enabled);

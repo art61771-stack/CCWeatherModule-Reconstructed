@@ -59,7 +59,8 @@ BOOL WCCSetTextShadowEnabled(NSInteger group,BOOL enabled) {
 }
 NSString *WCCCustomGreetingText(void) {
     id v=[WCCPrefs() objectForKey:@"customGreetingText"];
-    return [v isKindOfClass:NSString.class] && [v length]<=80?v:"";
+    if([v isKindOfClass:NSString.class] && [v length]<=80) return v;
+    return @"";
 }
 BOOL WCCCustomGreetingEnabled(void) {
     id v=[WCCPrefs() objectForKey:@"customGreetingEnabled"];
@@ -95,53 +96,42 @@ NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger versi
     if([out[@"customGreetingEnabled"] boolValue] && ![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length)return nil;
     out[@"customGreetingText"]=text;return out;
 }
-// Custom Greeting List Functions
-BOOL WCCCustomGreetingList() {
+BOOL WCCCustomGreetingList(void) {
     id v=[WCCPrefs() objectForKey:@"customGreetingList"];
-    if(![v isKindOfClass:NSArray.class]) return NO;
-    return YES;
+    return [v isKindOfClass:NSArray.class];
 }
 BOOL WCCSetCustomGreetingList(NSArray *list) {
     if(![list isKindOfClass:NSArray.class]) return NO;
-    id v=[WCCPrefs() objectForKey:@"customGreetingList"];
-    if(![v isKindOfClass:NSArray.class]) return NO;
-    BOOL ok=WCCCommitPartial(@{@"customGreetingList":@list});
-    if(ok)WCCNotify(WCCCustomGreetingRandomEnabled); return ok;
+    return WCCCommitPartial(@{@"customGreetingList":list});
 }
-BOOL WCCCustomGreetingRandomEnabled() {
+BOOL WCCCustomGreetingRandomEnabled(void) {
     id v=[WCCPrefs() objectForKey:@"customGreetingRandomEnabled"];
     return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID() && [v boolValue];
 }
 BOOL WCCSetCustomGreetingRandomEnabled(BOOL enabled) {
-    if(![enabled isKindOfClass:NSNumber.class]) return NO;
-    id v=[WCCPrefs() objectForKey:@"customGreetingRandomEnabled"];
-    if(![v isKindOfClass:NSNumber.class]) return NO;
-    BOOL ok=WCCCommitPartial(@{@"customGreetingRandomEnabled":@(enabled)});
-    if(ok)WCCNotify(WCCCustomGreetingRandomEnabled); return ok;
+    return WCCCommitPartial(@{@"customGreetingRandomEnabled":@(enabled)});
 }
-
-NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger version) {
-    if(![input isKindOfClass:NSDictionary.class] || (version!=1 && version!=2))return nil;
-    NSArray *keys=version==1?[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"]:[[[WCCRegionPositionKeys() arrayByAddingObjectsFromArray:WCCScaleKeys()] arrayByAddingObjectsFromArray:WCCShadowKeys()] arrayByAddingObjectsFromArray:@[@"customGreetingEnabled",@"customGreetingText"]];
-    for(id key in input)if(![keys containsObject:key])return nil;
-    NSMutableDictionary *out=[NSMutableDictionary dictionary];
-    for(NSInteger i=0;i<8;i++) {
-        id v=input[WCCRegionPositionKeys()[i]]?:@0;double n=WCCNumber(v)?[v doubleValue]:NAN;
-        if(!isfinite(n) || n!=WCCNormalizePositionOffset((int)i,n) || (version==1 && fabs(n)>40))return nil;
-        out[WCCRegionPositionKeys()[i]]=@(n);
-    }
-    for(NSString *key in WCCScaleKeys()) {
-        id v=input[version==1?@"mainCustomIconPercent":key]?:@100;double n=WCCNumber(v)?[v doubleValue]:NAN;
-        if(!isfinite(n) || n!=WCCNormalizeIconPercentForMode(version==1 || [key isEqual:@"mainIconExpandedPercent"],n))return nil;out[key]=@(n);
-    }
-    for(NSString *key in [WCCShadowKeys() arrayByAddingObject:@"customGreetingEnabled"]) {
-        id v=input[key]?:@NO;
-        if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;out[key]=v;
-    }
-    id text=input[@"customGreetingText"]?:@"";
-    if(![text isKindOfClass:NSString.class] || [text length]>80 || [text rangeOfCharacterFromSet:NSCharacterSet.controlCharacterSet].location!=NSNotFound)return nil;
-    if([out[@"customGreetingEnabled"] boolValue] && ![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length)return nil;
-    out[@"customGreetingText"]=text;return out;
+BOOL WCCTextShadowGlowEnabled(NSInteger group) {
+    if(group<0 || group>2)return NO;
+    NSString *key=[NSString stringWithFormat:@"textShadowGlowEnabled%ld",(long)group];
+    id v=[WCCPrefs() objectForKey:key];
+    return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID() && [v boolValue];
+}
+BOOL WCCSetTextShadowGlowEnabled(NSInteger group, BOOL enabled) {
+    if(group<0 || group>2)return NO;
+    NSString *key=[NSString stringWithFormat:@"textShadowGlowEnabled%ld",(long)group];
+    return WCCCommitPartial(@{key:@(enabled)});
+}
+CGFloat WCCTextShadowGlowRadius(NSInteger group) {
+    if(group<0 || group>2)return 0;
+    NSString *key=[NSString stringWithFormat:@"textShadowGlowRadius%ld",(long)group];
+    CGFloat r=[WCCPrefs() floatForKey:key];
+    return r>0?fmin(r,50):0;
+}
+BOOL WCCSetTextShadowGlowRadius(NSInteger group, CGFloat radius) {
+    if(group<0 || group>2 || radius<0 || radius>50)return NO;
+    NSString *key=[NSString stringWithFormat:@"textShadowGlowRadius%ld",(long)group];
+    return WCCCommitPartial(@{key:@(fmin(fmax(0,radius),50))});
 }
 static NSString *WCCPreferenceSuite=@"com.simon.ccweathermodule.custom";
 static NSUserDefaults *WCCPreferenceStore;
@@ -176,7 +166,6 @@ NSArray<NSString *> *WCCSizeOptions(void) { return @[@"2x1", @"3x1", @"4x1", @"2
 NSString *WCCSelectedSize(void) {
     id size = [WCCPrefs() objectForKey:@"moduleSize"];
     if (size) return [size isKindOfClass:NSString.class] && [WCCSizeOptions() containsObject:size] ? size : @"4x1";
-    // 1.1.0 stored only columns. Missing/invalid legacy values fall back to 4x1.
     id old = [WCCPrefs() objectForKey:@"columns"];
     if ([old isKindOfClass:NSNumber.class] && [@[@2, @3, @4] containsObject:old])
         return [NSString stringWithFormat:@"%ldx1", (long)[old integerValue]];
@@ -191,15 +180,14 @@ BOOL WCCSetSelectedSize(NSString *size) {
     return [WCCPrefs() synchronize];
 }
 WCCLayoutSize WCCEffectiveSize(void) {
-    // One process-wide snapshot shared by container size and content geometry.
     static WCCLayoutSize size; static dispatch_once_t once;
-    dispatch_once(&once, ^
+    dispatch_once(&once, ^{
         size=(WCCLayoutSize){4,1};
         if ([WCCPrefs() boolForKey:@"customSize"]) {
             NSArray *parts=[WCCSelectedSize() componentsSeparatedByString:@"x"];
             size=(WCCLayoutSize){[parts[0] integerValue],[parts[1] integerValue]};
         }
-    );
+    });
     return size;
 }
 BOOL WCCAllowedRoot(NSString *path) {
@@ -207,19 +195,17 @@ BOOL WCCAllowedRoot(NSString *path) {
     NSString *p = path.stringByStandardizingPath.stringByResolvingSymlinksInPath;
     NSString *base = @"/var/mobile/Documents".stringByResolvingSymlinksInPath;
     NSString *icons = [base stringByAppendingPathComponent:@"CCWeatherModule/Icons"];
-    // Permit the platform /var alias, not a user symlink redirect outside Icons.
     return [p isEqual:icons];
 }
 NSString *WCCRoot(void) {
-    // One public import location; stale legacy `root` preferences must not redirect the gallery.
     return @"/var/mobile/Documents/CCWeatherModule/Icons";
 }
 NSString *WCCCheckedPath(NSString *root, NSString *name, NSString **reason) {
     if (reason) *reason = nil;
-    if (!WCCAllowedRoot(root)) { if (reason) *reason = @"素材目录不在约定位置（或目录符号链接指向外部」"; return nil; }
+    if (!WCCAllowedRoot(root)) { if (reason) *reason = @"素材目录不在约定位置（或目录符号链接指向外部）"; return nil; }
     char resolved[PATH_MAX];
     WCCFileResult result = WCCValidateFile(root.fileSystemRepresentation,
-        [name isKindOfClass:NSString.class] ? name.fileSystemRepresentation : NULL, resolved, sizeof(resolved)];
+        [name isKindOfClass:NSString.class] ? name.fileSystemRepresentation : NULL, resolved, sizeof(resolved));
     if (result == WCCFileOK) return [NSFileManager.defaultManager stringWithFileSystemRepresentation:resolved length:strlen(resolved)];
     NSArray *reasons = @[@"", @"文件名无效", @"目录不存在或无法读取", @"符号链接越出素材目录", @"不支持的扩展名（支持 PNG/JPG/JPEG/GIF/MP4）", @"文件不存在、链接失效或无法取得属性", @"不是普通文件（不递归子目录）", @"空文件", @"文件超过8MB", @"文件读取失败，请检查权限"];
     if (reason) *reason = reasons[result];
@@ -234,11 +220,11 @@ NSString *WCCAssetKey(NSInteger code, BOOL night) {
 }
 NSArray<NSString *> *WCCAssetKeys(void) {
     static NSArray *keys; static dispatch_once_t once;
-    dispatch_once(&once, ^
+    dispatch_once(&once, ^{
         NSMutableOrderedSet *set=[NSMutableOrderedSet orderedSet];
         for (NSInteger code=0; code<48; code++) for (NSInteger night=0; night<2; night++) [set addObject:WCCAssetKey(code,night)];
         keys=set.array;
-    ); return keys;
+    }); return keys;
 }
 NSString *WCCMappedNameForKey(NSDictionary *mappings, NSString *key) {
     if (![key isKindOfClass:NSString.class] || ![WCCAssetKeys() containsObject:key] || ![mappings isKindOfClass:NSDictionary.class]) return nil;
@@ -254,5 +240,3 @@ BOOL WCCSetMappedName(NSString *key, NSString *name) {
     [WCCPrefs() setObject:map forKey:@"weatherIconMappings"];
     return [WCCPrefs() synchronize];
 }
-
-minis_url: minis://workspace/CCWeatherModule-Reconstructed/src/WCCPreferences.m

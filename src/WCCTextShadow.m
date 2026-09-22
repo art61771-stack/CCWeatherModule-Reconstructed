@@ -15,7 +15,11 @@
 @end
 @implementation WCCTextShadowState @end
 static char WCCTextShadowKey;
-void WCCApplyTextShadow(UILabel *label, BOOL enabled, int group, CGFloat glowRadius) {
+void WCCApplyTextShadow(UILabel *label, BOOL enabled) {
+    WCCApplyTextShadowWithGlow(label, enabled, -1, 0);
+}
+
+void WCCApplyTextShadowWithGlow(UILabel *label, BOOL enabled, int group, CGFloat glowRadius) {
     if(!label)return;
     CALayer *layer=label.layer;
     WCCTextShadowState *state=objc_getAssociatedObject(label,&WCCTextShadowKey);
