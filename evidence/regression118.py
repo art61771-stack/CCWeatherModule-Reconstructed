@@ -46,7 +46,8 @@ assert 'systemFontOfSize:8' in expanded and 'NSLineBreakByTruncatingTail' in exp
 assert 'if (_active == active) return;' in m
 assert 'generation != self->_generation' in m and 'WCCMediaCallbackCurrent(' in m
 
-assert 'NSString *key = _currentCity ? [self imageNameForConditionCode:[_currentCity conditionCode]] : nil;' in s
+# 120 retains system mapping while selecting Caiyun exclusively from its snapshot.
+assert 'NSString *key = WCCWeatherSource.shared.caiyun ? self.caiyunRender[@"condition"][@"basename"] : (_currentCity ? [self imageNameForConditionCode:[_currentCity conditionCode]] : nil);' in s
 assert 'old.timeLabel.text=item.timeLabel.text' in s
 assert 'Icon: https://i.imgs.ovh/2026/09/20/17d0953ee53152da8e61955e8bcf444a.png' in (root/'control').read_text()
 

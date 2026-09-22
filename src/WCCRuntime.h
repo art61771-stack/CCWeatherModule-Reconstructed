@@ -92,7 +92,22 @@ static inline WCCGeometry WCCComputeModuleGeometry(double width,double height,in
         g.precipitation=WCCR(tx,44*s,w-p-tx,12*s);
         g.tempFont=31*s;
     }
-    g.details=!compact; g.square=0;
+    if (columns==2) {
+        // Actual bounds, not a nominal 2x1 screenshot: three weather rails and
+        // a separate greeting row. All seven elements always have real frames.
+        double left=52*s, glyph=18*s, gap=3*s;
+        double tx=p+left+gap+glyph+gap, tw=fmax(0,right-tx);
+        g.temperature=WCCR(p,7*s,left,30*s);
+        g.highLow=WCCR(p,40*s,left,13*s);
+        g.icon=WCCR(p+left+gap,17*s,glyph,glyph);
+        g.city=WCCR(tx,6*s,tw,14*s);
+        g.condition=WCCR(tx,23*s,tw,13*s);
+        g.precipitation=WCCR(tx,40*s,tw,13*s);
+        g.greeting=WCCR(p,h-17*s,usable,12*s);
+        g.tempFont=27*s; g.cityFont=10*s; g.detailFont=9*s;
+        g.greetingFont=10*s;
+    }
+    g.details=columns==2 || !compact; g.square=0;
     return g;
 }
 /* 3x1 only: UIKit measures actual strings with the final production fonts.
@@ -131,13 +146,25 @@ static inline WCCGeometry WCCBalanceMeasuredStrip(WCCGeometry g,double width,dou
 static inline double WCCNormalizeRegionOffset(double value) {
     return isfinite(value) && value>=-40 && value<=40 ? round(value) : 0;
 }
+enum { WCCMaximumHorizontalOffset = 1366 };
+static inline double WCCNormalizePositionOffset(int index,double value) {
+    double limit=(index%2)==0 ? WCCMaximumHorizontalOffset : 40;
+    return index>=0 && index<8 && isfinite(value) && value>=-limit && value<=limit ? round(value) : 0;
+}
 static inline double WCCRegionAxis(double origin,double length,double bound,double request) {
     request=WCCNormalizeRegionOffset(request);
     double lower=fmin(0,-origin), upper=fmax(0,bound-origin-length);
     return fmax(lower,fmin(upper,request));
 }
+static inline double WCCRegionHorizontalAxis(double origin,double length,double bound,double request) {
+    request=WCCNormalizePositionOffset(0,request);
+    // Keep zero exactly at the unshifted baseline. Valid baseline groups stay
+    // fully inside the header; no inter-group collision clamp is intentional.
+    double lower=fmin(0,-origin), upper=fmax(0,bound-origin-length);
+    return fmax(lower,fmin(upper,request));
+}
 static inline WCCRect WCCRegionTranslation(WCCRect baseline,double width,double height,double x,double y) {
-    return WCCR(WCCRegionAxis(baseline.x,baseline.w,width,x),
+    return WCCR(WCCRegionHorizontalAxis(baseline.x,baseline.w,width,x),
                 WCCRegionAxis(baseline.y,baseline.h,height,y),0,0);
 }
 /* Persisted percentage: the real numeric midpoint is 100, with five-point steps. */
@@ -161,12 +188,20 @@ static inline WCCRect WCCScaledMainIcon(WCCRect original,double percent,double c
  * retain 118 geometry even when that baseline already touches a boundary. */
 static inline WCCRect WCCMainIconTarget(WCCRect baseline,double width,double height,
                                       int expanded,double x,double y,double percent) {
-    WCCRect d=expanded?WCCR(0,0,0,0):WCCRegionTranslation(baseline,width,height,x,y);
-    baseline.x+=d.x; baseline.y+=d.y;
+    // Scale the baseline first, independently of its position request. Clamp
+    // horizontal translation against the COMPLETE scaled rectangle, so 50%
+    // and 150% both reach the exact header edges without clipping or resizing.
     double clearance=fmax(0,fmin(fmin(baseline.x,baseline.y),
         fmin(width-baseline.x-baseline.w,height-baseline.y-baseline.h)));
     WCCRect local=WCCScaledMainIcon(baseline,percent,clearance);
-    return WCCR(baseline.x+local.x,baseline.y+local.y,local.w,local.h);
+    WCCRect target=WCCR(baseline.x+local.x,baseline.y+local.y,local.w,local.h);
+    if (!expanded) {
+        target.x+=WCCRegionHorizontalAxis(target.x,target.w,width,x);
+        // Preserve the existing vertical +/-40 preference and baseline clamp.
+        double dy=WCCRegionAxis(baseline.y,baseline.h,height,y);
+        target.y+=fmax(fmin(0,-target.y),fmin(fmax(0,height-target.y-target.h),dy));
+    }
+    return target;
 }
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.

@@ -7,6 +7,7 @@
 #import "WCCHostObserver.h"
 #import "WCCHourly.h"
 #import "WCCABI.h"
+#import "WCCWeatherSource.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <stdbool.h>
@@ -33,12 +34,19 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic,strong) NSMutableArray<WCCHourlyItem *> *hourlyItems;
 @property(nonatomic) NSUInteger hourlyLayoutGeneration;
 @property(nonatomic) BOOL hourlyRefreshing;
+@property(nonatomic,copy) NSDictionary *caiyunRender;
+@property(nonatomic) NSUInteger sourceGeneration;
+- (void)weatherSourceChanged;
+- (void)bindCaiyunSnapshot;
+- (UIImage *)caiyunImage:(NSDictionary *)condition;
+- (void)stopSystemWeather;
 - (void)scheduleHourlyLayoutValidation;
 - (void)layoutMainCustomMedia;
 - (void)mainIconScaleChanged;
 - (void)resetRegionTransforms;
 - (void)applyRegionPositions;
 - (void)regionPositionChanged;
+- (void)applyTextShadows;
 - (void)refreshHourlyMedia;
 - (void)cacheHourlyMediaPaths;
 - (void)clearHourlyItems;
@@ -46,6 +54,7 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) WCCModuleSession moduleSession;
 @property(nonatomic,strong) NSArray *originalExpandedConstraints;
 @property(nonatomic) WCCGreetingState greetingState;
+@property(nonatomic) BOOL customGreetingWasEnabled;
 @property(nonatomic) WCCLayoutSize layoutSize;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
@@ -86,7 +95,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         _isInitialized = NO; _isExpanded = NO; _displayMode = 0; _greetingState = (WCCGreetingState){0,-1};
         _layoutSize = WCCEffectiveSize();
         _customLocationName = nil;
-        _isInitialized = [self initializeWeatherModel];
+        if (!WCCWeatherSource.shared.caiyun) [self initializeWeatherModel];
+        // UI remains available when Apple's private Weather framework is absent.
+        _isInitialized = YES;
+        _sourceGeneration=WCCWeatherSource.shared.generation;
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(weatherSourceChanged) name:WCCWeatherSourceChanged object:nil];
     }
     return self;
 }
@@ -156,10 +169,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)hostVisibilityChanged:(NSNotification *)note {
     [self consumeHostSession];
     self.mediaVisible=WCCCurrentHostState().visible;
+    if(!self.mediaVisible) [WCCWeatherSource.shared cancel];
     self.customMedia.active=self.mediaVisible && !self.presentedViewController;
     [self refreshHourlyMedia];
 }
 - (void)drawGreeting {
+    if(WCCCustomGreetingEnabled()){[self bindGreetingText];return;}
     NSCalendar *calendar = [NSCalendar currentCalendar];
     calendar.timeZone = NSTimeZone.localTimeZone;
     NSInteger hour = [calendar component:NSCalendarUnitHour fromDate:NSDate.date];
@@ -168,6 +183,15 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self bindGreetingText];
 }
 - (void)bindGreetingText {
+    if(WCCCustomGreetingEnabled()) {
+        self.customGreetingWasEnabled=YES;
+        self.greetingLabel.text=WCCCustomGreetingText();
+        self.greetingLabel.hidden=NO;self.greetingLabel.alpha=1;return;
+    }
+    if(self.customGreetingWasEnabled) {
+        self.customGreetingWasEnabled=NO;
+        [self drawGreeting];return;
+    }
     int index=self.greetingState.index;
     // Always bind, including a session that began before UILabel creation.
     self.greetingLabel.text=[NSString stringWithFormat:@"%@，%@",[NSString stringWithUTF8String:WCCGreetingPrefix(index)],[NSString stringWithUTF8String:WCCGreetingSuffix(index)]];
@@ -200,6 +224,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{ [self refreshWeatherData]; });
 }
 - (void)forceCityUpdate {
+    if (WCCWeatherSource.shared.caiyun) return;
     @try {
         id city = [[_weatherModel forecastModel] city];
         WCCEnable(city, NSSelectorFromString(@"setAutoUpdate:"));
@@ -306,6 +331,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     self.customMedia.frame=_iconView.bounds;
 }
 - (void)refreshWeatherData {
+    if (WCCWeatherSource.shared.caiyun) { if(self.mediaVisible) [WCCWeatherSource.shared refreshManual:NO]; return; }
+    if (!_weatherModel) [self initializeWeatherModel];
     if (!_weatherModel) return;
     @try {
         WCCEnable(_weatherModel, NSSelectorFromString(@"setLocationServicesActive:"));
@@ -417,10 +444,51 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = YES; [self preferencesChanged]; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)viewDidDisappear:(BOOL)animated { [super viewDidDisappear:animated]; }
-- (void)controlCenterDidDismiss {  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)controlCenterDidDismiss { [WCCWeatherSource.shared cancel]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)willResignActive { if (!self.presentedViewController)  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)stopSystemWeather {
+    @try {
+        [_weatherModel removeObserver:self];
+        for (NSString *name in @[@"setIsLocationTrackingEnabled:",@"setLocationServicesActive:"]) {
+            SEL sel=NSSelectorFromString(name);
+            if ([_weatherModel respondsToSelector:sel]) ((void (*)(id,SEL,id))objc_msgSend)(_weatherModel,sel,@NO);
+        }
+    } @catch(NSException *e) {}
+    _weatherModel=nil; _lockscreenController=nil; _currentCity=nil;
+}
+- (void)weatherSourceChanged {
+    WCCWeatherSource *s=WCCWeatherSource.shared;
+    if(self.sourceGeneration!=s.generation) {
+        self.sourceGeneration=s.generation;
+        [self clearHourlyItems]; [self.customMedia loadPath:nil]; self.mediaAssetKey=nil;
+        self.caiyunRender=nil; _currentCity=nil; _cachedSubLocality=nil; _cachedLocationID=nil;
+        _cityLabel.text=@"未就绪"; _conditionLabel.text=@"未就绪"; _tempLabel.text=@"--°";
+        _highLowLabel.text=@"-- / --"; _precipLabel.text=@"降水概率: --";
+        if(s.caiyun) [self stopSystemWeather];
+        else if(!_weatherModel) [self initializeWeatherModel];
+    }
+    if(self.isViewLoaded) [self updateWeatherDisplay];
+}
+- (UIImage *)caiyunImage:(NSDictionary *)condition {
+    NSString *key=condition[@"basename"];
+    UIImage *image=key.length?[UIImage imageNamed:key inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil]:nil;
+    return image ?: [UIImage systemImageNamed:condition[@"symbol"]?:@"cloud.fill"] ?: [UIImage systemImageNamed:@"cloud.fill"];
+}
+- (void)bindCaiyunSnapshot {
+    WCCWeatherSource *s=WCCWeatherSource.shared;
+    self.caiyunRender=WCCRenderCaiyunSnapshot(s.snapshot,[WCCPrefs() stringForKey:@"caiyunAlias"],s.stale);
+    NSDictionary *r=self.caiyunRender;
+    _cityLabel.text=r[@"city"]; _tempLabel.text=r[@"temperature"]; _highLowLabel.text=r[@"highLow"];
+    _precipLabel.text=r[@"precipitation"];
+    _conditionLabel.text=![r[@"ready"] boolValue]?@"未就绪": [NSString stringWithFormat:@"%@%@",r[@"condition"][@"text"],s.stale?@" · 已过期":@""];
+    [self updateWeatherIcon]; if(_isExpanded)[self updateHourlyForecast];
+}
 - (void)updateWeatherDisplay {
-    if (!_weatherModel) return;
+    if(WCCWeatherSource.shared.caiyun) { [self bindCaiyunSnapshot]; return; }
+    if (!_weatherModel) {
+        _cityLabel.text=@"系统天气未就绪"; _conditionLabel.text=@"未就绪"; _tempLabel.text=@"--°";
+        _highLowLabel.text=@"-- / --"; _precipLabel.text=@"降水概率: --"; [self updateWeatherIcon]; return;
+    }
     @try {
         _currentCity = [[_weatherModel forecastModel] city];
         if (!_currentCity) { [self updateWeatherIcon]; return; }
@@ -440,6 +508,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     } @catch (NSException *exception) {}
 }
 - (void)updateCityLabel {
+    if(WCCWeatherSource.shared.caiyun) { _cityLabel.text=self.caiyunRender[@"city"]?:@"彩云地点"; return; }
     if (!_currentCity) return;
     @try {
         if (_displayMode == 2) { _cityLabel.text = _customLocationName ?: @"--"; return; }
@@ -452,16 +521,17 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         }
         if (latitude != 0 && longitude != 0) {
             CLLocation *location = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+            NSUInteger sourceGeneration=self.sourceGeneration;
             CLGeocoder *geocoder = [CLGeocoder new];
             [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray<CLPlacemark *> *places, NSError *error) {
-                if (error || !places.count) return;
+                if (error || !places.count || WCCWeatherSource.shared.caiyun || sourceGeneration!=self.sourceGeneration) return;
                 CLPlacemark *place = places[0];
                 NSString *name = place.subLocality;
                 if (!name.length) name = place.subAdministrativeArea;
                 if (!name.length) return;
                 self->_cachedSubLocality = name; self->_cachedLocationID = locationID;
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (self->_displayMode == 0) self->_cityLabel.text = name;
+                    if (!WCCWeatherSource.shared.caiyun && sourceGeneration==self.sourceGeneration && self->_displayMode == 0) self->_cityLabel.text = name;
                 });
             }];
         }
@@ -535,7 +605,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     } @catch (NSException *exception) { return nil; }
 }
 - (void)updateWeatherIcon {
-    NSString *key = _currentCity ? [self imageNameForConditionCode:[_currentCity conditionCode]] : nil;
+    NSString *key = WCCWeatherSource.shared.caiyun ? self.caiyunRender[@"condition"][@"basename"] : (_currentCity ? [self imageNameForConditionCode:[_currentCity conditionCode]] : nil);
+    if(!key.length) key=nil;
     if (![self.mediaAssetKey isEqual:key]) {
         [self.customMedia loadPath:nil]; self.mediaAssetKey=key;
     }
@@ -548,6 +619,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self layoutMainCustomMedia];
     self.customMedia.hidden = ![WCCPrefs() boolForKey:@"customIcon"];
     if (!self.customMedia.hidden && self.customMedia.hasMedia) { _iconView.image = nil; return; }
+    if(WCCWeatherSource.shared.caiyun) { _iconView.image=[self caiyunImage:self.caiyunRender[@"condition"]]; return; }
     NSInteger code = [_currentCity conditionCode];
     if ([_currentCity temperature]) {
         UIImage *image = [self systemWeatherImageForConditionCode:code];
@@ -640,9 +712,31 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         region++;
     }
 }
+- (void)applyTextShadows {
+    // Main header labels only: never style hourly labels or the whole layer.
+    NSArray<NSArray<UILabel *> *> *groups=@[@[_tempLabel,_highLowLabel],
+        @[_cityLabel,_conditionLabel,_precipLabel],@[self.greetingLabel]];
+    NSInteger index=0;
+    for (NSArray<UILabel *> *group in groups) {
+        BOOL enabled=WCCTextShadowEnabled(index++);
+        for (UILabel *label in group) {
+            // Dynamic contrast also works if a future host uses dark text.
+            UIColor *textColor=label.textColor ?: UIColor.whiteColor;
+            UIColor *color=[UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *traits) {
+                CGFloat r=1,g=1,b=1,a=1;
+                [[textColor resolvedColorWithTraitCollection:traits] getRed:&r green:&g blue:&b alpha:&a];
+                return (r*.2126+g*.7152+b*.0722)>.5 ? [UIColor colorWithWhite:0 alpha:.55] : [UIColor colorWithWhite:1 alpha:.65];
+            }];
+            label.shadowColor=enabled ? color : nil;
+            label.shadowOffset=enabled ? CGSizeMake(0,.5) : CGSizeZero;
+        }
+    }
+}
 - (void)regionPositionChanged {
     if (!NSThread.isMainThread) { dispatch_async(dispatch_get_main_queue(),^{ [self regionPositionChanged]; }); return; }
     if (!self.isViewLoaded) return;
+    [self bindGreetingText];
+    [self applyTextShadows];
     [self applyRegionPositions];
     [self layoutMainCustomMedia];
 }
@@ -658,7 +752,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     CGRect slot=_iconView.frame;
     WCCRect target=WCCMainIconTarget(WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
         _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,
-        WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercent());
+        WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(_isExpanded));
     CGFloat sx=slot.size.width>0?target.w/slot.size.width:1;
     CGFloat sy=slot.size.height>0?target.h/slot.size.height:1;
     self.customMedia.transform=CGAffineTransformIdentity;
@@ -671,6 +765,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     // Auto Layout has resolved original expanded constraints before translation.
+    [self bindGreetingText];
+    [self applyTextShadows];
     [self applyRegionPositions];
     [self layoutMainCustomMedia];
     if (_isExpanded) [self refreshHourlyMedia];
@@ -683,7 +779,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (!self.hourlyItems) self.hourlyItems=[NSMutableArray array];
     _hourlyScrollView.delegate=self;
     @try {
-        NSArray *hours = [_currentCity hourlyForecasts];
+        NSArray *hours = WCCWeatherSource.shared.caiyun ? self.caiyunRender[@"hours"] : [_currentCity hourlyForecasts];
         if (!hours.count) { [self clearHourlyItems]; return; }
         NSDateFormatter *formatter = [NSDateFormatter new]; formatter.locale = NSLocale.currentLocale;
         NSUInteger count = MIN(hours.count, 12);
@@ -716,7 +812,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;
     @try {
-        if (isNow) time.text = @"现在";
+        if (WCCWeatherSource.shared.caiyun) time.text=forecast[@"time"];
+        else if (isNow) time.text = @"现在";
         else if ([forecast time]) time.text = [forecast time];
         else if ([forecast date]) { formatter.dateFormat = @"ah时"; time.text = [formatter stringFromDate:[forecast date]]; }
         else time.text = @"--";
@@ -724,11 +821,17 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     time.frame = CGRectMake(0, 0, 55, 18); [item addSubview:time];
     UIImageView *icon = [UIImageView new]; icon.contentMode = UIViewContentModeScaleAspectFit; icon.tintColor = UIColor.whiteColor;
     @try {
+        if(WCCWeatherSource.shared.caiyun) {
+            NSDictionary *condition=forecast[@"condition"];
+            item.assetKey=[condition[@"basename"] length]?condition[@"basename"]:nil;
+            icon.image=[self caiyunImage:condition];
+        } else {
         NSInteger code = [forecast conditionCode];
         NSString *selectedKey=nil;
         UIImage *native=[self systemWeatherImageForConditionCode:code selectedAssetKey:&selectedKey];
         item.assetKey=selectedKey; // record this item's actual original resource, never the main icon's key
         icon.image = native ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular]];
+        }
     } @catch (NSException *exception) {}
     icon.frame = CGRectMake(12, 22, 30, 30); [item addSubview:icon];
     item.originalIcon=icon;
@@ -738,7 +841,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     item.media.mediaFailed=^(NSString *reason) { WCCHourlyItem *current=weakItem; current.originalIcon.hidden=NO;  };
     [self.hourlyItems addObject:item];
     UILabel *temperature = WCCLabel(15, UIFontWeightMedium, 1); temperature.textAlignment = NSTextAlignmentCenter;
-    @try { temperature.text = [self temperatureString:[forecast temperature]]; }
+    @try { temperature.text = WCCWeatherSource.shared.caiyun ? forecast[@"temperature"] : [self temperatureString:[forecast temperature]]; }
     @catch (NSException *exception) { temperature.text = @"--"; }
     item.timeLabel=time; item.temperatureLabel=temperature;
     temperature.frame = CGRectMake(0, 56, 55, 20); [item addSubview:temperature];

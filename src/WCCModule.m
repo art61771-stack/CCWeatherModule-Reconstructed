@@ -23,7 +23,7 @@ static void WCCLoadWeatherFrameworks(void) {
 - (instancetype)init {
     if ((self = [super init])) {
         WCCLoadWeatherFrameworks();
-        if (!NSClassFromString(@"WALockscreenWidgetViewController")) return nil;
+        // Missing system APIs must not prevent the independent Caiyun path or settings UI.
         WCCContentViewController *controller = [WCCContentViewController new];
         if (!controller || !controller.isInitialized) return nil;
         _contentViewController = controller;

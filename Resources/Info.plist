@@ -34,13 +34,13 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.9</string>
+	<string>1.2.0</string>
 	<key>CFBundleSupportedPlatforms</key>
 	<array>
 		<string>iPhoneOS</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>119</string>
+	<string>120</string>
 	<key>MinimumOSVersion</key>
 	<string>14.0</string>
 	<key>ModuleSize</key>

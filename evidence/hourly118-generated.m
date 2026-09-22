@@ -141,7 +141,8 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
     WCCHourlyItem *item = [WCCHourlyItem new];
     UILabel *time = WCCLabel(13, UIFontWeightMedium, 1); time.textAlignment = NSTextAlignmentCenter;
     @try {
-        if (isNow) time.text = @"现在";
+        if (WCCWeatherSource.shared.caiyun) time.text=forecast[@"time"];
+        else if (isNow) time.text = @"现在";
         else if ([forecast time]) time.text = [forecast time];
         else if ([forecast date]) { formatter.dateFormat = @"ah时"; time.text = [formatter stringFromDate:[forecast date]]; }
         else time.text = @"--";
@@ -149,11 +150,17 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
     time.frame = CGRectMake(0, 0, 55, 18); [item addSubview:time];
     UIImageView *icon = [UIImageView new]; icon.contentMode = UIViewContentModeScaleAspectFit; icon.tintColor = UIColor.whiteColor;
     @try {
+        if(WCCWeatherSource.shared.caiyun) {
+            NSDictionary *condition=forecast[@"condition"];
+            item.assetKey=[condition[@"basename"] length]?condition[@"basename"]:nil;
+            icon.image=[self caiyunImage:condition];
+        } else {
         NSInteger code = [forecast conditionCode];
         NSString *selectedKey=nil;
         UIImage *native=[self systemWeatherImageForConditionCode:code selectedAssetKey:&selectedKey];
         item.assetKey=selectedKey; // record this item's actual original resource, never the main icon's key
         icon.image = native ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightRegular]];
+        }
     } @catch (NSException *exception) {}
     icon.frame = CGRectMake(12, 22, 30, 30); [item addSubview:icon];
     item.originalIcon=icon;
@@ -163,7 +170,7 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
     item.media.mediaFailed=^(NSString *reason) { WCCHourlyItem *current=weakItem; current.originalIcon.hidden=NO;  };
     [self.hourlyItems addObject:item];
     UILabel *temperature = WCCLabel(15, UIFontWeightMedium, 1); temperature.textAlignment = NSTextAlignmentCenter;
-    @try { temperature.text = [self temperatureString:[forecast temperature]]; }
+    @try { temperature.text = WCCWeatherSource.shared.caiyun ? forecast[@"temperature"] : [self temperatureString:[forecast temperature]]; }
     @catch (NSException *exception) { temperature.text = @"--"; }
     item.timeLabel=time; item.temperatureLabel=temperature;
     temperature.frame = CGRectMake(0, 56, 55, 20); [item addSubview:temperature];

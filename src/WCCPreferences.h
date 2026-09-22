@@ -31,3 +31,13 @@ FOUNDATION_EXPORT NSArray<NSString *> *WCCAssetKeys(void);
 FOUNDATION_EXPORT NSString *WCCMappedNameForKey(NSDictionary *mappings, NSString *key);
 FOUNDATION_EXPORT NSString *WCCMappedName(NSString *key);
 FOUNDATION_EXPORT BOOL WCCSetMappedName(NSString *key, NSString *name);
+
+// v2 local presentation schema only. Missing fields receive explicit defaults.
+FOUNDATION_EXPORT NSDictionary *WCCNormalizePresentationValues(NSDictionary *values, NSInteger version);
+FOUNDATION_EXPORT double WCCMainIconPercentForMode(BOOL expanded);
+FOUNDATION_EXPORT BOOL WCCSetMainIconPercentForMode(BOOL expanded, double value);
+FOUNDATION_EXPORT BOOL WCCTextShadowEnabled(NSInteger group);
+FOUNDATION_EXPORT BOOL WCCSetTextShadowEnabled(NSInteger group, BOOL enabled);
+FOUNDATION_EXPORT BOOL WCCCustomGreetingEnabled(void);
+FOUNDATION_EXPORT NSString *WCCCustomGreetingText(void);
+FOUNDATION_EXPORT BOOL WCCSetCustomGreeting(BOOL enabled, NSString *text);

@@ -10,37 +10,90 @@ NSArray<NSString *> *WCCRegionPositionKeys(void) {
     return @[@"temperatureOffsetX",@"temperatureOffsetY",@"mainIconOffsetX",@"mainIconOffsetY",
              @"informationOffsetX",@"informationOffsetY",@"greetingOffsetX",@"greetingOffsetY"];
 }
-double WCCRegionOffset(NSInteger index) {
-    if (index<0 || index>=8) return 0;
-    id value=[WCCPrefs() objectForKey:WCCRegionPositionKeys()[index]];
-    return [value isKindOfClass:NSNumber.class] ? WCCNormalizeRegionOffset([value doubleValue]) : 0;
+static BOOL WCCNumber(id v) { return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID(); }
+static NSArray *WCCScaleKeys(void) { return @[@"mainIconCollapsedPercent",@"mainIconExpandedPercent"]; }
+static NSArray *WCCShadowKeys(void) { return @[@"temperatureShadow",@"informationShadow",@"greetingShadow"]; }
+static BOOL WCCCommitPartial(NSDictionary *values);
+static void WCCNotify(NSString *name) {
+    void (^work)(void)=^{[NSNotificationCenter.defaultCenter postNotificationName:name object:nil];};
+    if(NSThread.isMainThread)work(); else dispatch_async(dispatch_get_main_queue(),work);
 }
-static BOOL WCCSaveRegionOffsets(void) {
-    BOOL saved=[WCCPrefs() synchronize];
-    void (^notify)(void)=^{ [NSNotificationCenter.defaultCenter postNotificationName:WCCRegionPositionChanged object:nil]; };
-    if (NSThread.isMainThread) notify(); else dispatch_async(dispatch_get_main_queue(),notify);
-    return saved;
+double WCCRegionOffset(NSInteger index) {
+    if(index<0 || index>=8)return 0;
+    id v=[WCCPrefs() objectForKey:WCCRegionPositionKeys()[index]];
+    return WCCNumber(v)?WCCNormalizePositionOffset((int)index,[v doubleValue]):0;
 }
 BOOL WCCSetRegionOffset(NSInteger index,double value) {
-    if (index<0 || index>=8) return NO;
-    [WCCPrefs() setDouble:WCCNormalizeRegionOffset(value) forKey:WCCRegionPositionKeys()[index]];
-    return WCCSaveRegionOffsets();
+    if(index<0 || index>=8 || !isfinite(value))return NO;
+    BOOL ok=WCCCommitPartial(@{WCCRegionPositionKeys()[index]:@(WCCNormalizePositionOffset((int)index,value))});
+    if(ok)WCCNotify(WCCRegionPositionChanged); return ok;
 }
 BOOL WCCResetRegionOffsets(NSInteger region) {
-    if (region < -1 || region>3) return NO;
-    for (NSInteger i=0;i<8;i++) if (region==-1 || i/2==region)
-        [WCCPrefs() removeObjectForKey:WCCRegionPositionKeys()[i]];
-    return WCCSaveRegionOffsets();
+    if(region < -1 || region>3)return NO;
+    NSMutableDictionary *v=[NSMutableDictionary dictionary];
+    for(NSInteger i=0;i<8;i++)if(region==-1 || i/2==region)v[WCCRegionPositionKeys()[i]]=@0;
+    BOOL ok=WCCCommitPartial(v); if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
 }
-double WCCMainIconPercent(void) {
-    id value=[WCCPrefs() objectForKey:@"mainCustomIconPercent"];
-    return [value isKindOfClass:NSNumber.class] ? WCCNormalizeIconPercent([value doubleValue]) : 100;
+double WCCMainIconPercentForMode(BOOL expanded) {
+    id v=[WCCPrefs() objectForKey:WCCScaleKeys()[expanded?1:0]];
+    if(!v)v=[WCCPrefs() objectForKey:@"mainCustomIconPercent"];
+    return WCCNumber(v)?WCCNormalizeIconPercent([v doubleValue]):100;
 }
-BOOL WCCSetMainIconPercent(double value) {
-    [WCCPrefs() setDouble:WCCNormalizeIconPercent(value) forKey:@"mainCustomIconPercent"];
-    BOOL saved=[WCCPrefs() synchronize];
-    [NSNotificationCenter.defaultCenter postNotificationName:WCCMainIconScaleChanged object:nil];
-    return saved;
+double WCCMainIconPercent(void) { return WCCMainIconPercentForMode(NO); }
+BOOL WCCSetMainIconPercentForMode(BOOL expanded,double value) {
+    if(!isfinite(value))return NO;
+    // Materialize BOTH migration defaults atomically before editing one mode.
+    NSMutableDictionary *v=[@{WCCScaleKeys()[0]:@(WCCMainIconPercentForMode(NO)),WCCScaleKeys()[1]:@(WCCMainIconPercentForMode(YES))} mutableCopy];
+    v[WCCScaleKeys()[expanded?1:0]]=@(WCCNormalizeIconPercent(value));
+    BOOL ok=WCCCommitPartial(v);if(ok)WCCNotify(WCCMainIconScaleChanged);return ok;
+}
+BOOL WCCSetMainIconPercent(double value) { return WCCSetMainIconPercentForMode(NO,value); }
+BOOL WCCTextShadowEnabled(NSInteger group) {
+    if(group<0 || group>2)return NO;
+    id v=[WCCPrefs() objectForKey:WCCShadowKeys()[group]];
+    return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID() && [v boolValue];
+}
+BOOL WCCSetTextShadowEnabled(NSInteger group,BOOL enabled) {
+    if(group<0 || group>2)return NO;
+    BOOL ok=WCCCommitPartial(@{WCCShadowKeys()[group]:@(enabled)});if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
+}
+NSString *WCCCustomGreetingText(void) {
+    id v=[WCCPrefs() objectForKey:@"customGreetingText"];
+    return [v isKindOfClass:NSString.class] && [v length]<=80?v:@"";
+}
+BOOL WCCCustomGreetingEnabled(void) {
+    id v=[WCCPrefs() objectForKey:@"customGreetingEnabled"];
+    return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID() && [v boolValue] && [WCCCustomGreetingText() stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length>0;
+}
+BOOL WCCSetCustomGreeting(BOOL enabled,NSString *text) {
+    if(![text isKindOfClass:NSString.class])return NO;
+    text=[text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    if(text.length>80 || (enabled && !text.length) || [text rangeOfCharacterFromSet:NSCharacterSet.controlCharacterSet].location!=NSNotFound)return NO;
+    BOOL ok=WCCCommitPartial(@{@"customGreetingEnabled":@(enabled),@"customGreetingText":text});
+    if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
+}
+NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger version) {
+    if(![input isKindOfClass:NSDictionary.class] || (version!=1 && version!=2))return nil;
+    NSArray *keys=version==1?[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"]:[[[WCCRegionPositionKeys() arrayByAddingObjectsFromArray:WCCScaleKeys()] arrayByAddingObjectsFromArray:WCCShadowKeys()] arrayByAddingObjectsFromArray:@[@"customGreetingEnabled",@"customGreetingText"]];
+    for(id key in input)if(![keys containsObject:key])return nil;
+    NSMutableDictionary *out=[NSMutableDictionary dictionary];
+    for(NSInteger i=0;i<8;i++) {
+        id v=input[WCCRegionPositionKeys()[i]]?:@0;double n=WCCNumber(v)?[v doubleValue]:NAN;
+        if(!isfinite(n) || n!=WCCNormalizePositionOffset((int)i,n) || (version==1 && fabs(n)>40))return nil;
+        out[WCCRegionPositionKeys()[i]]=@(n);
+    }
+    for(NSString *key in WCCScaleKeys()) {
+        id v=input[version==1?@"mainCustomIconPercent":key]?:@100;double n=WCCNumber(v)?[v doubleValue]:NAN;
+        if(!isfinite(n) || n!=WCCNormalizeIconPercent(n))return nil;out[key]=@(n);
+    }
+    for(NSString *key in [WCCShadowKeys() arrayByAddingObject:@"customGreetingEnabled"]) {
+        id v=input[key]?:@NO;
+        if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;out[key]=v;
+    }
+    id text=input[@"customGreetingText"]?:@"";
+    if(![text isKindOfClass:NSString.class] || [text length]>80 || [text rangeOfCharacterFromSet:NSCharacterSet.controlCharacterSet].location!=NSNotFound)return nil;
+    if([out[@"customGreetingEnabled"] boolValue] && ![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length)return nil;
+    out[@"customGreetingText"]=text;return out;
 }
 static NSString *WCCPreferenceSuite=@"com.simon.ccweathermodule.custom";
 static NSUserDefaults *WCCPreferenceStore;
@@ -54,14 +107,12 @@ NSUserDefaults *WCCPrefs(void) {
     return WCCPreferenceStore;
 }
 BOOL WCCCommitSliderValues(NSDictionary *values) {
-    if (!NSThread.isMainThread || ![values isKindOfClass:NSDictionary.class] || values.count!=9) return NO;
-    NSArray *keys=[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"];
-    for (NSUInteger i=0;i<keys.count;i++) {
-        id v=values[keys[i]];
-        if (![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID()) return NO;
-        double n=[v doubleValue];
-        if (!isfinite(n) || n<(i==8?50:-40) || n>(i==8?150:40) || n!=(i==8?WCCNormalizeIconPercent(n):WCCNormalizeRegionOffset(n))) return NO;
-    }
+    if(![values isKindOfClass:NSDictionary.class])return NO;
+    NSDictionary *normalized=WCCNormalizePresentationValues(values,values[@"mainCustomIconPercent"]?1:2);
+    return normalized && WCCCommitPartial(normalized);
+}
+static BOOL WCCCommitPartial(NSDictionary *values) {
+    if(!NSThread.isMainThread)return NO;
     NSUserDefaults *prefs=WCCPrefs();
     NSDictionary *before=[prefs persistentDomainForName:WCCPreferenceSuite] ?: @{};
     NSMutableDictionary *after=[before mutableCopy]; [after addEntriesFromDictionary:values];

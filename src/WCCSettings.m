@@ -2,6 +2,7 @@
 #import "WCCPreferences.h"
 #import "WCCGallery.h"
 #import "WCCRegionSettings.h"
+#import "WCCWeatherSettings.h"
 #import <objc/message.h>
 #include <math.h>
 
@@ -50,6 +51,8 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 @property(nonatomic,copy) void (^onDone)(void);
 @property(nonatomic,strong) UISlider *slider;
 @property(nonatomic,strong) UILabel *valueLabel;
+@property(nonatomic,strong) UISlider *expandedSlider;
+@property(nonatomic,strong) UILabel *expandedLabel;
 @end
 @implementation WCCIconScaleController
 - (void)viewDidLoad {
@@ -58,13 +61,17 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
     self.valueLabel=[UILabel new]; self.valueLabel.font=[UIFont monospacedDigitSystemFontOfSize:22 weight:UIFontWeightMedium]; self.valueLabel.textAlignment=NSTextAlignmentCenter;
     self.slider=[UISlider new]; self.slider.minimumValue=50; self.slider.maximumValue=150;
-    self.slider.value=WCCMainIconPercent(); self.slider.enabled=YES;
-    self.slider.accessibilityLabel=@"主图标大小";
+    self.slider.value=WCCMainIconPercentForMode(NO); self.slider.enabled=YES;
+    self.slider.accessibilityLabel=@"折叠主图标大小";
+    self.expandedLabel=[UILabel new];self.expandedLabel.textAlignment=NSTextAlignmentCenter;
+    self.expandedSlider=[UISlider new];self.expandedSlider.minimumValue=50;self.expandedSlider.maximumValue=150;self.expandedSlider.tag=1;
+    self.expandedSlider.value=WCCMainIconPercentForMode(YES);self.expandedSlider.accessibilityLabel=@"展开主图标大小";
+    [self.expandedSlider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
     [self.slider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
     UILabel *range=[UILabel new]; range.text=@"小 50%        默认 100%        大 150%"; range.font=[UIFont systemFontOfSize:12]; range.textAlignment=NSTextAlignmentCenter;
     UILabel *note=[UILabel new]; note.numberOfLines=0; note.font=[UIFont systemFontOfSize:13]; note.textColor=UIColor.secondaryLabelColor;
-    note.text=@"原系统天气主图、自定义 PNG/GIF/MP4 及失败回退原图共用大小与中心，关闭自定义图标仍可调节。作用于折叠主页面及展开头部，小时图标固定 30pt 不受影响。100% 为 1.1.8 原始大小；50–150%，每步 5%。边界处会限幅。八个区域位置偏移仅作用折叠页面，与本设置不同。";
-    UIStackView *stack=[[UIStackView alloc] initWithArrangedSubviews:@[self.valueLabel,self.slider,range,note]];
+    note.text=@"原系统天气主图、自定义 PNG/GIF/MP4 及失败回退原图共用大小与中心，关闭自定义图标仍可调节。折叠主页面与展开头部各自独立调节，一个滑块不会影响另一个。旧版大小作为两个滑块的初值。小时图标固定 30pt 不受影响。100% 为 1.1.8 原始大小；50–150%，每步 5%。边界处会限幅。八个区域位置偏移仅作用折叠页面，与本设置不同。";
+    UIStackView *stack=[[UIStackView alloc] initWithArrangedSubviews:@[self.valueLabel,self.slider,self.expandedLabel,self.expandedSlider,range,note]];
     stack.axis=UILayoutConstraintAxisVertical; stack.spacing=14; stack.translatesAutoresizingMaskIntoConstraints=NO; [self.view addSubview:stack];
     [NSLayoutConstraint activateConstraints:@[[stack.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:20],[stack.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-20],[stack.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:18]]];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(syncScale) name:WCCRegionPositionChanged object:nil];
@@ -72,14 +79,17 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
     [self showValue];
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
-- (void)syncScale { self.slider.value=WCCMainIconPercent(); [self showValue]; }
+- (void)syncScale { self.slider.value=WCCMainIconPercentForMode(NO); self.expandedSlider.value=WCCMainIconPercentForMode(YES); [self showValue]; }
 - (void)showValue {
-    self.valueLabel.text=[NSString stringWithFormat:@"设置 %.0f%%",self.slider.value];
+    self.expandedLabel.text=[NSString stringWithFormat:@"展开 %.0f%%",self.expandedSlider.value];
+    self.expandedSlider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",self.expandedSlider.value];
+    self.valueLabel.text=[NSString stringWithFormat:@"折叠 %.0f%%",self.slider.value];
     self.slider.accessibilityValue=[NSString stringWithFormat:@"%.0f%%",self.slider.value];
 }
 - (void)changed:(UISlider *)slider {
     slider.value=roundf(slider.value/5)*5;
-    WCCSetMainIconPercent(slider.value); [self showValue];
+    BOOL ok=WCCSetMainIconPercentForMode(slider.tag==1,slider.value); [self syncScale];
+    if(!ok){UIAlertController *a=WCCAlert(@"保存失败",@"已保留原设置，请重试。");[a addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];[self presentViewController:a animated:YES completion:nil];}
 }
 - (void)done { [self dismissViewControllerAnimated:YES completion:self.onDone]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
@@ -141,7 +151,17 @@ static void WCCShow(UIViewController *p, UIAlertController *a) {
 @implementation WCCSettings
 + (void)presentFrom:(UIViewController *)p completion:(void (^)(void))completion {
     UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。");
-    WCCAction(a, @"区域位置 / 配置方案", ^{ WCCAfterAlert(p, ^{
+    WCCAction(a, @"天气来源 / 彩云 / 连接状态", ^{ WCCAfterAlert(p, ^{
+        WCCWeatherSettings *page=[[WCCWeatherSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+        page.onDone=^{ [self presentFrom:p completion:completion]; };
+        UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
+        nav.modalPresentationStyle=UIModalPresentationPopover; nav.preferredContentSize=CGSizeMake(350,540);
+        UIPopoverPresentationController *pop=nav.popoverPresentationController;
+        pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
+        pop.permittedArrowDirections=0; pop.delegate=page;
+        if(p.view.window && !p.presentedViewController)[p presentViewController:nav animated:YES completion:nil];
+    }); });
+    WCCAction(a, @"位置 / 文字阴影 / 问候 / 方案", ^{ WCCAfterAlert(p, ^{
         WCCRegionSettings *page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
         page.onDone=^{ [self presentFrom:p completion:completion]; };
         UINavigationController *nav=[[UINavigationController alloc] initWithRootViewController:page];
