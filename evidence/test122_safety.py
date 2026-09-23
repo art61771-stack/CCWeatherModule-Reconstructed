@@ -10,8 +10,10 @@ for start,end in [('- (void)handleDoubleTap:', '- (void)handleTwoFingerDoubleTap
 for n in ['CYCaiyunProvider.h','CYCaiyunProvider.m','WCCWeatherSource.h','WCCWeatherSource.m']:assert (s/n).read_bytes()==(old/n).read_bytes(),n
 config=(s/'WCCConfigurations.m').read_text(); previous=(old/'WCCConfigurations.m').read_text()
 # Config schema evolves, but filesystem confinement and backup-before-commit stay.
-for start,end in [('static BOOL WCCSafeConfigurationDirectory','static NSDictionary *WCCValidatedConfiguration'),('BOOL WCCLoadConfiguration','BOOL WCCDeleteConfiguration')]:
+for start,end in [('static BOOL WCCSafeConfigurationDirectory','static BOOL WCCSafeConfigurationFile'),('static NSString *WCCConfigPath','static NSDictionary *WCCValidatedConfiguration'),('BOOL WCCLoadConfiguration','BOOL WCCDeleteConfiguration')]:
  assert method(config,start,end)==method(previous,start,end),start
+safe=method(config,'static BOOL WCCSafeConfigurationFile','static NSString *WCCConfigPath')
+for guard in ['WCCSafeConfigurationDirectory(error)','lstat(path.fileSystemRepresentation,&st)','!S_ISREG(st.st_mode)','st.st_size<1','!mustExist && errno==ENOENT']:assert guard in safe
 u=(s/'WCCSettings.m').read_text();f=(s/'WCCFloatingPanel.m').read_text()
 assert 'WCCPanelMenu' not in u
 assert 'addChildViewController' not in f and 'WCCPanelOverlay' not in f and 'WCCPanelStyleChanged' not in f

@@ -33,8 +33,8 @@ static BOOL WCCSafeConfigurationFile(NSString *path,BOOL mustExist,NSError **err
         if(!mustExist && errno==ENOENT)return YES;
         if(error)*error=WCCConfigError(@"无法访问配置文件。"); return NO;
     }
-    if(!S_ISREG(st.st_mode) || st.st_size>16384 || st.st_size<1) {
-        if(error)*error=WCCConfigError(@"配置须为1–16384字节普通文件，不允许符号链接。");return NO;
+    if(!S_ISREG(st.st_mode) || st.st_size<1) {
+        if(error)*error=WCCConfigError(@"配置须为非空普通文件，不允许符号链接。");return NO;
     }
     return YES;
 }
