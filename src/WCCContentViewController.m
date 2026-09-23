@@ -161,7 +161,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         [self refreshHourlyMedia];
     });
 }
-- (void)willBecomeActive {  [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData]; }
+- (void)applicationReturned {
+    if(WCCCurrentHostState().visible && self.isViewLoaded && self.view.window) {
+        self.mediaVisible=YES;[WCCWeatherSource.shared setAutomaticActive:YES];[self preferencesChanged];
+    }
+}
+- (void)willBecomeActive {  [self consumeHostSession]; self.mediaVisible=YES; [WCCWeatherSource.shared setAutomaticActive:YES]; [self preferencesChanged]; [self refreshWeatherData]; }
 - (void)consumeHostSession {
     WCCObserveHostForModule(self);
     WCCModuleSession session=self.moduleSession;
@@ -172,7 +177,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)hostVisibilityChanged:(NSNotification *)note {
     [self consumeHostSession];
     self.mediaVisible=WCCCurrentHostState().visible;
-    if(!self.mediaVisible) { [WCCFloatingPanel closeFor:self]; [WCCWeatherSource.shared cancel]; }
+    [WCCWeatherSource.shared setAutomaticActive:self.mediaVisible];
+    if(!self.mediaVisible) { [WCCSettings cancelFrom:self]; [WCCFloatingPanel closeFor:self]; [WCCWeatherSource.shared cancel]; }
     self.customMedia.active=self.mediaVisible && !self.presentedViewController;
     [self refreshHourlyMedia];
 }
@@ -214,16 +220,19 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     WCCVisibilityView *view=[WCCVisibilityView new]; __weak typeof(self) weak=self;
     view.visibilityChanged=^(BOOL visible) {
         typeof(self) self=weak; if (!self) return;
-        if (visible) { [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; }
-        else if (!self.presentedViewController) { [WCCFloatingPanel closeFor:self]; self.mediaVisible=NO; self.customMedia.active=NO; [self refreshHourlyMedia]; }
+        if (visible) { [self consumeHostSession]; self.mediaVisible=YES; [WCCWeatherSource.shared setAutomaticActive:YES]; [self preferencesChanged]; }
+        else if (!self.presentedViewController) { [WCCSettings cancelFrom:self]; [WCCFloatingPanel closeFor:self]; self.mediaVisible=NO; [WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active=NO; [self refreshHourlyMedia]; }
     }; self.view=view;
 }
 - (void)controlCenterWillPresent {
     // Module callback is NOT a whole-Control-Center presentation edge.
-    [self consumeHostSession]; self.mediaVisible=YES; [self preferencesChanged]; [self refreshWeatherData];
+    [self consumeHostSession]; self.mediaVisible=YES; [WCCWeatherSource.shared setAutomaticActive:YES]; [self preferencesChanged]; [self refreshWeatherData];
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(applicationReturned) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(willResignActive) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(willResignActive) name:UIApplicationProtectedDataWillBecomeUnavailable object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(hostVisibilityChanged:) name:WCCHostVisibilityChanged object:self];
     [self consumeHostSession];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(preferencesChanged) name:WCCPreferencesChanged object:nil];
@@ -268,7 +277,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     for (UIView *v in @[_iconView,_cityLabel,_conditionLabel,_precipLabel,_tempLabel,_highLowLabel]) v.translatesAutoresizingMaskIntoConstraints=YES;
     BOOL rightAligned = !_isExpanded && self.layoutSize.width!=3 && self.layoutSize.width>=2 && self.layoutSize.width<=4 && self.layoutSize.height==1;
     _cityLabel.textAlignment = _conditionLabel.textAlignment = _precipLabel.textAlignment = self.greetingLabel.textAlignment = rightAligned ? NSTextAlignmentRight : NSTextAlignmentLeft;
-    _headerView.clipsToBounds=YES;
+    _headerView.clipsToBounds=!(WCCTextShadowEnabled(3)||WCCTextGlowEnabled(3));
     _headerView.transform = CGAffineTransformIdentity;
     _headerView.frame = CGRectMake(0, 0, size.width, g.headerHeight);
     _iconView.transform = CGAffineTransformIdentity;
@@ -456,11 +465,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self updateCityLabel]; [self updateWeatherIcon]; [self cacheHourlyMediaPaths]; [self refreshHourlyMedia];
     self.customMedia.active = self.mediaVisible && !self.mediaSuspended && !self.presentedViewController;
 }
-- (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = YES; [self preferencesChanged]; }
-- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = WCCCurrentHostState().visible; [WCCWeatherSource.shared setAutomaticActive:self.mediaVisible]; [self preferencesChanged]; }
+- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; if(!self.presentedViewController || !WCCCurrentHostState().visible)[WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)viewDidDisappear:(BOOL)animated { [super viewDidDisappear:animated]; }
-- (void)controlCenterDidDismiss { [WCCFloatingPanel closeFor:self]; [WCCWeatherSource.shared cancel]; self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
-- (void)willResignActive { [WCCFloatingPanel closeFor:self]; if (!self.presentedViewController)  self.mediaVisible = NO; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)controlCenterDidDismiss { [WCCSettings cancelFrom:self]; [WCCFloatingPanel closeFor:self]; [WCCWeatherSource.shared cancel]; self.mediaVisible = NO; [WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active = NO; [self refreshHourlyMedia]; }
+- (void)willResignActive { [WCCSettings cancelFrom:self]; [WCCFloatingPanel closeFor:self]; self.mediaVisible = NO; [WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active = NO; [self refreshHourlyMedia]; }
 - (void)stopSystemWeather {
     @try {
         [_weatherModel removeObserver:self];
@@ -620,6 +629,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     } @catch (NSException *exception) { return nil; }
 }
 - (void)updateWeatherIcon {
+    [self applyTextShadows];
     NSString *key = WCCWeatherSource.shared.caiyun ? self.caiyunRender[@"condition"][@"basename"] : (_currentCity ? [self imageNameForConditionCode:[_currentCity conditionCode]] : nil);
     if(!key.length) key=nil;
     if (![self.mediaAssetKey isEqual:key]) {
@@ -633,6 +643,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)renderWeatherIcon {
     [self layoutMainCustomMedia];
     self.customMedia.hidden = ![WCCPrefs() boolForKey:@"customIcon"];
+    [self applyTextShadows];
     if (!self.customMedia.hidden && self.customMedia.hasMedia) { _iconView.image = nil; return; }
     if(WCCWeatherSource.shared.caiyun) { _iconView.image=[self caiyunImage:self.caiyunRender[@"condition"]]; return; }
     NSInteger code = [_currentCity conditionCode];
@@ -673,6 +684,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     }
 }
 - (void)refreshHourlyMedia {
+    [self applyTextShadows];
     if (self.hourlyRefreshing) return;
     self.hourlyRefreshing=YES;
     BOOL available=WCCHourlyLayoutReady(_isExpanded,self.mediaVisible,self.mediaSuspended,
@@ -712,6 +724,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self resetRegionTransforms];
     // Position preferences affect only the collapsed main page. Never discard them.
     if (_isExpanded) return;
+    BOOL right=self.layoutSize.width!=3 && self.layoutSize.width>=2 && self.layoutSize.width<=4 && self.layoutSize.height==1;
+    int align=WCCInformationAlignment(WCCRegionOffset(4),right?2:0);
+    // Change alignment BEFORE measuring ink; use absolute preference, not delta.
+    _cityLabel.textAlignment=_conditionLabel.textAlignment=_precipLabel.textAlignment=align==2?NSTextAlignmentRight:NSTextAlignmentLeft;
     NSInteger region=0;
     for (NSArray<UIView *> *group in [self positionRegions]) {
         // Icon uses the same unscaled slot but combines offset and scale once.
@@ -738,15 +754,21 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     }
 }
 - (void)applyTextShadows {
+    if(!self.isViewLoaded || !_iconView || !_tempLabel || !self.greetingLabel)return;
+    NSAssert(NSThread.isMainThread,@"UIKit main thread");
+    BOOL iconEffect=WCCTextShadowEnabled(3)||WCCTextGlowEnabled(3);
+    _headerView.clipsToBounds=_isExpanded?NO:!iconEffect;
+    WCCApplyMainIconEffects(_iconView,WCCTextShadowEnabled(3),WCCTextGlowEnabled(3),WCCTextEffectSettings(3),self.mediaVisible && !self.mediaSuspended && WCCCurrentHostState().visible,self.customMedia.videoRendering && !self.customMedia.hidden);
     // Main header labels only: never style hourly labels or the whole layer.
     NSArray<NSArray<UILabel *> *> *groups=@[@[_tempLabel,_highLowLabel],
         @[_cityLabel,_conditionLabel,_precipLabel],@[self.greetingLabel]];
     NSInteger index=0;
     for (NSArray<UILabel *> *group in groups) {
         BOOL enabled=WCCTextShadowEnabled(index);
-        BOOL glow=WCCTextGlowEnabled(index++);
+        BOOL glow=WCCTextGlowEnabled(index);
+        NSArray *settings=WCCTextEffectSettings(index++);
         for (UILabel *label in group) {
-            WCCApplyTextEffects(label,enabled,glow);
+            WCCApplyConfiguredTextEffects(label,enabled,glow,settings,self.mediaVisible && !self.mediaSuspended && WCCCurrentHostState().visible);
         }
     }
 }
@@ -770,8 +792,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     CGRect slot=_isExpanded?_iconView.frame:self.collapsedIconSlot;
     if(CGRectIsEmpty(slot))return;
     if(!_isExpanded)_iconView.frame=slot;
-    WCCRect target=WCCMainIconTarget(WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
-        _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,
+    WCCRect target=WCCMainIconTargetForLayout(WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
+        _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,(int)self.layoutSize.width,(int)self.layoutSize.height,
         WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(_isExpanded));
     CGFloat sx=slot.size.width>0?target.w/slot.size.width:1;
     CGFloat sy=slot.size.height>0?target.h/slot.size.height:1;

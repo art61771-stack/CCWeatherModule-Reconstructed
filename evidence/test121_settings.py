@@ -29,7 +29,7 @@ check('WCCCustomGreetingText()' in bind and 'containsObject:self.selectedCustomG
 check('drawGreeting' not in bind and 'arc4random' not in bind and 'WCCGreetingPrefix' in bind)
 local=controller.split('- (void)regionPositionChanged {')[1].split('- (void)mainIconScaleChanged')[0]
 check('[self bindGreetingText]' in local and 'drawGreeting' not in local and 'refreshWeather' not in local)
-check('@"version":@3' in config)
+check('@"version":@4' in config)
 check('WCCNormalizePresentationValues(object[@"values"]' in config)
 check(config.index('if(!WCCWriteConfiguration(WCCBackupID')<config.index('if (!WCCCommitSliderValues(values))'))
 check('NSDataWritingAtomic' in config and 'NSUUID.UUID.UUIDString' in config)

@@ -55,6 +55,7 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
         [self addSubview:_image];
     } return self;
 }
+- (BOOL)videoRendering { return _layer!=nil && self.hasMedia; }
 - (BOOL)hasMedia { return _image.image != nil || (_layer.readyForDisplay && _player.status != AVPlayerStatusFailed && _looper.status != AVPlayerLooperStatusFailed); }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)self) {

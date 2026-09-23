@@ -19,7 +19,7 @@ int main(void){@autoreleasepool{
  for(int i=0;i<160;i++)assert(WCCSaveGreetingEntry(nil,[[NSString stringWithFormat:@"%d ",i] stringByPaddingToLength:180 withString:@"长句" startingAtIndex:0]));
  assert(WCCGreetingEntries().count==162);
  assert(WCCSetRandomGreetingEnabled(YES));for(int i=0;i<3;i++)assert(WCCSetTextGlowEnabled(i,YES));
- NSDictionary *snapshot=WCCCurrentSliderValues();assert(snapshot.count==20);
+ NSDictionary *snapshot=WCCCurrentSliderValues();assert(snapshot.count==26);
  assert(WCCSaveConfiguration(@"完整列表",nil,&error));NSString *identifier=WCCConfigurations(&error)[0][@"id"];
  assert(WCCSetTextGlowEnabled(1,NO));assert(WCCSetRandomGreetingEnabled(NO));assert(WCCDeleteGreetingEntry(WCCGreetingEntries()[0][@"id"]));
  NSDictionary *before=WCCCurrentSliderValues();assert(WCCLoadConfiguration(identifier,&error));assert([snapshot isEqual:WCCCurrentSliderValues()]);

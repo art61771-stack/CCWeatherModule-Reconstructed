@@ -11,6 +11,8 @@ FOUNDATION_EXPORT NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *snapshot, NS
 @property(nonatomic,strong,readonly) CYSnapshot *snapshot;
 @property(nonatomic,copy,readonly) NSString *status;
 @property(nonatomic,readonly) BOOL stale;
+- (void)setAutomaticActive:(BOOL)active;
+- (BOOL)setRefreshHours:(NSInteger)hours;
 - (BOOL)hasToken;
 - (BOOL)applyCaiyun:(BOOL)enabled longitude:(NSNumber *)longitude latitude:(NSNumber *)latitude alias:(NSString *)alias token:(NSString *)token;
 - (BOOL)deleteToken;

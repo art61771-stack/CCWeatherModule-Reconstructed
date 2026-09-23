@@ -18,11 +18,11 @@ assert 'textRectForBounds:label.bounds' in method('applyRegionPositions')
 assert 'if(!_isExpanded)_iconView.frame=slot' in method('layoutMainCustomMedia')
 assert 'self.collapsedIconSlot=WCCCGRect(g.icon)' in c
 assert 'WCCGreetingEntries().count+1' in ui and 'WCCSaveGreetingEntry(entry[@"id"]' in ui and 'WCCDeleteGreetingEntry(rows[index.row-1][@"id"])' in ui
-assert 'WCCApplyTextEffects(label,enabled,glow)' in c and 'WCCTextGlowEnabled(index++)' in c
-for f in ['CYCaiyunProvider.m','CYCaiyunProvider.h','WCCWeatherSource.m','WCCWeatherSource.h']:
- assert (s/f).read_bytes()==(p/'evidence/fixtures122'/f).read_bytes()
+assert 'WCCApplyConfiguredTextEffects(label,enabled,glow,settings,' in c and 'WCCTextGlowEnabled(index)' in c
+import source124_contract
+source124_contract.verify(p)
 info=plistlib.loads((p/'Resources/Info.plist').read_bytes())
-assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.3'
-assert 'Version: 1.2.3' in (p/'control').read_text()
-assert 'CCWeatherModule-1.2.3-rootless' in (p/'.github/workflows/build.yml').read_text()
-print('PASS123 static production wiring: event-gated RNG, pure binding/layout/effects, independent CRUD, three glow groups, provider/source byte identity, version consistency. UIKit/device NOT RUN.')
+assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.4'
+assert 'Version: 1.2.4' in (p/'control').read_text()
+assert 'CCWeatherModule-1.2.4-rootless' in (p/'.github/workflows/build.yml').read_text()
+print('PASS123 static production wiring: event-gated RNG, pure binding/layout/effects, independent CRUD, three glow groups, provider TTL-only and source transaction contract, version consistency. UIKit/device NOT RUN.')

@@ -49,3 +49,6 @@ FOUNDATION_EXPORT BOOL WCCRandomGreetingEnabled(void);
 FOUNDATION_EXPORT BOOL WCCSetRandomGreetingEnabled(BOOL enabled);
 FOUNDATION_EXPORT BOOL WCCTextGlowEnabled(NSInteger group);
 FOUNDATION_EXPORT BOOL WCCSetTextGlowEnabled(NSInteger group, BOOL enabled);
+
+FOUNDATION_EXPORT NSArray *WCCTextEffectSettings(NSInteger group);
+FOUNDATION_EXPORT BOOL WCCSetTextEffectSettings(NSInteger group,NSArray *settings);

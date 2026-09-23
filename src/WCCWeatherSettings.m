@@ -32,18 +32,26 @@
 - (void)changed { [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(2,2)] withRowAnimation:UITableViewRowAnimationNone]; }
 - (void)done { self.fields[0].text=@""; void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 4; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 5; }
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==0?1:section==1?4:section==2?4:1; }
-- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"来源（保存后生效）",@"彩云配置",@"操作（只使用已保存配置）",@"公开连接状态"][section]; }
+- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"来源（保存后生效）",@"彩云配置",@"操作（只使用已保存配置）",@"公开连接状态",@"自动刷新（立即保存）"][section]; }
 - (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section {
+    if(section==4)return [WCCPrefs() objectForKey:@"caiyunRefreshHours124"]?@"仅前台可用时调度；后台不保证定时联网，过期下次前台补刷。":@"当前：兼容旧默认15分钟（尚未选择）。选择后按所选周期缓存及自动刷新；后台过期下次前台补刷。";
     if(section==1)return @"经度在前、纬度在后，0,0 有效。未保存输入不请求网络。Token 仅存本机 Keychain，取消不会保存；别名为空显示“彩云地点”。不读取设备位置。";
-    if(section==2)return @"保存/应用不发请求。测试连接与刷新均访问彩云综合接口并受60秒间隔和退避保护；可能计费。未启用彩云不读取Token、不发彩云请求。缓存15分钟，失败保留同配置旧数据。";
+    if(section==2)return @"保存/应用不发请求。测试连接与刷新均访问彩云综合接口并受60秒间隔和退避保护；可能计费。未启用彩云不读取Token、不发彩云请求。缓存默认15分钟或已选周期，失败保留同配置旧数据。";
     return nil;
 }
 - (CGFloat)tableView:(UITableView *)table heightForRowAtIndexPath:(NSIndexPath *)index { return index.section==3?120:50; }
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    if(index.section==0 || index.section==1) {
+    if(index.section==4) {
+        UISegmentedControl *period=[[UISegmentedControl alloc] initWithItems:@[@"1小时",@"12小时",@"24小时"]];
+        NSInteger hours=[WCCPrefs() integerForKey:@"caiyunRefreshHours124"];
+        period.selectedSegmentIndex=hours==1?0:hours==12?1:hours==24?2:UISegmentedControlNoSegment;
+        [period addTarget:self action:@selector(periodChanged:) forControlEvents:UIControlEventValueChanged];
+        period.frame=CGRectMake(14,5,MAX(180,table.bounds.size.width-28),40);period.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+        [cell.contentView addSubview:period];
+    } else if(index.section==0 || index.section==1) {
         UIView *v=index.section==0?self.source:self.fields[index.row];
         v.frame=CGRectMake(14,5,MAX(180,table.bounds.size.width-28),40); v.autoresizingMask=UIViewAutoresizingFlexibleWidth;
         [cell.contentView addSubview:v]; cell.selectionStyle=UITableViewCellSelectionStyleNone;
@@ -72,6 +80,13 @@
         [a addAction:[UIAlertAction actionWithTitle:@"删除" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){self.fields[0].text=@"";[s deleteToken];}]];
         [self presentViewController:a animated:YES completion:nil];
     } else [s refreshManual:YES];
+}
+- (void)periodChanged:(UISegmentedControl *)sender {
+    if(![WCCWeatherSource.shared setRefreshHours:[@[@1,@12,@24][sender.selectedSegmentIndex] integerValue]]) {
+        UIAlertController *a=[UIAlertController alertControllerWithTitle:@"保存失败" message:@"保留原刷新周期，请重试。" preferredStyle:UIAlertControllerStyleAlert];
+        [a addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];[self presentViewController:a animated:YES completion:nil];
+    }
+    [self.tableView reloadData];
 }
 - (void)clearSensitiveInput { for(UITextField *field in self.fields)field.text=@""; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated];self.fields[0].text=@""; }

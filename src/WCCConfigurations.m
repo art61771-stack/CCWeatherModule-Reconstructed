@@ -43,7 +43,7 @@ static NSString *WCCConfigPath(NSString *identifier) {
     return [WCCConfigurationDirectory() stringByAppendingPathComponent:[identifier stringByAppendingPathExtension:@"json"]];
 }
 static NSDictionary *WCCValidatedConfiguration(id object,NSError **error) {
-    if (![object isKindOfClass:NSDictionary.class] || ![object[@"schema"] isEqual:@"CCWeatherSliderConfiguration"] || ![object[@"version"] isKindOfClass:NSNumber.class] || ([object[@"version"] doubleValue]!=1 && [object[@"version"] doubleValue]!=2 && [object[@"version"] doubleValue]!=3) || ![object[@"values"] isKindOfClass:NSDictionary.class] || ![object[@"name"] isKindOfClass:NSString.class] || ![object[@"modified"] isKindOfClass:NSNumber.class] || !isfinite([object[@"modified"] doubleValue])) {
+    if (![object isKindOfClass:NSDictionary.class] || ![object[@"schema"] isEqual:@"CCWeatherSliderConfiguration"] || ![object[@"version"] isKindOfClass:NSNumber.class] || ([object[@"version"] doubleValue]!=1 && [object[@"version"] doubleValue]!=2 && [object[@"version"] doubleValue]!=3 && [object[@"version"] doubleValue]!=4) || ![object[@"values"] isKindOfClass:NSDictionary.class] || ![object[@"name"] isKindOfClass:NSString.class] || ![object[@"modified"] isKindOfClass:NSNumber.class] || !isfinite([object[@"modified"] doubleValue])) {
         if(error)*error=WCCConfigError(@"方案格式或版本不受支持，当前设置未更改。"); return nil;
     }
     if (CFGetTypeID((__bridge CFTypeRef)object[@"version"])==CFBooleanGetTypeID() || CFGetTypeID((__bridge CFTypeRef)object[@"modified"])==CFBooleanGetTypeID()) { if(error)*error=WCCConfigError(@"版本和时间须为数值，不接受布尔值。"); return nil; }
@@ -81,6 +81,8 @@ NSDictionary *WCCCurrentSliderValues(void) {
     values[@"greetingEntries122"]=WCCGreetingEntries();values[@"randomGreeting122"]=@(WCCRandomGreetingEnabled());
     NSArray *glowKeys=@[@"temperatureGlow122",@"informationGlow122",@"greetingGlow122"];
     for(NSInteger i=0;i<3;i++)values[glowKeys[i]]=@(WCCTextGlowEnabled(i));
+    for(NSInteger i=0;i<4;i++)values[[NSString stringWithFormat:@"textEffect124_%ld",(long)i]]=WCCTextEffectSettings(i);
+    values[@"mainIconShadow124"]=@(WCCTextShadowEnabled(3));values[@"mainIconGlow124"]=@(WCCTextGlowEnabled(3));
     return values;
 }
 NSArray<NSDictionary *> *WCCConfigurations(NSError **error) {
@@ -98,7 +100,7 @@ NSArray<NSDictionary *> *WCCConfigurations(NSError **error) {
 }
 static BOOL WCCWriteConfiguration(NSString *identifier,NSString *name,NSDictionary *values,NSError **error) {
     NSString *path=WCCConfigPath(identifier); if(!path)return NO;
-    NSDictionary *document=@{@"schema":@"CCWeatherSliderConfiguration",@"version":@3,@"name":name,@"modified":@(NSDate.date.timeIntervalSince1970),@"values":values};
+    NSDictionary *document=@{@"schema":@"CCWeatherSliderConfiguration",@"version":@4,@"name":name,@"modified":@(NSDate.date.timeIntervalSince1970),@"values":values};
     if(!WCCValidatedConfiguration(document,error) || !WCCSafeConfigurationDirectory(error))return NO;
     if(![NSFileManager.defaultManager createDirectoryAtPath:WCCConfigurationDirectory() withIntermediateDirectories:YES attributes:nil error:error])return NO;
     if(!WCCSafeConfigurationFile(path,NO,error))return NO;

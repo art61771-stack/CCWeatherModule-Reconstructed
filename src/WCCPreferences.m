@@ -49,11 +49,13 @@ BOOL WCCSetMainIconPercentForMode(BOOL expanded,double value) {
 }
 BOOL WCCSetMainIconPercent(double value) { return WCCSetMainIconPercentForMode(NO,value); }
 BOOL WCCTextShadowEnabled(NSInteger group) {
+    if(group==3)return [WCCPrefs() boolForKey:@"mainIconShadow124"];
     if(group<0 || group>2)return NO;
     id v=[WCCPrefs() objectForKey:WCCShadowKeys()[group]];
     return [v isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)v)==CFBooleanGetTypeID() && [v boolValue];
 }
 BOOL WCCSetTextShadowEnabled(NSInteger group,BOOL enabled) {
+    if(group==3){BOOL ok=WCCCommitPartial(@{@"mainIconShadow124":@(enabled)});if(ok)WCCNotify(WCCRegionPositionChanged);return ok;}
     if(group<0 || group>2)return NO;
     BOOL ok=WCCCommitPartial(@{WCCShadowKeys()[group]:@(enabled)});if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
 }
@@ -121,16 +123,37 @@ BOOL WCCSetRandomGreetingEnabled(BOOL enabled) {
     if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
 }
 static NSArray *WCCGlowKeys(void) { return @[@"temperatureGlow122",@"informationGlow122",@"greetingGlow122"]; }
-BOOL WCCTextGlowEnabled(NSInteger group) { return group>=0 && group<3 && [WCCPrefs() boolForKey:WCCGlowKeys()[group]]; }
+BOOL WCCTextGlowEnabled(NSInteger group) { if(group==3)return [WCCPrefs() boolForKey:@"mainIconGlow124"]; return group>=0 && group<3 && [WCCPrefs() boolForKey:WCCGlowKeys()[group]]; }
 BOOL WCCSetTextGlowEnabled(NSInteger group,BOOL enabled) {
+    if(group==3){BOOL ok=WCCCommitPartial(@{@"mainIconGlow124":@(enabled)});if(ok)WCCNotify(WCCRegionPositionChanged);return ok;}
     if(group<0 || group>2)return NO;
     BOOL ok=WCCCommitPartial(@{WCCGlowKeys()[group]:@(enabled)});
     if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
 }
+// [RGBA array (empty = original automatic color), breathing flag, speed -1..1, density -1..1]
+static NSString *WCCEffectKey(NSInteger group) { return [NSString stringWithFormat:@"textEffect124_%ld",(long)group]; }
+static BOOL WCCValidEffect(id v) {
+    if(![v isKindOfClass:NSArray.class] || ([v count]!=3 && [v count]!=4))return NO;
+    id color=v[0],on=v[1],speed=v[2];
+    if([v count]==4 && (!WCCNumber(v[3]) || !isfinite([v[3] doubleValue]) || fabs([v[3] doubleValue])>1))return NO;
+    if(![color isKindOfClass:NSArray.class] || ([color count]!=0 && [color count]!=4))return NO;
+    for(id n in color)if(!WCCNumber(n) || !isfinite([n doubleValue]) || [n doubleValue]<0 || [n doubleValue]>1)return NO;
+    return [on isKindOfClass:NSNumber.class] && CFGetTypeID((__bridge CFTypeRef)on)==CFBooleanGetTypeID() && WCCNumber(speed) && isfinite([speed doubleValue]) && fabs([speed doubleValue])<=1;
+}
+NSArray *WCCTextEffectSettings(NSInteger group) {
+    id v=group>=0 && group<4?[WCCPrefs() objectForKey:WCCEffectKey(group)]:nil;
+    return WCCValidEffect(v)?([v count]==3?[v arrayByAddingObject:@0]:v):@[@[],@NO,@0,@0];
+}
+BOOL WCCSetTextEffectSettings(NSInteger group,NSArray *settings) {
+    if(group<0 || group>3 || !WCCValidEffect(settings))return NO;
+    BOOL ok=WCCCommitPartial(@{WCCEffectKey(group):settings.count==3?[settings arrayByAddingObject:@0]:settings});
+    if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
+}
 NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger version) {
-    if(![input isKindOfClass:NSDictionary.class] || (version!=1 && version!=2 && version!=3))return nil;
+    if(![input isKindOfClass:NSDictionary.class] || (version!=1 && version!=2 && version!=3 && version!=4))return nil;
     NSArray *keys=version==1?[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"]:[[[WCCRegionPositionKeys() arrayByAddingObjectsFromArray:WCCScaleKeys()] arrayByAddingObjectsFromArray:WCCShadowKeys()] arrayByAddingObjectsFromArray:@[@"customGreetingEnabled",@"customGreetingText"]];
-    if(version==3)keys=[[keys arrayByAddingObjectsFromArray:WCCGlowKeys()] arrayByAddingObjectsFromArray:@[@"randomGreeting122",@"greetingEntries122"]];
+    if(version>=3)keys=[[keys arrayByAddingObjectsFromArray:WCCGlowKeys()] arrayByAddingObjectsFromArray:@[@"randomGreeting122",@"greetingEntries122"]];
+    if(version==4)keys=[keys arrayByAddingObjectsFromArray:@[WCCEffectKey(0),WCCEffectKey(1),WCCEffectKey(2),WCCEffectKey(3),@"mainIconShadow124",@"mainIconGlow124"]];
     for(id key in input)if(![keys containsObject:key])return nil;
     NSMutableDictionary *out=[NSMutableDictionary dictionary];
     for(NSInteger i=0;i<8;i++) {
@@ -148,7 +171,7 @@ NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger versi
     }
     id text=input[@"customGreetingText"]?:@"";
     if(![text isKindOfClass:NSString.class] || [text length]>80 || [text rangeOfCharacterFromSet:NSCharacterSet.controlCharacterSet].location!=NSNotFound)return nil;
-    if(version==3) {
+    if(version>=3) {
         for(NSString *key in [WCCGlowKeys() arrayByAddingObject:@"randomGreeting122"]) {
             id v=input[key]?:@NO;
             if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;
@@ -166,6 +189,8 @@ NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger versi
         out[@"greetingEntries122"]=rows;
     }
     if([out[@"customGreetingEnabled"] boolValue] && ![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length && (version<3 || [text length]>0))return nil;
+    if(version==4)for(NSInteger i=0;i<4;i++){id v=input[WCCEffectKey(i)]?:@[@[],@NO,@0,@0];if(!WCCValidEffect(v))return nil;out[WCCEffectKey(i)]=[v count]==3?[v arrayByAddingObject:@0]:v;}
+    if(version==4)for(NSString *key in @[@"mainIconShadow124",@"mainIconGlow124"]){id v=input[key]?:@NO;if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;out[key]=v;}
     // v1/v2 intentionally leave new preferences untouched; v3 snapshots all.
     out[@"customGreetingText"]=text;return out;
 }
@@ -182,7 +207,7 @@ NSUserDefaults *WCCPrefs(void) {
 }
 BOOL WCCCommitSliderValues(NSDictionary *values) {
     if(![values isKindOfClass:NSDictionary.class])return NO;
-    NSDictionary *normalized=WCCNormalizePresentationValues(values,values[@"mainCustomIconPercent"]?1:(values[@"greetingEntries122"] || values[@"randomGreeting122"] || values[@"temperatureGlow122"] || values[@"informationGlow122"] || values[@"greetingGlow122"]?3:2));
+    NSDictionary *normalized=WCCNormalizePresentationValues(values,values[@"mainIconShadow124"] || values[@"mainIconGlow124"] || values[@"textEffect124_3"] || values[@"textEffect124_0"] || values[@"textEffect124_1"] || values[@"textEffect124_2"]?4:values[@"mainCustomIconPercent"]?1:(values[@"greetingEntries122"] || values[@"randomGreeting122"] || values[@"temperatureGlow122"] || values[@"informationGlow122"] || values[@"greetingGlow122"]?3:2));
     return normalized && WCCCommitPartial(normalized);
 }
 static BOOL WCCCommitPartial(NSDictionary *values) {

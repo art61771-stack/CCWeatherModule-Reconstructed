@@ -4,6 +4,9 @@
 #import "WCCConfigurations.h"
 #include <math.h>
 #import "WCCRuntime.h"
+@interface WCCRegionSettings () <UIColorPickerViewControllerDelegate>
+@property(nonatomic) NSInteger colorGroup;
+@end
 @implementation WCCRegionSettings
 - (void)viewDidLoad {
     [super viewDidLoad]; self.title=@"布局与文字"; self.tableView.rowHeight=UITableViewAutomaticDimension;self.tableView.estimatedRowHeight=100;
@@ -24,12 +27,14 @@
     [a addAction:[UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){ dispatch_async(dispatch_get_main_queue(),work); }]];
     [self presentViewController:a animated:YES completion:nil];
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 9; }
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==8?WCCGreetingEntries().count+1:section==6?3:3; }
-- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"温度（含高低温）",@"主天气图标",@"地区 · 天气 · 降水",@"问候语",@"配置方案",@"文字阴影",@"自定义问候",@"文字发光",@"问候语列表（每条独立保存）"][section]; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 13; }
+- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==12?7:section>=9?5:section==8?WCCGreetingEntries().count+1:section==6?3:3; }
+- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"温度（含高低温）",@"主天气图标",@"地区 · 天气 · 降水",@"问候语",@"配置方案",@"文字阴影",@"自定义问候",@"文字发光",@"问候语列表（每条独立保存）",@"温度阴影 / 发光颜色与动态",@"地区阴影 / 发光颜色与动态",@"问候阴影 / 发光颜色与动态",@"主图阴影 / 发光（独立第四组）"][section]; }
 - (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section {
+    if(section==12)return @"仅主图；阴影/发光默认关闭。系统图、PNG/GIF按合成透明度投影；MP4仅矩形容器光晕，不识别视频主体。呼吸中心标准3秒，左慢右快。颜色浓淡左淡右深：左端0%，中点新标准60%，右端100%；阴影/发光一致，与拾色器透明度相乘。模块外缘仍可能被系统容器裁剪，动态轮廓未真机验证。";
+    if(section>=9)return @"自定义颜色同时作用该组阴影/发光。呼吸默认关闭；速度中心标准3秒，左慢6秒，右快1.5秒。颜色浓淡独立于速度，左淡右深：左端0%，中点新标准60%，右端100%。阴影/发光一致，新中点比旧1.2.3效果略淡。拾色器透明度与浓淡相乘，不改原内容透明度。仅可见控制中心运行；关闭效果后不动画。";
     if(section==0)return @"八个位置仅作用折叠五种尺寸；展开保持原布局。水平 −1366…+1366 pt 可到左右边缘，垂直 −40…+40 pt。当前值为请求位移，边界处限幅；用 −1/+1 精调或点击数值输入。";
-    if(section==4)return @"v3方案保存八个位置、两种主图大小、三组阴影/发光、自定义问候及完整列表和随机开关。不含天气来源、定位、token、映射或模块尺寸。读取前备份成功才提交；旧版方案大小迁移到两模式，缺少阴影和自定义问候明确恢复关闭/空文本。";
+    if(section==4)return @"v4方案保存颜色、呼吸开关及速度，另含八个位置、两种主图大小、三组阴影/发光、自定义问候及完整列表和随机开关。不含天气来源、定位、token、映射或模块尺寸。读取前备份成功才提交；旧版方案大小迁移到两模式，缺少阴影和自定义问候明确恢复关闭/空文本。";
     if(section==5)return @"三组独立，默认关闭；折叠与展开同组生效，不改变小时文字。";
     if(section==6)return @"旧固定句保留（最多80字符）。启用自定义后：随机关闭固定显示旧句，无旧句显示列表首句；随机开启仅在下拉控制中心或展开/收回时切换。位置、阴影与布局不抽句。";
     if(section==7)return @"三组独立默认关闭，仅主页面文字；同组发光开启时替代普通阴影，关闭后恢复阴影或原始样式。边缘光晕可能被容器裁剪；未真机验证。";
@@ -38,7 +43,14 @@
 }
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-    if(index.section==8) {
+    if(index.section>=9) {
+        NSInteger group=index.section-9;NSArray *v=WCCTextEffectSettings(group);
+        cell.textLabel.text=@[@"自定义颜色…",@"恢复自动颜色",@"明暗呼吸",@"左慢 · 标准 · 右快",@"颜色浓淡 · 中点标准",@"主图阴影",@"主图发光"][index.row];
+        if(index.row>=5) { UISwitch *on=[UISwitch new];on.tag=index.row;on.on=index.row==5?WCCTextShadowEnabled(3):WCCTextGlowEnabled(3);[on addTarget:self action:@selector(iconEffect:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=on; }
+        if(index.row==2) { UISwitch *on=[UISwitch new];on.tag=group;on.on=[v[1] boolValue];[on addTarget:self action:@selector(breathe:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=on; }
+        if(index.row==4) { UISlider *density=[UISlider new];density.minimumValue=-1;density.maximumValue=1;density.value=[v[3] doubleValue];density.tag=group;density.continuous=NO;density.frame=CGRectMake(0,0,140,40);density.accessibilityLabel=@"颜色浓淡，左淡，中点标准，右深";[density addTarget:self action:@selector(density:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=density; }
+        if(index.row==3) { UISlider *speed=[UISlider new];speed.minimumValue=-1;speed.maximumValue=1;speed.value=[v[2] doubleValue];speed.tag=group;speed.continuous=NO;speed.frame=CGRectMake(0,0,140,40);speed.accessibilityLabel=@"呼吸速度，中心标准，左慢右快";[speed addTarget:self action:@selector(speed:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=speed; }
+    } else if(index.section==8) {
         cell.textLabel.text=index.row==0?@"＋ 新增一句":WCCGreetingEntries()[index.row-1][@"text"];
         cell.textLabel.numberOfLines=0;cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
     } else if(index.section==7 || (index.section==6 && index.row==2)) {
@@ -72,6 +84,15 @@
         cell.selectionStyle=UITableViewCellSelectionStyleNone;
     } else { cell.textLabel.text=index.section<4?@"重置本区域":@[@"命名保存 / 新建方案",@"读取 / 覆盖 / 删除方案",@"重置全部位置"][index.row]; cell.textLabel.font=[UIFont systemFontOfSize:15]; cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; }
     return cell;
+}
+- (void)iconEffect:(UISwitch *)sender { BOOL ok=sender.tag==5?WCCSetTextShadowEnabled(3,sender.on):WCCSetTextGlowEnabled(3,sender.on);if(!ok)[self failed]; }
+- (void)density:(UISlider *)sender { NSMutableArray *v=[WCCTextEffectSettings(sender.tag) mutableCopy];v[3]=@(sender.value);if(!WCCSetTextEffectSettings(sender.tag,v))[self failed]; }
+- (void)breathe:(UISwitch *)sender { NSMutableArray *v=[WCCTextEffectSettings(sender.tag) mutableCopy];v[1]=@(sender.on);if(!WCCSetTextEffectSettings(sender.tag,v))[self failed]; }
+- (void)speed:(UISlider *)sender { NSMutableArray *v=[WCCTextEffectSettings(sender.tag) mutableCopy];v[2]=@(sender.value);if(!WCCSetTextEffectSettings(sender.tag,v))[self failed]; }
+- (void)colorPickerViewControllerDidSelectColor:(UIColorPickerViewController *)picker {
+    CGFloat r,g,b,a;if(![picker.selectedColor getRed:&r green:&g blue:&b alpha:&a])return;
+    NSMutableArray *v=[WCCTextEffectSettings(self.colorGroup) mutableCopy];v[0]=@[@(r),@(g),@(b),@(a)];
+    if(!WCCSetTextEffectSettings(self.colorGroup,v))[self failed];
 }
 - (void)changed:(UISlider *)slider {
     double value=round(slider.value); // Avoid replacing the actively tracking slider during notification.
@@ -161,6 +182,15 @@
 }
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)index {
     [table deselectRowAtIndexPath:index animated:YES];
+    if(index.section>=9 && index.row<2) {
+        self.colorGroup=index.section-9;NSMutableArray *v=[WCCTextEffectSettings(self.colorGroup) mutableCopy];
+        if(index.row==1) { v[0]=@[];if(!WCCSetTextEffectSettings(self.colorGroup,v))[self failed]; }
+        else if(@available(iOS 14.0,*)) {
+            UIColorPickerViewController *picker=[UIColorPickerViewController new];picker.delegate=self;picker.supportsAlpha=YES;
+            NSArray *c=v[0];picker.selectedColor=c.count==4?[UIColor colorWithRed:[c[0] doubleValue] green:[c[1] doubleValue] blue:[c[2] doubleValue] alpha:[c[3] doubleValue]]:UIColor.whiteColor;
+            [self presentViewController:picker animated:YES completion:nil];
+        }
+    }
     if(index.section<4 && index.row==2) [self confirm:@"重置本区域位置？" work:^{[self resetRegion:index.section];}];
     if(index.section==6 && index.row==1)[self editGreeting];
     if(index.section==8) { NSArray *rows=WCCGreetingEntries(); if(index.row==0)[self editEntry:nil]; else if(index.row<=rows.count)[self editEntry:rows[index.row-1]]; }

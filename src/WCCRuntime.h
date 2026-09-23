@@ -223,6 +223,21 @@ static inline WCCRect WCCMainIconTarget(WCCRect baseline,double width,double hei
     target.y=fmax(0,fmin(height-target.h,target.y));
     return target;
 }
+/* 4x1 alone uses a vertically centered neutral target AFTER scaling. The old
+ * 8pt slot became negative at large scales and final clamp pinned Y to zero.
+ * Preserve the existing scale cap (>=8pt travel each side at saturation). */
+static inline WCCRect WCCMainIconTargetForLayout(WCCRect baseline,double width,double height,
+        int expanded,int columns,int rows,double x,double y,double percent) {
+    if(expanded || columns!=4 || rows!=1)
+        return WCCMainIconTarget(baseline,width,height,expanded,x,y,percent);
+    WCCRect target=WCCMainIconTarget(baseline,width,height,0,x,0,percent);
+    target.y=(height-target.h)/2;
+    target.y+=WCCRegionAxis(target.y,target.h,height,y);
+    return target;
+}
+static inline int WCCInformationAlignment(double preference,int defaultAlignment) {
+    return preference<0?0:preference>0?2:defaultAlignment;
+}
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.
  * Prefer the bottom rail, then the widest unoccupied horizontal segment. */

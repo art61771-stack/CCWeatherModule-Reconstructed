@@ -1,27 +1,46 @@
 #import "WCCSettings.h"
 #import "WCCFloatingPanel.h"
 #import "WCCRuntime.h"
+#import "WCCRoutePolicy.h"
 #import "WCCPreferences.h"
 #import "WCCGallery.h"
 #import "WCCRegionSettings.h"
 #import "WCCWeatherSettings.h"
 #import <objc/message.h>
+#import <objc/runtime.h>
 #include <math.h>
 
+// One owner-local session. Late UIKit completions cannot resurrect a closed CC.
+@interface WCCSettingsSession : NSObject
+@property(nonatomic) BOOL ended;
+@property(nonatomic,weak) UIViewController *root;
+@property(nonatomic,copy) void (^finish)(void);
+@end
+@implementation WCCSettingsSession @end
+static char WCCSettingsSessionKey;
+static WCCSettingsSession *WCCSession(UIViewController *p) { return objc_getAssociatedObject(p,&WCCSettingsSessionKey); }
+static void (^WCCReturn(UIViewController *p,void (^work)(void)))(void) {
+    WCCSettingsSession *session=WCCSession(p);
+    return [^{ if(WCCRouteCanReturn(session!=nil,session.ended,WCCSession(p)==session,p.view.window!=nil)) work(); } copy];
+}
 static void WCCSave(void) {
     [WCCPrefs() synchronize];
     [NSNotificationCenter.defaultCenter postNotificationName:WCCPreferencesChanged object:nil];
 }
 // Wait for the current alert to dismiss before presenting a child alert.
 static void WCCAfterAlert(UIViewController *p, void (^next)(void)) {
+    WCCSettingsSession *session=WCCSession(p);
     dispatch_async(dispatch_get_main_queue(), ^{
+        if(!session || session.ended || WCCSession(p)!=session)return;
+        void (^guarded)(void)=WCCReturn(p,next);
         UIViewController *current = p.presentedViewController;
+        if(current && current!=session.root)return;
         if (current.isBeingDismissed && current.transitionCoordinator) {
-            BOOL queued = [current.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) { if (next) next(); }];
+            BOOL queued = [current.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) { if (guarded) guarded(); }];
             if (queued) return;
         }
-        if (current) [p dismissViewControllerAnimated:YES completion:next];
-        else if (next) next();
+        if (current) [p dismissViewControllerAnimated:YES completion:guarded];
+        else if (guarded) guarded();
     });
 }
 static UIAlertController *WCCAlert(NSString *title, NSString *message) {
@@ -40,9 +59,16 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
         dispatch_async(dispatch_get_main_queue(), ^{ WCCShow(p, a, rejected); });
         return;
     }
-    if (!p || !p.isViewLoaded || !p.view.window || p.presentedViewController || p.isBeingPresented || p.isBeingDismissed || p.transitionCoordinator) {
+    if (!p || !WCCRouteCanEnter(p.isViewLoaded,p.view.window!=nil,p.presentedViewController!=nil,p.isBeingPresented,p.isBeingDismissed,p.transitionCoordinator!=nil)) {
         if(rejected) rejected(); return;
     }
+    WCCSettingsSession *session=WCCSession(p);
+    if(session.ended) { if(rejected)rejected();return; }
+    if(!session) {
+        session=[WCCSettingsSession new];session.finish=WCCOnce(rejected);
+        objc_setAssociatedObject(p,&WCCSettingsSessionKey,session,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    session.root=a;
     [p presentViewController:a animated:YES completion:nil];
     if (p.presentedViewController != a && rejected) rejected();
 }
@@ -166,17 +192,38 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
 @end
 
 @implementation WCCSettings
++ (void)cancelFrom:(UIViewController *)p {
+    NSAssert(NSThread.isMainThread,@"UIKit main thread");
+    WCCSettingsSession *session=WCCSession(p); if(!session || session.ended)return;
+    session.ended=YES;
+    UIViewController *root=session.root;
+    void (^finish)(void)=session.finish; session.finish=nil;
+    // Never dismiss another owner's controller. Keep stale transition ownership
+    // until UIKit completes; a new tap naturally retries after the transition.
+    if(root && p.presentedViewController==root) {
+        void (^dismiss)(void)=^{ if(WCCRouteOwnsDismiss(root!=nil,p.presentedViewController==root,root.isBeingDismissed))[root dismissViewControllerAnimated:NO completion:nil]; };
+        if(root.isBeingPresented && root.transitionCoordinator) {
+            if(![root.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> c){dismiss();}])dismiss();
+        } else if(!root.isBeingDismissed) dismiss();
+    }
+    if(finish)finish();
+}
 + (void)presentFrom:(UIViewController *)p completion:(void (^)(void))completion {
     if (![NSThread isMainThread]) {
         dispatch_async(dispatch_get_main_queue(), ^{ [self presentFrom:p completion:completion]; });
         return;
     }
     if (!p || !p.isViewLoaded || !p.view.window || p.presentedViewController || p.isBeingDismissed || p.isBeingPresented) { if (completion) completion(); return; }
-    completion=WCCOnce(completion);
+    WCCSettingsSession *session=WCCSession(p);
+    if(!session || session.ended) {
+        session=[WCCSettingsSession new];session.finish=WCCOnce(completion);
+        objc_setAssociatedObject(p,&WCCSettingsSessionKey,session,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    completion=WCCOnce(^{ if(session.ended)return;session.ended=YES;void (^done)(void)=session.finish;session.finish=nil;if(done)done(); });
     UIAlertController *a = WCCAlert(@"天气 · 设置", @"单指双击切换附近/城市；双指同时双击打开设置。122安全候选：取消拖动。透明按钮保留于固定调参面板底栏；本标准菜单不透明。");
     WCCAction(a, @"天气来源 / 彩云 / 连接状态", ^{ WCCAfterAlert(p, ^{
         WCCWeatherSettings *page=[[WCCWeatherSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
-        page.onDone=^{ [self presentFrom:p completion:completion]; };
+        page.onDone=WCCReturn(p,^{ [self presentFrom:p completion:completion]; });
         UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];
         nav.modalPresentationStyle=UIModalPresentationCustom; nav.preferredContentSize=CGSizeMake(350,540);
         UIPopoverPresentationController *pop=nav.popoverPresentationController;
@@ -186,7 +233,7 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
     }); });
     WCCAction(a, @"位置 / 文字阴影 / 问候 / 方案", ^{ WCCAfterAlert(p, ^{
         WCCRegionSettings *page=[[WCCRegionSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
-        page.onDone=^{ [self presentFrom:p completion:completion]; };
+        page.onDone=WCCReturn(p,^{ [self presentFrom:p completion:completion]; });
         UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];
         nav.modalPresentationStyle=UIModalPresentationCustom; nav.preferredContentSize=CGSizeMake(340,480);
         UIPopoverPresentationController *pop=nav.popoverPresentationController;
@@ -238,6 +285,12 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
     [self back:a from:p completion:completion]; WCCShow(p, a, completion);
 }
 + (void)editLandmarkFrom:(UIViewController *)p completion:(void (^)(void))completion {
+    WCCSettingsSession *session=WCCSession(p);
+    if(!session || session.ended) {
+        session=[WCCSettingsSession new];session.finish=WCCOnce(completion);
+        objc_setAssociatedObject(p,&WCCSettingsSessionKey,session,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        completion=WCCOnce(^{ if(session.ended)return;session.ended=YES;void (^done)(void)=session.finish;session.finish=nil;if(done)done(); });
+    }
     UIAlertController *a = WCCAlert(@"自定义地标", @"留空恢复附近地标，最多80字。");
     [a addTextFieldWithConfigurationHandler:^(UITextField *field) { field.text = [WCCPrefs() stringForKey:@"landmark"]; field.placeholder = @"例如：我的家"; }];
     WCCAction(a, @"保存", ^{
@@ -256,7 +309,7 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
     });
     WCCAction(a, @"主图标大小", ^{ WCCAfterAlert(p, ^{
         WCCIconScaleController *page=[WCCIconScaleController new];
-        page.onDone=^{ [self iconsFrom:p completion:completion]; };
+        page.onDone=WCCReturn(p,^{ [self iconsFrom:p completion:completion]; });
         UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];
         nav.modalPresentationStyle=UIModalPresentationCustom; nav.preferredContentSize=CGSizeMake(320,330);
         UIPopoverPresentationController *pop=nav.popoverPresentationController;
@@ -270,7 +323,7 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
             [self pathFailure:WCCRoot() reason:error.localizedDescription from:p completion:completion]; return;
         }
         WCCWeatherMappings *gallery = [[WCCWeatherMappings alloc] initWithStyle:UITableViewStylePlain];
-        gallery.onDone = ^{ [self iconsFrom:p completion:completion]; };
+        gallery.onDone=WCCReturn(p,^{ [self iconsFrom:p completion:completion]; });
         UINavigationController *nav = [[WCCNativeSettingsNavigation alloc] initWithRootViewController:gallery];
         nav.modalPresentationStyle = UIModalPresentationCustom;
         nav.preferredContentSize = CGSizeMake(320, 420);
@@ -303,9 +356,10 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
     // Runtime guard avoids binding the bundle to a private SDK declaration.
     SEL springOpen = NSSelectorFromString(@"openURL:withCompletionHandler:");
     __block BOOL finished = NO;
+    WCCSettingsSession *session=WCCSession(p);
     void (^finish)(BOOL) = ^(BOOL ok) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (finished) return; finished = YES;
+            if (finished || session.ended || WCCSession(p)!=session) return; finished = YES;
             if (ok) { if (completion) completion(); }
             else [self pathFailure:path reason:@"系统未确认 Filza 已打开（可能未安装或 URL 路由不支持）。" from:p completion:completion];
         });

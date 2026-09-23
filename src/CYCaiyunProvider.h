@@ -64,8 +64,9 @@ typedef dispatch_block_t _Nonnull (^CYTransport)(NSURLRequest *, CYWireReply);
 // Invalid input invalidates old configuration and leaves provider unconfigured.
 - (BOOL)setLongitude:(nullable NSNumber *)longitude latitude:(nullable NSNumber *)latitude error:(NSError * _Nullable * _Nullable)error;
 - (CYResult *)currentResult;
-// Nonmanual respects 15min TTL; manual bypasses TTL, not 60s throttle/backoff.
-// Concurrent callers join one request; call only on demand, never via a polling timer.
+@property(nonatomic) NSTimeInterval cacheTTL;
+// Nonmanual respects cacheTTL (unset/invalid = 15min); manual bypasses TTL, not 60s throttle/backoff.
+// Concurrent callers join one request; automatic callers use a single deadline, never polling.
 - (void)refreshManual:(BOOL)manual completion:(void (^)(CYResult *))completion;
 - (void)cancel; // cancels all waiters with CYCancelled; preserves same-config cache
 - (void)clearCache; // cancels requests and increments config generation, keeps throttle

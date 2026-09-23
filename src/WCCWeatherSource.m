@@ -2,6 +2,7 @@
 #import "CYCaiyunProvider.h"
 #import "WCCPreferences.h"
 #include <math.h>
+#import "WCCRefreshPolicy.h"
 NSString * const WCCWeatherSourceChanged=@"WCCWeatherSourceChanged";
 NSNumber *WCCParseCoordinate(NSString *text, BOOL longitude) {
     if (![text isKindOfClass:NSString.class]) return nil;
@@ -31,6 +32,8 @@ NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale
 }
 @interface WCCWeatherSource ()
 @property(nonatomic,strong) CYCaiyunProvider *provider;
+@property(nonatomic,strong) NSTimer *refreshTimer;
+@property(nonatomic) BOOL automaticActive;
 @property(nonatomic) NSUInteger generation;
 @property(nonatomic) NSUInteger requestEpoch;
 @property(nonatomic,copy) NSString *status;
@@ -45,11 +48,37 @@ NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale
         if (self.caiyun) [_provider setLongitude:[WCCPrefs() objectForKey:@"caiyunLongitude"] latitude:[WCCPrefs() objectForKey:@"caiyunLatitude"] error:nil];
     } return self;
 }
+- (NSTimeInterval)refreshTTL { return WCCRefreshTTL((int)[WCCPrefs() integerForKey:@"caiyunRefreshHours124"]); }
+- (void)stopTimer { [self.refreshTimer invalidate];self.refreshTimer=nil; }
+- (void)setAutomaticActive:(BOOL)active {
+    NSAssert(NSThread.isMainThread,@"main thread only");
+    if(!active){_automaticActive=NO;[self cancel];return;}
+    if(self.automaticActive)return;
+    _automaticActive=YES;[self refreshManual:NO];
+}
+- (BOOL)setRefreshHours:(NSInteger)hours {
+    if(hours!=1 && hours!=12 && hours!=24)return NO;
+    id old=[WCCPrefs() objectForKey:@"caiyunRefreshHours124"];
+    [WCCPrefs() setInteger:hours forKey:@"caiyunRefreshHours124"];
+    if(![WCCPrefs() synchronize]) { if(old)[WCCPrefs() setObject:old forKey:@"caiyunRefreshHours124"];else [WCCPrefs() removeObjectForKey:@"caiyunRefreshHours124"];[WCCPrefs() synchronize];return NO; }
+    self.provider.cacheTTL=self.refreshTTL;
+    [self stopTimer];if(self.automaticActive)[self refreshManual:NO];return YES;
+}
+- (void)scheduleResult:(CYResult *)r {
+    [self stopTimer];if(!self.automaticActive || !self.caiyun)return;
+    double age=r.snapshot ? -[r.snapshot.timestamp timeIntervalSinceNow] : INFINITY;
+    double retry=r.nextAllowedRefresh ? [r.nextAllowedRefresh timeIntervalSinceNow] : 0;
+    // Failed/no-credential results retry at TTL, never once per second.
+    if(!r || r.error)retry=fmax(retry,self.refreshTTL);
+    double delay=WCCRefreshDelay(age,self.refreshTTL,retry);
+    __weak typeof(self) weak=self;
+    self.refreshTimer=[NSTimer scheduledTimerWithTimeInterval:delay repeats:NO block:^(NSTimer *timer){ [weak refreshManual:NO]; }];
+}
 - (BOOL)caiyun { return [[WCCPrefs() stringForKey:@"weatherProvider"] isEqual:@"caiyun"]; }
 - (void)notify { [NSNotificationCenter.defaultCenter postNotificationName:WCCWeatherSourceChanged object:self]; }
 - (BOOL)hasToken { NSError *e=nil; BOOL yes=[self.provider hasToken:&e]; if(e)self.status=@"Keychain 无法访问；不会使用明文存储"; return yes; }
 - (void)invalidate {
-    ++self.generation; [self.provider clearCache]; self.snapshot=nil; self.stale=NO;
+    [self stopTimer]; ++self.generation; [self.provider clearCache]; self.snapshot=nil; self.stale=NO;
 }
 - (BOOL)applyCaiyun:(BOOL)enabled longitude:(NSNumber *)lon latitude:(NSNumber *)lat alias:(NSString *)alias token:(NSString *)token {
     NSAssert(NSThread.isMainThread,@"main thread only");
@@ -79,17 +108,18 @@ NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale
     }
     [self.provider setLongitude:enabled?lon:nil latitude:enabled?lat:nil error:nil];
     self.status=enabled?@"已应用，等待刷新（未请求）":@"系统天气";
-    [self notify]; return YES;
+    [self notify]; [self scheduleResult:nil]; return YES;
 }
 - (BOOL)deleteToken {
     [self invalidate]; NSError *e=nil; BOOL ok=[self.provider deleteToken:&e];
     self.status=ok?@"Token 已删除，彩云未就绪":@"删除失败：Keychain 无法访问"; [self notify]; return ok;
 }
 - (void)cancel {
-    ++self.requestEpoch; [self.provider cancel];
+    [self stopTimer]; ++self.requestEpoch; [self.provider cancel];
     if(self.caiyun) { self.status=@"已暂停请求（保留同配置缓存）"; [self notify]; }
 }
 - (void)refreshManual:(BOOL)manual {
+    [self stopTimer];self.provider.cacheTTL=self.refreshTTL;
     if(!self.caiyun) { self.status=@"系统天气：彩云未请求"; [self notify]; return; }
     NSUInteger generation=self.generation, epoch=self.requestEpoch;
     self.status=@"正在检查 / 请求彩云…"; [self notify];
@@ -109,7 +139,7 @@ NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale
             NSDateFormatter *f=[NSDateFormatter new]; f.dateFormat=@"HH:mm:ss";
             self.status=[self.status stringByAppendingFormat:@"\n最早下次请求 %@",[f stringFromDate:r.nextAllowedRefresh]];
         }
-        [self notify];
+        [self notify];[self scheduleResult:r];
     }];
 }
 @end

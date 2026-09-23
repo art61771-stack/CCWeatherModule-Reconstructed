@@ -295,7 +295,7 @@ static NSTimeInterval RetryAfter(NSDictionary *headers,NSDate *now) {
 - (CYResult *)resultWithError:(NSError *)error {
     CYResult *r=[CYResult new]; r.snapshot=self.cache; r.error=error; r.configGeneration=self.generation; r.nextAllowedRefresh=self.nextAllowed;
     NSTimeInterval age=self.cache?[self.clock() timeIntervalSinceDate:self.cache.timestamp]:0;
-    r.stale=self.cache && (error!=nil || age<0 || age>=900); return r;
+    r.stale=self.cache && (error!=nil || age<0 || age>=(self.cacheTTL>0?self.cacheTTL:900)); return r;
 }
 - (void)deliver:(NSArray *)waiters result:(CYResult *)result {
     __weak typeof(self) weakSelf=self; NSUInteger serial=self.requestSerial;
@@ -350,7 +350,7 @@ static NSTimeInterval RetryAfter(NSDictionary *headers,NSDate *now) {
     else { NSError *keyError=nil; token=[self.store readToken:&keyError]; if(keyError)error=CYError(CYKeychainFailure); else if(!token.length)error=CYError(CYNotConfigured); else if(![CYCaiyunProvider validateToken:token])error=CYError(CYInvalidInput); }
     if(error) { self.lastError=error; [self deliver:@[[completion copy]] result:[self resultWithError:error]]; return; }
     NSDate *now=self.clock(); NSTimeInterval age=self.cache?[now timeIntervalSinceDate:self.cache.timestamp]:INFINITY;
-    if(!manual && self.cache && age>=0 && age<900 && !self.lastError) { [self deliver:@[[completion copy]] result:[self resultWithError:nil]]; return; }
+    if(!manual && self.cache && age>=0 && age<(self.cacheTTL>0?self.cacheTTL:900) && !self.lastError) { [self deliver:@[[completion copy]] result:[self resultWithError:nil]]; return; }
     if(self.blocked) { [self deliver:@[[completion copy]] result:[self resultWithError:self.lastError]]; return; }
     if((self.lastAttempt && [now timeIntervalSinceDate:self.lastAttempt]<60) || (self.nextAllowed && [now compare:self.nextAllowed]==NSOrderedAscending)) {
         [self deliver:@[[completion copy]] result:[self resultWithError:self.lastError?:CYError(CYThrottled)]]; return;

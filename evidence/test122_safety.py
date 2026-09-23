@@ -7,7 +7,8 @@ def method(text,start,end):return text.split(start,1)[1].split(end,1)[0]
 c=(s/'WCCContentViewController.m').read_text();o=(old/'WCCContentViewController.m').read_text()
 for start,end in [('- (void)handleDoubleTap:', '- (void)handleTwoFingerDoubleTap:'),('UITapGestureRecognizer *tap =','[self.view addGestureRecognizer:settingsTap];')]:
  assert method(c,start,end)==method(o,start,end),start
-for n in ['CYCaiyunProvider.h','CYCaiyunProvider.m','WCCWeatherSource.h','WCCWeatherSource.m']:assert (s/n).read_bytes()==(old/n).read_bytes(),n
+import source124_contract
+source124_contract.verify(p)
 config=(s/'WCCConfigurations.m').read_text(); previous=(old/'WCCConfigurations.m').read_text()
 # Config schema evolves, but filesystem confinement and backup-before-commit stay.
 for start,end in [('static BOOL WCCSafeConfigurationDirectory','static BOOL WCCSafeConfigurationFile'),('static NSString *WCCConfigPath','static NSDictionary *WCCValidatedConfiguration'),('BOOL WCCLoadConfiguration','BOOL WCCDeleteConfiguration')]:
@@ -28,19 +29,21 @@ assert u.count('[[WCCNativeSettingsNavigation alloc] initWithRootViewController:
 assert u.count('WCCShow(p, nav, completion);')==4
 assert 'WCCShow(p, a);' not in u
 assert 'p.transitionCoordinator' in u and 'if (p.presentedViewController != a && rejected) rejected();' in u
-assert 'completion=WCCOnce(completion);' in u
+assert 'session.finish=WCCOnce(completion);' in u and 'completion=WCCOnce(^{ if(session.ended)return;' in u
 for n in ['WCCSettings.m','WCCRegionSettings.m','WCCWeatherSettings.m']:
  t=(s/n).read_text();assert 'popViewControllerAnimated' not in t
  assert 'self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done];' in t
  assert 'popoverPresentationControllerShouldDismissPopover:' in t
 assert 'WCCCollapsedSliderPercent(self.slider.value)' in u
 assert 'self.expandedSlider.minimumValue=50;self.expandedSlider.maximumValue=150' in u
-info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']=='1.2.3' and info['CFBundleShortVersionString']=='1.2.3'
-assert 'Version: 1.2.3' in (p/'control').read_text()
+info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']=='1.2.4' and info['CFBundleShortVersionString']=='1.2.4'
+assert 'Version: 1.2.4' in (p/'control').read_text()
 helpers=u[u.index('static void (^WCCOnce'):u.index('@interface WCCSettingsGallery')]
 entry='- (void)handleTwoFingerDoubleTap:'+method(c,'- (void)handleTwoFingerDoubleTap:','- (void)showCustomNameAlert')
 done='- (void)done {'+method(u,'- (void)done {','- (UIModalPresentationStyle)')
 stub=(p/'evidence/route122-stub.inc').read_text().replace('// INSERT_HELPERS',helpers).replace('// INSERT_ENTRY',entry).replace('// INSERT_DONE',done)
 import sys
-if '--generate' in sys.argv:(p/'evidence/route122-generated.m').write_text(stub)
-print('PASS122 static: native routing/rejection, no floating construction/menu/notifications, modal once-done, 122 byte-identical gesture/provider/source and config confinement/rollback; 123 metadata. NOT UIKit runtime.')
+if '--generate' in sys.argv:
+ import subprocess
+ subprocess.run([sys.executable,str(p/'evidence/generate-route124.py')],check=True)
+print('PASS122 static: native routing/rejection, no floating construction/menu/notifications, modal once-done, 122 byte-identical gestures, 124 provider TTL-only/source guards and config confinement/rollback; 124 metadata. NOT UIKit runtime.')
