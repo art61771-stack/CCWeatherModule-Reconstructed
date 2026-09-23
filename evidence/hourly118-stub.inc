@@ -131,5 +131,7 @@ static void drain(void){NSArray*a=[pending copy];[pending removeAllObjects];for(
 -(UIImage *)caiyunImage:(NSDictionary *)condition;
 @end
 @implementation Harness
+// Effect rendering is exercised by effects124; this harness isolates hourly media.
+-(void)applyTextShadows {}
 -(NSString*)temperatureString:(id)t{return @"26°";}
 -(NSString*)systemSymbolForConditionCode:(NSInteger)c{return @"cloud.fill";}
