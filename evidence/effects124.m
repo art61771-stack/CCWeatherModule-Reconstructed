@@ -9,7 +9,7 @@ int main(void){@autoreleasepool{
   UIView *v=views[g];v.bounds=CGRectMake(0,0,32,32);v.layer.shadowOpacity=.17;v.layer.shadowRadius=2;v.layer.masksToBounds=YES;
   CABasicAnimation *other=[CABasicAnimation animationWithKeyPath:@"opacity"];other.duration=999;[v.layer addAnimation:other forKey:@"unrelated"];
   for(int mode=0;mode<2;mode++)for(int breath=0;breath<2;breath++)for(int speed=-1;speed<=1;speed++)for(int d=-10;d<=10;d++){
-   double density=d/10.;NSArray *settings=@[@[@.2,@.4,@.6,@.8],@(breath!=0),@(speed),@(density)];
+   double density=d/10.;NSArray *settings=@[@[@.2,@.4,@.6,@.8],@( (BOOL)(breath!=0) ),@(speed),@(density)];
    assert(WCCSetTextEffectSettings(g,settings));
    for(int j=0;j<4;j++)if(j!=g)assert(((UIView *)views[j]).layer.shadowOpacity==0 || fabs(((UIView *)views[j]).layer.shadowOpacity-.17)<.00001);
    if(g==3)WCCApplyMainIconEffects(v,!mode,mode,settings,YES,YES);else WCCApplyConfiguredTextEffects((UILabel *)v,!mode,mode,settings,YES);
