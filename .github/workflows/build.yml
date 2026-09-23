@@ -8,6 +8,8 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install dependencies
         run: brew install ldid dpkg
       - name: Setup Theos and private SDK
