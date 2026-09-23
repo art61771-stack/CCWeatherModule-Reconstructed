@@ -204,17 +204,20 @@ static inline WCCRect WCCMainIconTarget(WCCRect baseline,double width,double hei
     // horizontal translation against the COMPLETE scaled rectangle, so 50%
     // and 150% both reach the exact header edges without clipping or resizing.
     double scale=WCCNormalizeIconPercentForMode(expanded,percent)/100.;
-    // Only the container boundary limits size; text clearance never caps 250%.
+    // A full-height collapsed icon has ZERO possible Y travel, whatever the
+    // slider asks. Reserve 8pt per side (scaled with header height) at saturation.
+    // Default 100% geometry is unchanged; expanded keeps its original limit.
+    double maximumHeight=expanded?height:fmax(0,height-16*fmin(1,height/76.));
     if(baseline.w>0 && baseline.h>0)
-        scale=fmin(scale,fmin(width/baseline.w,height/baseline.h));
+        scale=fmin(scale,fmin(width/baseline.w,maximumHeight/baseline.h));
     WCCRect local=WCCR((baseline.w-baseline.w*scale)/2,(baseline.h-baseline.h*scale)/2,
                        baseline.w*scale,baseline.h*scale);
     WCCRect target=WCCR(baseline.x+local.x,baseline.y+local.y,local.w,local.h);
     if (!expanded) {
         target.x+=WCCRegionHorizontalAxis(target.x,target.w,width,x);
-        // Preserve the existing vertical +/-40 preference and baseline clamp.
-        double dy=WCCRegionAxis(baseline.y,baseline.h,height,y);
-        target.y+=fmax(fmin(0,-target.y),fmin(fmax(0,height-target.y-target.h),dy));
+        // One clamp against the scaled visible slot, exactly like X. Do not
+        // pre-clamp using the unscaled baseline (which steals vertical travel).
+        target.y+=WCCRegionAxis(target.y,target.h,height,y);
     }
     target.x=fmax(0,fmin(width-target.w,target.x));
     target.y=fmax(0,fmin(height-target.h,target.y));
@@ -242,6 +245,19 @@ static inline WCCRect WCCExpandedGreeting(double width,const WCCRect *occupied,i
         if (best.w>=width-32) break;
     }
     return best;
+}
+/* Choose only at an event boundary; callers deduplicate by text first. */
+static inline size_t WCCPickCustomGreeting(size_t count,size_t previous,uint32_t randomValue) {
+    if(!count)return SIZE_MAX;
+    if(count==1)return 0;
+    if(previous<count) { size_t n=randomValue%(count-1);return n>=previous?n+1:n; }
+    return randomValue%count;
+}
+/* Visible text advance inside an aligned single-line rail, not the empty rail.
+ * UIKit supplies the actual textRect width with final font/fitting/truncation. */
+static inline WCCRect WCCAlignedTextBounds(WCCRect rail,double measured,int alignment) {
+    double w=fmin(rail.w,fmax(0,measured));
+    return WCCR(rail.x+(alignment==2?rail.w-w:alignment==1?(rail.w-w)/2:0),rail.y,w,rail.h);
 }
 /* Hours are supplied by NSCalendar using the device's current time zone. */
 static inline int WCCGreetingPeriod(int hour) {

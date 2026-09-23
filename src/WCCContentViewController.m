@@ -56,7 +56,8 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) WCCModuleSession moduleSession;
 @property(nonatomic,strong) NSArray *originalExpandedConstraints;
 @property(nonatomic) WCCGreetingState greetingState;
-@property(nonatomic) BOOL customGreetingWasEnabled;
+@property(nonatomic,copy) NSString *selectedCustomGreeting;
+@property(nonatomic) CGRect collapsedIconSlot;
 @property(nonatomic) WCCLayoutSize layoutSize;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
@@ -176,7 +177,14 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self refreshHourlyMedia];
 }
 - (void)drawGreeting {
-    if(WCCCustomGreetingEnabled()){[self bindGreetingText];return;}
+    if(WCCCustomGreetingEnabled()) {
+        NSArray<NSString *> *texts=WCCGreetingCandidates();
+        if(WCCRandomGreetingEnabled() && texts.count) {
+            NSUInteger previous=self.selectedCustomGreeting?[texts indexOfObject:self.selectedCustomGreeting]:NSNotFound;
+            self.selectedCustomGreeting=texts[WCCPickCustomGreeting(texts.count,previous,arc4random())];
+        }
+        [self bindGreetingText];return;
+    }
     NSCalendar *calendar = [NSCalendar currentCalendar];
     calendar.timeZone = NSTimeZone.localTimeZone;
     NSInteger hour = [calendar component:NSCalendarUnitHour fromDate:NSDate.date];
@@ -186,13 +194,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)bindGreetingText {
     if(WCCCustomGreetingEnabled()) {
-        self.customGreetingWasEnabled=YES;
-        self.greetingLabel.text=WCCCustomGreetingText();
+        NSArray<NSString *> *texts=WCCGreetingCandidates();
+        // Binding is pure: never consumes RNG, including edit/delete/toggle/layout.
+        NSString *fixed=WCCCustomGreetingText().length?WCCCustomGreetingText():(texts.firstObject ?: @"你好，愿你今天顺心");
+        self.greetingLabel.text=WCCRandomGreetingEnabled() ?
+            ((self.selectedCustomGreeting && [texts containsObject:self.selectedCustomGreeting]) ? self.selectedCustomGreeting : (texts.firstObject ?: fixed)) : fixed;
         self.greetingLabel.hidden=NO;self.greetingLabel.alpha=1;return;
-    }
-    if(self.customGreetingWasEnabled) {
-        self.customGreetingWasEnabled=NO;
-        [self drawGreeting];return;
     }
     int index=self.greetingState.index;
     // Always bind, including a session that began before UILabel creation.
@@ -262,7 +269,8 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _headerView.transform = CGAffineTransformIdentity;
     _headerView.frame = CGRectMake(0, 0, size.width, g.headerHeight);
     _iconView.transform = CGAffineTransformIdentity;
-    _iconView.frame = WCCCGRect(g.icon);
+    self.collapsedIconSlot=WCCCGRect(g.icon);
+    _iconView.frame = self.collapsedIconSlot;
     self.customMedia.transform = CGAffineTransformIdentity;
     self.customMedia.frame = _iconView.bounds;
     _cityLabel.frame = WCCCGRect(g.city); _tempLabel.frame = WCCCGRect(g.temperature);
@@ -706,8 +714,18 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         // Icon uses the same unscaled slot but combines offset and scale once.
         if (region==1) { region++; continue; }
         CGRect baseline=CGRectNull;
-        for (UIView *view in group) if (!view.hidden && !CGRectIsEmpty(view.frame))
-            baseline=CGRectIsNull(baseline)?view.frame:CGRectUnion(baseline,view.frame);
+        for (UIView *view in group) if (!view.hidden && !CGRectIsEmpty(view.frame)) {
+            CGRect visible=view.frame;
+            if([view isKindOfClass:UILabel.class]) {
+                UILabel *label=(UILabel *)view;
+                if(!label.text.length && !label.attributedText.length)continue;
+                CGRect text=[label textRectForBounds:label.bounds limitedToNumberOfLines:label.numberOfLines];
+                int alignment=label.textAlignment==NSTextAlignmentRight?2:label.textAlignment==NSTextAlignmentCenter?1:0;
+                WCCRect ink=WCCAlignedTextBounds(WCCR(visible.origin.x,visible.origin.y,visible.size.width,visible.size.height),text.size.width,alignment);
+                visible=WCCCGRect(ink);
+            }
+            baseline=CGRectIsNull(baseline)?visible:CGRectUnion(baseline,visible);
+        }
         if (!CGRectIsNull(baseline)) {
             WCCRect delta=WCCRegionTranslation(WCCR(baseline.origin.x,baseline.origin.y,baseline.size.width,baseline.size.height),
                 _headerView.bounds.size.width,_headerView.bounds.size.height,WCCRegionOffset(region*2),WCCRegionOffset(region*2+1));
@@ -722,9 +740,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         @[_cityLabel,_conditionLabel,_precipLabel],@[self.greetingLabel]];
     NSInteger index=0;
     for (NSArray<UILabel *> *group in groups) {
-        BOOL enabled=WCCTextShadowEnabled(index++);
+        BOOL enabled=WCCTextShadowEnabled(index);
+        BOOL glow=WCCTextGlowEnabled(index++);
         for (UILabel *label in group) {
-            WCCApplyTextShadow(label,enabled);
+            WCCApplyTextEffects(label,enabled,glow);
         }
     }
 }
@@ -745,7 +764,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     // Never read a scaled frame as baseline, or resize an Auto Layout slot.
     // Identity recovers the original 118 center/bounds in both display modes.
     _iconView.transform=CGAffineTransformIdentity;
-    CGRect slot=_iconView.frame;
+    CGRect slot=_isExpanded?_iconView.frame:self.collapsedIconSlot;
+    if(CGRectIsEmpty(slot))return;
+    if(!_isExpanded)_iconView.frame=slot;
     WCCRect target=WCCMainIconTarget(WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
         _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,
         WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(_isExpanded));

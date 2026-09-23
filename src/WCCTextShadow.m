@@ -13,7 +13,9 @@
 @end
 @implementation WCCTextShadowState @end
 static char WCCTextShadowKey;
-void WCCApplyTextShadow(UILabel *label, BOOL enabled) {
+void WCCApplyTextShadow(UILabel *label, BOOL enabled) { WCCApplyTextEffects(label,enabled,NO); }
+void WCCApplyTextEffects(UILabel *label, BOOL shadow, BOOL glow) {
+    BOOL enabled=shadow || glow;
     if(!label)return;
     CALayer *layer=label.layer;
     WCCTextShadowState *state=objc_getAssociatedObject(label,&WCCTextShadowKey);
@@ -37,6 +39,12 @@ void WCCApplyTextShadow(UILabel *label, BOOL enabled) {
         layer.masksToBounds=NO;layer.shadowPath=NULL;
         layer.shadowColor=contrast.CGColor;layer.shadowOffset=CGSizeMake(0,1);
         layer.shadowRadius=1.25;layer.shadowOpacity=.9;
+        if(glow) {
+            // A real glyph-alpha halo, not a title-only option. Glow takes
+            // precedence when both are on; shadow returns when glow is off.
+            layer.shadowColor=text.CGColor;layer.shadowOffset=CGSizeZero;
+            layer.shadowRadius=6;layer.shadowOpacity=1;
+        }
     } else {
         label.shadowColor=state.labelColor;label.shadowOffset=state.labelOffset;
         layer.shadowColor=state.layerColor.CGColor;layer.shadowOffset=state.layerOffset;

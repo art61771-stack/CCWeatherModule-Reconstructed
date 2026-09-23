@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.2 rootless
+name: CCWeatherModule 1.2.3 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -34,6 +34,11 @@ jobs:
           done
           cc -Wall -Wextra -Werror evidence/runtime121.c -lm -o /tmp/runtime121
           /tmp/runtime121 | tee verification/runtime121.txt
+          python3 evidence/test123.py | tee verification/static123.txt
+          cc -std=gnu11 -Wall -Wextra -Werror evidence/redo122.c -lm -o /tmp/redo123
+          /tmp/redo123 | tee verification/geometry123.txt
+          clang -fobjc-arc -fblocks -DWCC_TESTING=1 -framework Foundation -framework CoreFoundation src/WCCPreferences.m src/WCCConfigurations.m evidence/configurations123.m -o /tmp/configurations123
+          /tmp/configurations123 | tee verification/configurations123.txt
           make package FINALPACKAGE=1 2>&1 | tee build.log
           mkdir -p verification
           cc -Wall -Wextra -Werror evidence/runtime115.c -lm -o /tmp/runtime115
@@ -73,7 +78,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.2-rootless
+          name: CCWeatherModule-1.2.3-rootless
           path: |
             packages/*.deb
             verification/*

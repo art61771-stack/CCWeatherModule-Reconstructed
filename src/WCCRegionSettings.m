@@ -24,23 +24,34 @@
     [a addAction:[UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){ dispatch_async(dispatch_get_main_queue(),work); }]];
     [self presentViewController:a animated:YES completion:nil];
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 7; }
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==6?2:3; }
-- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"温度（含高低温）",@"主天气图标",@"地区 · 天气 · 降水",@"问候语",@"配置方案",@"文字阴影",@"自定义问候"][section]; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 9; }
+- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==8?WCCGreetingEntries().count+1:section==6?3:3; }
+- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"温度（含高低温）",@"主天气图标",@"地区 · 天气 · 降水",@"问候语",@"配置方案",@"文字阴影",@"自定义问候",@"文字发光",@"问候语列表（每条独立保存）"][section]; }
 - (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section {
     if(section==0)return @"八个位置仅作用折叠五种尺寸；展开保持原布局。水平 −1366…+1366 pt 可到左右边缘，垂直 −40…+40 pt。当前值为请求位移，边界处限幅；用 −1/+1 精调或点击数值输入。";
-    if(section==4)return @"v2方案保存八个位置、折叠/展开两个主图大小、三组阴影及自定义问候开关/文本。不含天气来源、定位、token、映射或模块尺寸。读取前备份成功才提交；旧版方案大小迁移到两模式，缺少阴影和自定义问候明确恢复关闭/空文本。";
+    if(section==4)return @"v3方案保存八个位置、两种主图大小、三组阴影/发光、自定义问候及完整列表和随机开关。不含天气来源、定位、token、映射或模块尺寸。读取前备份成功才提交；旧版方案大小迁移到两模式，缺少阴影和自定义问候明确恢复关闭/空文本。";
     if(section==5)return @"三组独立，默认关闭；折叠与展开同组生效，不改变小时文字。";
-    if(section==6)return @"固定句子最多80个UTF-16字符，不接受空白或控制字符。关闭恢复分时随机去重；编辑取消保留原句。位置和阴影调整不会重新抽句。";
+    if(section==6)return @"旧固定句保留（最多80字符）。启用自定义后：随机关闭固定显示旧句，无旧句显示列表首句；随机开启仅在下拉控制中心或展开/收回时切换。位置、阴影与布局不抽句。";
+    if(section==7)return @"三组独立默认关闭，仅主页面文字；同组发光开启时替代普通阴影，关闭后恢复阴影或原始样式。边缘光晕可能被容器裁剪；未真机验证。";
+    if(section==8)return @"无条数或单条长度人为上限。点击编辑，左滑删除；新增/编辑只保存当前条，取消不保存。重复文本可存但随机候选去重；空列表回退旧固定句。v3方案完整保存列表、随机和发光；读取旧v1/v2方案保留这些新设置。";
     return nil;
 }
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-    if(index.section==5 || (index.section==6 && index.row==0)) {
+    if(index.section==8) {
+        cell.textLabel.text=index.row==0?@"＋ 新增一句":WCCGreetingEntries()[index.row-1][@"text"];
+        cell.textLabel.numberOfLines=0;cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
+    } else if(index.section==7 || (index.section==6 && index.row==2)) {
+        UISwitch *toggle=[UISwitch new];toggle.tag=index.section==7?10+index.row:20;
+        toggle.on=index.section==7?WCCTextGlowEnabled(index.row):WCCRandomGreetingEnabled();
+        [toggle addTarget:self action:@selector(toggle:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=toggle;
+        cell.textLabel.text=index.section==7?@[@"温度 · 高低温",@"城市 · 天气 · 降水",@"问候"][index.row]:@"随机语句（需启用自定义）";
+        cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    } else if(index.section==5 || (index.section==6 && index.row==0)) {
         UISwitch *toggle=[UISwitch new];toggle.tag=index.section==5?index.row:3;
         toggle.on=index.section==5?WCCTextShadowEnabled(index.row):WCCCustomGreetingEnabled();
         [toggle addTarget:self action:@selector(toggle:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=toggle;
-        cell.textLabel.text=index.section==5?@[@"温度 · 高低温",@"城市 · 天气 · 降水",@"问候"] [index.row]:@"启用固定问候";
+        cell.textLabel.text=index.section==5?@[@"温度 · 高低温",@"城市 · 天气 · 降水",@"问候"] [index.row]:@"启用自定义问候";
         cell.selectionStyle=UITableViewCellSelectionStyleNone;
     } else if(index.section==6) {
         cell.textLabel.text=WCCCustomGreetingText().length?WCCCustomGreetingText():@"编辑问候文本";cell.textLabel.numberOfLines=2;cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
@@ -74,7 +85,7 @@
     [self error:[NSError errorWithDomain:@"WCC" code:1 userInfo:@{NSLocalizedDescriptionKey:@"未保存：请检查范围或文本（1–80字符且非空白）；原设置保持不变。"}]];
 }
 - (void)toggle:(UISwitch *)sender {
-    BOOL ok=sender.tag<3?WCCSetTextShadowEnabled(sender.tag,sender.on):WCCSetCustomGreeting(sender.on,WCCCustomGreetingText());
+    BOOL ok=sender.tag==20?WCCSetRandomGreetingEnabled(sender.on):sender.tag>=10?WCCSetTextGlowEnabled(sender.tag-10,sender.on):sender.tag<3?WCCSetTextShadowEnabled(sender.tag,sender.on):WCCSetCustomGreeting(sender.on,WCCCustomGreetingText());
     if(!ok){[self sync];[self failed];}
 }
 - (void)editGreeting {
@@ -86,6 +97,22 @@
         BOOL ok=text.length>0 && WCCSetCustomGreeting(WCCCustomGreetingEnabled(),text);
         if(!ok)dispatch_async(dispatch_get_main_queue(),^{[self failed];});
     }]];[self presentViewController:a animated:YES completion:nil];
+}
+- (void)editEntry:(NSDictionary *)entry {
+    UIAlertController *a=[UIAlertController alertControllerWithTitle:entry?@"编辑这一句":@"新增一句" message:@"非空且无控制字符；保存仅修改这一条。" preferredStyle:UIAlertControllerStyleAlert];
+    [a addTextFieldWithConfigurationHandler:^(UITextField *f){f.text=entry[@"text"]?:@"";}];
+    [a addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [a addAction:[UIAlertAction actionWithTitle:@"保存" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+        if(!WCCSaveGreetingEntry(entry[@"id"],a.textFields.firstObject.text))
+            dispatch_async(dispatch_get_main_queue(),^{[self error:[NSError errorWithDomain:@"WCC" code:1 userInfo:@{NSLocalizedDescriptionKey:@"未保存：文字不能为空或包含控制字符；原列表保留。"}]];});
+    }]];
+    [self presentViewController:a animated:YES completion:nil];
+}
+- (BOOL)tableView:(UITableView *)table canEditRowAtIndexPath:(NSIndexPath *)index { return index.section==8 && index.row>0; }
+- (void)tableView:(UITableView *)table commitEditingStyle:(UITableViewCellEditingStyle)style forRowAtIndexPath:(NSIndexPath *)index {
+    if(style!=UITableViewCellEditingStyleDelete || index.section!=8 || index.row==0)return;
+    NSArray *rows=WCCGreetingEntries(); if(index.row>rows.count)return;
+    if(!WCCDeleteGreetingEntry(rows[index.row-1][@"id"]))[self failed];
 }
 - (void)step:(UIButton *)sender {
     NSInteger index=sender.tag/2;
@@ -136,6 +163,7 @@
     [table deselectRowAtIndexPath:index animated:YES];
     if(index.section<4 && index.row==2) [self confirm:@"重置本区域位置？" work:^{[self resetRegion:index.section];}];
     if(index.section==6 && index.row==1)[self editGreeting];
+    if(index.section==8) { NSArray *rows=WCCGreetingEntries(); if(index.row==0)[self editEntry:nil]; else if(index.row<=rows.count)[self editEntry:rows[index.row-1]]; }
     if(index.section==4){ if(index.row==0)[self saveName]; else if(index.row==1)[self plans]; else [self confirm:@"重置全部八个位置？" work:^{[self resetRegion:-1];}]; }
 }
 - (void)tableView:(UITableView *)table willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)index { WCCPanelStyleCell(cell); }

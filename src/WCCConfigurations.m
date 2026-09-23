@@ -43,7 +43,7 @@ static NSString *WCCConfigPath(NSString *identifier) {
     return [WCCConfigurationDirectory() stringByAppendingPathComponent:[identifier stringByAppendingPathExtension:@"json"]];
 }
 static NSDictionary *WCCValidatedConfiguration(id object,NSError **error) {
-    if (![object isKindOfClass:NSDictionary.class] || ![object[@"schema"] isEqual:@"CCWeatherSliderConfiguration"] || ![object[@"version"] isKindOfClass:NSNumber.class] || ([object[@"version"] doubleValue]!=1 && [object[@"version"] doubleValue]!=2) || ![object[@"values"] isKindOfClass:NSDictionary.class] || ![object[@"name"] isKindOfClass:NSString.class] || ![object[@"modified"] isKindOfClass:NSNumber.class] || !isfinite([object[@"modified"] doubleValue])) {
+    if (![object isKindOfClass:NSDictionary.class] || ![object[@"schema"] isEqual:@"CCWeatherSliderConfiguration"] || ![object[@"version"] isKindOfClass:NSNumber.class] || ([object[@"version"] doubleValue]!=1 && [object[@"version"] doubleValue]!=2 && [object[@"version"] doubleValue]!=3) || ![object[@"values"] isKindOfClass:NSDictionary.class] || ![object[@"name"] isKindOfClass:NSString.class] || ![object[@"modified"] isKindOfClass:NSNumber.class] || !isfinite([object[@"modified"] doubleValue])) {
         if(error)*error=WCCConfigError(@"方案格式或版本不受支持，当前设置未更改。"); return nil;
     }
     if (CFGetTypeID((__bridge CFTypeRef)object[@"version"])==CFBooleanGetTypeID() || CFGetTypeID((__bridge CFTypeRef)object[@"modified"])==CFBooleanGetTypeID()) { if(error)*error=WCCConfigError(@"版本和时间须为数值，不接受布尔值。"); return nil; }
@@ -62,8 +62,10 @@ static NSDictionary *WCCReadConfiguration(NSString *identifier,NSError **error) 
     if (!path) { if(error)*error=WCCConfigError(@"方案标识无效。"); return nil; }
     if(!WCCSafeConfigurationFile(path,YES,error))return nil;
     NSData *data=[NSData dataWithContentsOfFile:path options:0 error:error]; if (!data) return nil;
-    if (!data.length || data.length>16384) { if(error)*error=WCCConfigError(@"方案读取大小超出限额。"); return nil; }
+    if (!data.length) { if(error)*error=WCCConfigError(@"方案读取大小超出限额。"); return nil; }
     id json=[NSJSONSerialization JSONObjectWithData:data options:0 error:error]; if(!json)return nil;
+    if([json isKindOfClass:NSDictionary.class] && [json[@"version"] isEqual:@1] && data.length>16384)return nil;
+    if([json isKindOfClass:NSDictionary.class] && [json[@"version"] isEqual:@2] && data.length>16384)return nil;
     return WCCValidatedConfiguration(json,error);
 }
 NSDictionary *WCCCurrentSliderValues(void) {
@@ -75,7 +77,11 @@ NSDictionary *WCCCurrentSliderValues(void) {
     values[@"informationShadow"]=@(WCCTextShadowEnabled(1));
     values[@"greetingShadow"]=@(WCCTextShadowEnabled(2));
     values[@"customGreetingEnabled"]=@(WCCCustomGreetingEnabled());
-    values[@"customGreetingText"]=WCCCustomGreetingText();return values;
+    values[@"customGreetingText"]=WCCCustomGreetingText();
+    values[@"greetingEntries122"]=WCCGreetingEntries();values[@"randomGreeting122"]=@(WCCRandomGreetingEnabled());
+    NSArray *glowKeys=@[@"temperatureGlow122",@"informationGlow122",@"greetingGlow122"];
+    for(NSInteger i=0;i<3;i++)values[glowKeys[i]]=@(WCCTextGlowEnabled(i));
+    return values;
 }
 NSArray<NSDictionary *> *WCCConfigurations(NSError **error) {
     NSFileManager *fm=NSFileManager.defaultManager;
@@ -92,12 +98,11 @@ NSArray<NSDictionary *> *WCCConfigurations(NSError **error) {
 }
 static BOOL WCCWriteConfiguration(NSString *identifier,NSString *name,NSDictionary *values,NSError **error) {
     NSString *path=WCCConfigPath(identifier); if(!path)return NO;
-    NSDictionary *document=@{@"schema":@"CCWeatherSliderConfiguration",@"version":@2,@"name":name,@"modified":@(NSDate.date.timeIntervalSince1970),@"values":values};
+    NSDictionary *document=@{@"schema":@"CCWeatherSliderConfiguration",@"version":@3,@"name":name,@"modified":@(NSDate.date.timeIntervalSince1970),@"values":values};
     if(!WCCValidatedConfiguration(document,error) || !WCCSafeConfigurationDirectory(error))return NO;
     if(![NSFileManager.defaultManager createDirectoryAtPath:WCCConfigurationDirectory() withIntermediateDirectories:YES attributes:nil error:error])return NO;
     if(!WCCSafeConfigurationFile(path,NO,error))return NO;
     NSData *data=[NSJSONSerialization dataWithJSONObject:document options:NSJSONWritingPrettyPrinted error:error];
-    if (data.length>16384) { if(error)*error=WCCConfigError(@"方案超过格式限额。"); return NO; }
     return data && [data writeToFile:path options:NSDataWritingAtomic error:error];
 }
 BOOL WCCSaveConfiguration(NSString *name,NSString *overwriteID,NSError **error) {
