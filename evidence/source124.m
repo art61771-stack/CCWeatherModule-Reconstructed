@@ -21,6 +21,9 @@ int main(int argc,char **argv){@autoreleasepool{
   assert(provider.cacheTTL==ttl);
   clock=[clock dateByAddingTimeInterval:ttl-1];[source refreshManual:NO];Drain();assert(requests==1 && !source.stale);
   clock=[clock dateByAddingTimeInterval:2];[source refreshManual:NO];assert(requests==2);pending(data,200,@{},nil);Drain();assert(source.snapshot);
+  // Provider clock advanced independently of wall time for expiry above. For the
+  // wall-clock NSTimer assertion, align its 60s throttle deadline as well as receipt.
+  [provider setValue:[NSDate dateWithTimeIntervalSinceNow:-60] forKey:@"nextAllowed"];
   // Schedule actual source against a receipt 120 seconds ago, then fire once.
   [source.snapshot setValue:[NSDate dateWithTimeIntervalSinceNow:-120] forKey:@"timestamp"];
   [source scheduleResult:[provider currentResult]];timer=[source valueForKey:@"refreshTimer"];remaining=timer.fireDate.timeIntervalSinceNow;assert(remaining>ttl-122 && remaining<=ttl-120);
