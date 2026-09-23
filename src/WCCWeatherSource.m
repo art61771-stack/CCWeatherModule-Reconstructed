@@ -57,10 +57,7 @@ NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale
     _automaticActive=YES;[self refreshManual:NO];
 }
 - (BOOL)setRefreshHours:(NSInteger)hours {
-    if(hours!=1 && hours!=12 && hours!=24)return NO;
-    id old=[WCCPrefs() objectForKey:@"caiyunRefreshHours124"];
-    [WCCPrefs() setInteger:hours forKey:@"caiyunRefreshHours124"];
-    if(![WCCPrefs() synchronize]) { if(old)[WCCPrefs() setObject:old forKey:@"caiyunRefreshHours124"];else [WCCPrefs() removeObjectForKey:@"caiyunRefreshHours124"];[WCCPrefs() synchronize];return NO; }
+    if(!WCCSetCaiyunRefreshHours(hours))return NO;
     self.provider.cacheTTL=self.refreshTTL;
     [self stopTimer];if(self.automaticActive)[self refreshManual:NO];return YES;
 }

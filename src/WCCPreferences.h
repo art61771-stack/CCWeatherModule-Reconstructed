@@ -7,6 +7,7 @@ FOUNDATION_EXPORT BOOL WCCSetSelectedSize(NSString *size);
 FOUNDATION_EXPORT WCCLayoutSize WCCEffectiveSize(void);
 FOUNDATION_EXPORT NSUserDefaults *WCCPrefs(void);
 FOUNDATION_EXPORT BOOL WCCCommitSliderValues(NSDictionary *values);
+FOUNDATION_EXPORT BOOL WCCSetCaiyunRefreshHours(NSInteger hours);
 #ifdef WCC_TESTING
 FOUNDATION_EXPORT void WCCTestUsePreferences(NSString *suite);
 FOUNDATION_EXPORT void WCCTestFailCommit(BOOL fail);

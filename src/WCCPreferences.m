@@ -14,6 +14,10 @@ static BOOL WCCNumber(id v) { return [v isKindOfClass:NSNumber.class] && CFGetTy
 static NSArray *WCCScaleKeys(void) { return @[@"mainIconCollapsedPercent",@"mainIconExpandedPercent"]; }
 static NSArray *WCCShadowKeys(void) { return @[@"temperatureShadow",@"informationShadow",@"greetingShadow"]; }
 static BOOL WCCCommitPartial(NSDictionary *values);
+BOOL WCCSetCaiyunRefreshHours(NSInteger hours) {
+    if(hours!=1 && hours!=12 && hours!=24)return NO;
+    return WCCCommitPartial(@{@"caiyunRefreshHours124":@(hours)});
+}
 static void WCCNotify(NSString *name) {
     void (^work)(void)=^{[NSNotificationCenter.defaultCenter postNotificationName:name object:nil];};
     if(NSThread.isMainThread)work(); else dispatch_async(dispatch_get_main_queue(),work);
