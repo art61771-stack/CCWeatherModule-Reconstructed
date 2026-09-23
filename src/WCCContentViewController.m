@@ -180,7 +180,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if(WCCCustomGreetingEnabled()) {
         NSArray<NSString *> *texts=WCCGreetingCandidates();
         if(WCCRandomGreetingEnabled() && texts.count) {
-            NSUInteger previous=self.selectedCustomGreeting?[texts indexOfObject:self.selectedCustomGreeting]:NSNotFound;
+            // Exclude what was actually displayed, including the pure-bind fallback
+            // after enabling random or deleting the previously selected row.
+            NSString *displayed=self.greetingLabel.text ?: self.selectedCustomGreeting;
+            NSUInteger previous=displayed?[texts indexOfObject:displayed]:NSNotFound;
             self.selectedCustomGreeting=texts[WCCPickCustomGreeting(texts.count,previous,arc4random())];
         }
         [self bindGreetingText];return;

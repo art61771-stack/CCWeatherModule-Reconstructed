@@ -13,7 +13,7 @@ for name in ['bindGreetingText','regionPositionChanged','viewDidLayoutSubviews',
 for name,gate in [('consumeHostSession','WCCConsumeModuleHost'),('willTransitionToExpandedContentMode:','WCCConsumeExpansion')]:
  t=method(name);assert gate in t and '[self drawGreeting]' in t
 assert 'WCCPickCustomGreeting(texts.count,previous,arc4random())' in method('drawGreeting')
-assert 'indexOfObject:self.selectedCustomGreeting' in method('drawGreeting')
+assert 'indexOfObject:displayed' in method('drawGreeting') and 'self.greetingLabel.text ?: self.selectedCustomGreeting' in method('drawGreeting')
 assert 'textRectForBounds:label.bounds' in method('applyRegionPositions')
 assert 'if(!_isExpanded)_iconView.frame=slot' in method('layoutMainCustomMedia')
 assert 'self.collapsedIconSlot=WCCCGRect(g.icon)' in c
