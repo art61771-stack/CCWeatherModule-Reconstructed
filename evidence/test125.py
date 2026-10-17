@@ -20,6 +20,6 @@ assert 'WCCBreathDuration' in new
 for file in ['WCCMedia.m','WCCHourly.h','WCCRuntime.h','WCCSettings.m','WCCNativeSettingsNavigation.m','WCCHostObserver.m']:
  baseline=subprocess.check_output(['git','show','c5685b444a5cef18f87327fd0dd9229cd81e5e91:src/'+file],cwd=p)
  assert (s/file).read_bytes()==baseline,file
-info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.5'
-assert 'Version: 1.2.5' in (p/'control').read_text()
+info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.6'
+assert 'Version: 1.2.6' in (p/'control').read_text()
 print('PASS125 static: owner pause routing/settings visibility, independent animation keys, no media reload/hourly changes; original host/native routing/runtime unchanged; 1.2.5 metadata. No UIKit device execution.')

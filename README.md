@@ -1,6 +1,17 @@
-# CCWeatherModule 1.2.4 — clean 1.2.3 后续
+# CCWeatherModule 1.2.6 — 系统天气详情修复
 
-基线 3b37db575ae45c1f9122854d663bc0f8ca7286c6；不引入已作废旧124–126。
+基线为成功的 1.2.5 commit `42a34b39564549c4f0f5c84c9ab2163ce3281d88`。
+
+## 1.2.6
+- 承认 1.2.5 只把详情投影接到了彩云分支，系统 Weather.framework 的 City 模型未投影风向、湿度和未来摘要，因此系统来源看不到新增详情。
+- 新增 Foundation-only 的生产 helper，通过 `respondsToSelector`、`methodSignatureForSelector` 和精确 `objc_msgSend` 签名读取实际运行时对象；不使用 KVC，不链接私有 SDK，selector 缺失或签名变化时安全省略字段。
+- 公开 RuntimeBrowser 头文件证据表明 City 的 `windDirection`、`windSpeed`、`humidity` 是原始 `float`，但没有证明 `windSpeed` 的单位；因此 1.2.6 仅显示有证据可归一化的方向与湿度，不盲猜 m/s 或 km/h，也不生成虚假的风级/速度文字。
+- 湿度兼容运行时常见的 0…1 比率和明确的 0…100 百分数；风向接受 0…360，按气象来向映射八方位。
+- 系统未来摘要只使用从当前时间起、间隔连续一小时且 conditionCode 可真实解析的 hourlyForecasts，最多24项；按实际有效条数显示“未来N小时”，遇到 gap、无日期、未知天气即停止，不从现有 conditionLabel 反推数据。
+- 刷新回调重新绑定详情；折叠/展开与布局路径不清空投影；切换彩云/系统时先重置标签和来源缓存，避免显示上一来源残留。
+- best-effort：不同 iOS 的私有 Weather 模型可能删除 selector 或改变签名，此时对应详情会被省略，主天气、小时卡片及彩云功能继续工作。
+
+## 1.2.5/1.2.4 保留功能与限制
 
 ## 1.2.4 当前功能与限制
 - 地区/天气/降水组按水平请求位移负左正右，0恢复布局默认；测量实际文字后限幅。

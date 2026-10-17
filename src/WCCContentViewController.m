@@ -10,6 +10,7 @@
 #import "WCCHourly.h"
 #import "WCCABI.h"
 #import "WCCWeatherSource.h"
+#import "WCCSystemWeatherDetails.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <stdbool.h>
@@ -488,6 +489,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         self.caiyunRender=nil; _currentCity=nil; _cachedSubLocality=nil; _cachedLocationID=nil;
         _cityLabel.text=@"未就绪"; _conditionLabel.text=@"未就绪"; _tempLabel.text=@"--°";
         _highLowLabel.text=@"-- / --"; _precipLabel.text=@"降水概率: --";
+        // Provider changes must not retain detail/outlook text from the prior source.
         if(s.caiyun) [self stopSystemWeather];
         else if(!_weatherModel) [self initializeWeatherModel];
     }
@@ -520,10 +522,18 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         [self updateWeatherIcon];
         [self updateCityLabel];
         if ([_currentCity temperature] || [[_currentCity dayForecasts] count]) {
-            _conditionLabel.text = [self conditionStringForCode:[_currentCity conditionCode]];
+            NSString *condition=[self conditionStringForCode:[_currentCity conditionCode]];
+            NSDictionary *native=WCCRenderSystemWeatherDetails(_currentCity,[NSDate date],^NSString *(NSInteger code) {
+                return [self conditionStringForCode:code];
+            });
+            NSString *details=native[@"details"];
+            _conditionLabel.text = details.length ? [NSString stringWithFormat:@"%@ · %@",condition,details] : condition;
             _tempLabel.text = [self temperatureString:[_currentCity temperature]];
             _highLowLabel.text = [self highLowTemperatureString];
-            [self updatePrecipitation]; [self updateWeatherIcon];
+            [self updatePrecipitation];
+            NSString *outlook=native[@"outlook"];
+            if(outlook.length) _precipLabel.text=[NSString stringWithFormat:@"%@ · %@",outlook,_precipLabel.text?:@""];
+            [self updateWeatherIcon];
             if (_isExpanded) [self updateHourlyForecast];
         } else {
             _conditionLabel.text = @"加载中..."; _tempLabel.text = @"--°";
