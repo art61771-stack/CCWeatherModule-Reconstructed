@@ -18,8 +18,9 @@
 - (NSString *)hourlyForecasts{return @"bad";}
 @end
 static MockHour *H(NSDate *d,NSInteger code){MockHour*h=[MockHour new];h.date=d;h.conditionCode=code;return h;}
-static NSString *Name(NSInteger code){return code==1?@"晴":code==2?@"多云":@"";}
+static NSString *NameFunction(NSInteger code){return code==1?@"晴":code==2?@"多云":@"";}
 int main(void){@autoreleasepool{
+ WCCSystemConditionName Name=^NSString *(NSInteger code){return NameFunction(code);};
  NSDate *now=[NSDate dateWithTimeIntervalSince1970:1767225600];
  NSDictionary*r=WCCRenderSystemWeatherDetails([Missing new],now,Name);assert([r[@"details"] isEqual:@""]&&[r[@"outlook"] isEqual:@""]);
  MockCity*c=[MockCity new];c.timeZone=[NSTimeZone timeZoneWithName:@"Asia/Shanghai"];c.windDirection=0;c.windSpeed=12;c.humidity=.45;
