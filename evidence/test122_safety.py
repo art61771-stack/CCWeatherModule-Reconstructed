@@ -36,8 +36,8 @@ for n in ['WCCSettings.m','WCCRegionSettings.m','WCCWeatherSettings.m']:
  assert 'popoverPresentationControllerShouldDismissPopover:' in t
 assert 'WCCCollapsedSliderPercent(self.slider.value)' in u
 assert 'self.expandedSlider.minimumValue=50;self.expandedSlider.maximumValue=150' in u
-info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']=='1.2.4' and info['CFBundleShortVersionString']=='1.2.4'
-assert 'Version: 1.2.4' in (p/'control').read_text()
+info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']=='1.2.5' and info['CFBundleShortVersionString']=='1.2.5'
+assert 'Version: 1.2.5' in (p/'control').read_text()
 helpers=u[u.index('static void (^WCCOnce'):u.index('@interface WCCSettingsGallery')]
 entry='- (void)handleTwoFingerDoubleTap:'+method(c,'- (void)handleTwoFingerDoubleTap:','- (void)showCustomNameAlert')
 done='- (void)done {'+method(u,'- (void)done {','- (UIModalPresentationStyle)')

@@ -40,7 +40,7 @@ static NSDictionary *OK(id x) { NSDictionary *d=D(x); return [S(d[@"status"]) is
 @property(nonatomic,readwrite) NSUInteger configGeneration;
 @property(nonatomic,strong,readwrite) NSDate *timestamp,*serverTimestamp;
 @property(nonatomic,strong,readwrite) NSTimeZone *timezone;
-@property(nonatomic,strong,readwrite) NSNumber *currentTemperature,*maximum,*minimum;
+@property(nonatomic,strong,readwrite) NSNumber *currentTemperature,*maximum,*minimum,*windSpeedKPH,*windDirectionDegrees,*relativeHumidity;
 @property(nonatomic,strong,readwrite) CYCondition *condition;
 @property(nonatomic,copy,readwrite) NSArray<CYHour *> *hours;
 @end
@@ -175,6 +175,11 @@ static CYSnapshot *Parse(NSDictionary *json,NSDate *now,NSUInteger generation) {
     NSNumber *server=N(json[@"server_time"]); if(server && server.doubleValue>=0 && server.doubleValue<=253402300799.0)s.serverTimestamp=[NSDate dateWithTimeIntervalSince1970:server.doubleValue];
     NSArray *astro=A(daily[@"astro"]);
     s.currentTemperature=N(real[@"temperature"]); s.condition=Condition(real[@"skycon"],now,s.timezone,astro);
+    NSDictionary *wind=D(real[@"wind"]);
+    NSNumber *speed=N(wind[@"speed"]),*direction=N(wind[@"direction"]),*humidity=N(real[@"humidity"]);
+    s.windSpeedKPH=speed && speed.doubleValue>=0?speed:nil;
+    s.windDirectionDegrees=direction && direction.doubleValue>=0 && direction.doubleValue<=360?direction:nil;
+    s.relativeHumidity=humidity && humidity.doubleValue>=0 && humidity.doubleValue<=1?humidity:nil;
     NSString *today=s.timezone?[DayFormatter(s.timezone) stringFromDate:now]:nil;
     for(id raw in A(daily[@"temperature"])) { NSDictionary *row=D(raw); if(today && [DayKey(row[@"date"],s.timezone) isEqual:today]) { s.maximum=N(row[@"max"]); s.minimum=N(row[@"min"]); break; } }
     NSMutableDictionary<NSDate *,NSMutableDictionary *> *joined=[NSMutableDictionary new];

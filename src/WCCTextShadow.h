@@ -4,4 +4,5 @@ void WCCApplyTextShadow(UILabel *label, BOOL enabled);
 void WCCApplyTextEffects(UILabel *label, BOOL shadow, BOOL glow);
 
 void WCCApplyConfiguredTextEffects(UILabel *label,BOOL shadow,BOOL glow,NSArray *settings,BOOL active);
+void WCCApplyMainContentAnimations(UIView *icon,NSArray *opacity,NSArray *scale,BOOL active);
 void WCCApplyMainIconEffects(UIView *icon,BOOL shadow,BOOL glow,NSArray *settings,BOOL active,BOOL video);

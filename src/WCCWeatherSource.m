@@ -17,6 +17,39 @@ static NSString *WCCTemp(NSNumber *n) { return n ? [NSString stringWithFormat:@"
 static NSDictionary *WCCCondition(CYCondition *c) {
     return @{@"text":c.text?:@"未知",@"basename":c.basename?:@"",@"symbol":c.symbol?:@"cloud.fill"};
 }
+// Explicit provider units only. Native City units are undocumented here and omitted.
+NSString *WCCWeatherDetails(CYSnapshot *s) {
+    NSMutableArray *parts=[NSMutableArray array];
+    if(s.windSpeedKPH) {
+        NSString *direction=@"风";
+        if(s.windDirectionDegrees) { NSArray *names=@[@"北风",@"东北风",@"东风",@"东南风",@"南风",@"西南风",@"西风",@"西北风"];direction=names[(NSInteger)floor((s.windDirectionDegrees.doubleValue+22.5)/45)%8]; }
+        // Beaufort thresholds in m/s; the API reports km/h.
+        double ms=s.windSpeedKPH.doubleValue/3.6;double limits[]={.3,1.6,3.4,5.5,8,10.8,13.9,17.2,20.8,24.5,28.5,32.7};int force=0;
+        while(force<12 && ms>=limits[force])force++;
+        [parts addObject:[NSString stringWithFormat:@"%@%d级（%.1f km/h）",direction,force,s.windSpeedKPH.doubleValue]];
+    } else if(s.windDirectionDegrees) {
+        NSArray *names=@[@"北风",@"东北风",@"东风",@"东南风",@"南风",@"西南风",@"西风",@"西北风"];
+        [parts addObject:names[(NSInteger)floor((s.windDirectionDegrees.doubleValue+22.5)/45)%8]];
+    }
+    if(s.relativeHumidity)[parts addObject:[NSString stringWithFormat:@"湿度%.0f%%",s.relativeHumidity.doubleValue*100]];
+    return [parts componentsJoinedByString:@" · "];
+}
+NSString *WCCWeatherOutlook(CYSnapshot *s) {
+    if(!s.timezone || !s.timestamp)return @"";
+    // Only known, contiguous future skycon samples. Never infer a 24h forecast from count alone.
+    NSMutableArray *conditions=[NSMutableArray array];NSDate *first=nil,*last=nil;
+    for(CYHour *h in s.hours) {
+        double offset=[h.date timeIntervalSinceDate:s.timestamp];
+        if(offset<0)continue;if(offset>24*3600)break;
+        if(!h.condition.skycon || [h.condition.text isEqual:@"未知"]) { if(first)break;continue; }
+        if(!first) { if(offset>3600)break;first=h.date; }
+        else if(fabs([h.date timeIntervalSinceDate:last]-3600)>1)break;
+        last=h.date;if(![conditions containsObject:h.condition.text])[conditions addObject:h.condition.text];
+    }
+    if(!first || !last)return @"";
+    NSDateFormatter *f=[NSDateFormatter new];f.locale=[NSLocale localeWithLocaleIdentifier:@"zh_CN"];f.timeZone=s.timezone;f.dateFormat=@"MM-dd HH:mm";
+    return [NSString stringWithFormat:@"预报 %@–%@：%@",[f stringFromDate:first],[f stringFromDate:last],[conditions componentsJoinedByString:@" / "]];
+}
 NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale) {
     NSMutableArray *hours=[NSMutableArray array];
     NSDateFormatter *f=[NSDateFormatter new]; f.locale=[[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
@@ -28,7 +61,7 @@ NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *s, NSString *alias, BOOL stale
     return @{@"source":@"caiyun",@"city":alias.length?alias:@"彩云地点",@"temperature":WCCTemp(s.currentTemperature),
       @"highLow":[NSString stringWithFormat:@"%@ / %@",WCCTemp(s.maximum),WCCTemp(s.minimum)],
       @"precipitation":p?[NSString stringWithFormat:@"降水概率: %.0f%%",p.doubleValue]:@"降水概率: --",
-      @"condition":WCCCondition(s.condition),@"hours":[hours copy],@"stale":@(stale),@"ready":@(s!=nil)};
+      @"details":WCCWeatherDetails(s),@"outlook":WCCWeatherOutlook(s),@"condition":WCCCondition(s.condition),@"hours":[hours copy],@"stale":@(stale),@"ready":@(s!=nil)};
 }
 @interface WCCWeatherSource ()
 @property(nonatomic,strong) CYCaiyunProvider *provider;

@@ -13,7 +13,7 @@ int main(void){@autoreleasepool{
   assert([before isEqual:WCCTextEffectSettings((i+1)%4)]);
   assert(WCCSetTextShadowEnabled(i,YES));assert(WCCSetTextGlowEnabled(i,YES));
  }
- NSDictionary *snapshot=WCCCurrentSliderValues();assert(snapshot.count==26);
+ NSDictionary *snapshot=WCCCurrentSliderValues();assert(snapshot.count==28);
  assert(WCCSaveConfiguration(@"四组完整",nil,&error));NSString *identifier=WCCConfigurations(&error)[0][@"id"];
  assert(WCCSetTextEffectSettings(3,@[@[],@NO,@0,@1]));assert(WCCSetTextGlowEnabled(0,NO));
  NSDictionary *changed=WCCCurrentSliderValues();assert(WCCLoadConfiguration(identifier,&error));assert([snapshot isEqual:WCCCurrentSliderValues()]);

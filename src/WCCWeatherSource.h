@@ -4,6 +4,8 @@ FOUNDATION_EXPORT NSString * const WCCWeatherSourceChanged;
 FOUNDATION_EXPORT NSNumber *WCCParseCoordinate(NSString *text, BOOL longitude);
 // Foundation-only immutable render projection. No City or device daylight dependency.
 FOUNDATION_EXPORT NSDictionary *WCCRenderCaiyunSnapshot(CYSnapshot *snapshot, NSString *alias, BOOL stale);
+FOUNDATION_EXPORT NSString *WCCWeatherDetails(CYSnapshot *snapshot);
+FOUNDATION_EXPORT NSString *WCCWeatherOutlook(CYSnapshot *snapshot);
 @interface WCCWeatherSource : NSObject
 + (instancetype)shared;
 @property(nonatomic,readonly) BOOL caiyun;

@@ -27,10 +27,11 @@
     [a addAction:[UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){ dispatch_async(dispatch_get_main_queue(),work); }]];
     [self presentViewController:a animated:YES completion:nil];
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 13; }
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==12?7:section>=9?5:section==8?WCCGreetingEntries().count+1:section==6?3:3; }
-- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"温度（含高低温）",@"主天气图标",@"地区 · 天气 · 降水",@"问候语",@"配置方案",@"文字阴影",@"自定义问候",@"文字发光",@"问候语列表（每条独立保存）",@"温度阴影 / 发光颜色与动态",@"地区阴影 / 发光颜色与动态",@"问候阴影 / 发光颜色与动态",@"主图阴影 / 发光（独立第四组）"][section]; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 14; }
+- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==13?4:section==12?7:section>=9?5:section==8?WCCGreetingEntries().count+1:section==6?3:3; }
+- (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"温度（含高低温）",@"主天气图标",@"地区 · 天气 · 降水",@"问候语",@"配置方案",@"文字阴影",@"自定义问候",@"文字发光",@"问候语列表（每条独立保存）",@"温度阴影 / 发光颜色与动态",@"地区阴影 / 发光颜色与动态",@"问候阴影 / 发光颜色与动态",@"主图阴影 / 发光（独立第四组）",@"主图内容动画（独立开关）"][section]; }
 - (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section {
+    if(section==13)return @"明暗与缩放各自默认关闭，各自速度中点3秒、左端6秒、右端1.5秒；可同时开启，保留主图大小位置。与阴影光晕呼吸独立；离开控制中心、锁屏、后台和设置期间暂停，返回恢复。v5方案保存两个开关与速度，读取旧方案保留这两项。";
     if(section==12)return @"仅主图；阴影/发光默认关闭。系统图、PNG/GIF按合成透明度投影；MP4仅矩形容器光晕，不识别视频主体。呼吸中心标准3秒，左慢右快。颜色浓淡左淡右深：左端0%，中点新标准60%，右端100%；阴影/发光一致，与拾色器透明度相乘。模块外缘仍可能被系统容器裁剪，动态轮廓未真机验证。";
     if(section>=9)return @"自定义颜色同时作用该组阴影/发光。呼吸默认关闭；速度中心标准3秒，左慢6秒，右快1.5秒。颜色浓淡独立于速度，左淡右深：左端0%，中点新标准60%，右端100%。阴影/发光一致，新中点比旧1.2.3效果略淡。拾色器透明度与浓淡相乘，不改原内容透明度。仅可见控制中心运行；关闭效果后不动画。";
     if(section==0)return @"八个位置仅作用折叠五种尺寸；展开保持原布局。水平 −1366…+1366 pt 可到左右边缘，垂直 −40…+40 pt。当前值为请求位移，边界处限幅；用 −1/+1 精调或点击数值输入。";
@@ -43,7 +44,12 @@
 }
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-    if(index.section>=9) {
+    if(index.section==13) {
+        int kind=(int)index.row/2;NSArray *v=WCCMainContentSettings(kind);
+        cell.textLabel.text=@[@"内容明暗呼吸",@"明暗速度 · 左慢右快",@"内容放大缩小",@"缩放速度 · 左慢右快"][index.row];
+        if(index.row%2==0){UISwitch *on=[UISwitch new];on.tag=kind;on.on=[v[0] boolValue];[on addTarget:self action:@selector(contentToggle:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=on;}
+        else {UISlider *speed=[UISlider new];speed.tag=kind;speed.minimumValue=-1;speed.maximumValue=1;speed.value=[v[1] doubleValue];speed.continuous=NO;speed.frame=CGRectMake(0,0,140,40);speed.accessibilityLabel=cell.textLabel.text;[speed addTarget:self action:@selector(contentSpeed:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=speed;}
+    } else if(index.section>=9) {
         NSInteger group=index.section-9;NSArray *v=WCCTextEffectSettings(group);
         cell.textLabel.text=@[@"自定义颜色…",@"恢复自动颜色",@"明暗呼吸",@"左慢 · 标准 · 右快",@"颜色浓淡 · 中点标准",@"主图阴影",@"主图发光"][index.row];
         if(index.row>=5) { UISwitch *on=[UISwitch new];on.tag=index.row;on.on=index.row==5?WCCTextShadowEnabled(3):WCCTextGlowEnabled(3);[on addTarget:self action:@selector(iconEffect:) forControlEvents:UIControlEventValueChanged];cell.accessoryView=on; }
@@ -85,6 +91,8 @@
     } else { cell.textLabel.text=index.section<4?@"重置本区域":@[@"命名保存 / 新建方案",@"读取 / 覆盖 / 删除方案",@"重置全部位置"][index.row]; cell.textLabel.font=[UIFont systemFontOfSize:15]; cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator; }
     return cell;
 }
+- (void)contentToggle:(UISwitch *)sender { NSArray *v=WCCMainContentSettings(sender.tag);if(!WCCSetMainContentSettings(sender.tag,@[@(sender.on),v[1]])){[self sync];[self failed];} }
+- (void)contentSpeed:(UISlider *)sender { NSArray *v=WCCMainContentSettings(sender.tag);if(!WCCSetMainContentSettings(sender.tag,@[v[0],@(sender.value)])){[self sync];[self failed];} }
 - (void)iconEffect:(UISwitch *)sender { BOOL ok=sender.tag==5?WCCSetTextShadowEnabled(3,sender.on):WCCSetTextGlowEnabled(3,sender.on);if(!ok)[self failed]; }
 - (void)density:(UISlider *)sender { NSMutableArray *v=[WCCTextEffectSettings(sender.tag) mutableCopy];v[3]=@(sender.value);if(!WCCSetTextEffectSettings(sender.tag,v))[self failed]; }
 - (void)breathe:(UISwitch *)sender { NSMutableArray *v=[WCCTextEffectSettings(sender.tag) mutableCopy];v[1]=@(sender.on);if(!WCCSetTextEffectSettings(sender.tag,v))[self failed]; }

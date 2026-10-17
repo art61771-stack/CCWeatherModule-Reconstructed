@@ -16,7 +16,8 @@ assert 'generation!=self.generation || epoch!=self.requestEpoch' in source
 assert 'age<(self.cacheTTL>0?self.cacheTTL:900)' in provider and 'age>=(self.cacheTTL>0?self.cacheTTL:900)' in provider
 # Provider parser, Keychain, transport success/cancellation logic unchanged, except TTL comparisons.
 baseline=subprocess.check_output(['git','show','3b37db575ae45c1f9122854d663bc0f8ca7286c6:src/CYCaiyunProvider.m'],cwd=p,text=True)
-assert provider.replace('age<(self.cacheTTL>0?self.cacheTTL:900)','age<900').replace('age>=(self.cacheTTL>0?self.cacheTTL:900)','age>=900')==baseline
+import source124_contract
+assert source124_contract.provider124(provider).replace('age<(self.cacheTTL>0?self.cacheTTL:900)','age<900').replace('age>=(self.cacheTTL>0?self.cacheTTL:900)','age>=900')==baseline
 for token in ['WCCRouteCanEnter','WCCRouteCanReturn','WCCRouteOwnsDismiss','session.ended=YES','session.finish=nil','root.isBeingPresented && root.transitionCoordinator','WCCReturn(p,^{'] :assert token in route,token
 assert '[WCCSettings cancelFrom:self]' in c
 assert 'addChildViewController' not in route and 'makeKeyAndVisible' not in route

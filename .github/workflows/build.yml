@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.4 rootless
+name: CCWeatherModule 1.2.5 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -24,6 +24,8 @@ jobs:
           set -euo pipefail
           mkdir -p verification
           python3 evidence/test122_safety.py | tee verification/safety122-static.txt
+          sh evidence/run125-foundation.sh 2>&1 | tee verification/foundation125.txt
+          python3 evidence/test125.py | tee verification/static125.txt
           sh evidence/run124-foundation.sh 2>&1 | tee verification/foundation124.txt
           python3 evidence/test124.py | tee verification/static124.txt
           sh evidence/run121-foundation.sh 2>&1 | tee verification/foundation121.txt
@@ -80,7 +82,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.4-rootless
+          name: CCWeatherModule-1.2.5-rootless
           path: |
             packages/*.deb
             verification/*

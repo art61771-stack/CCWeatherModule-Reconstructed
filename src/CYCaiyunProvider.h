@@ -25,6 +25,10 @@ typedef NS_ENUM(NSInteger, CYErrorCode) {
 @property(nonatomic,strong,readonly) NSDate *timestamp; // local successful receipt
 @property(nonatomic,strong,readonly,nullable) NSDate *serverTimestamp;
 @property(nonatomic,strong,readonly,nullable) NSTimeZone *timezone;
+// Caiyun v2.6 realtime: km/h, meteorological FROM degrees, relative humidity 0..1.
+@property(nonatomic,strong,readonly,nullable) NSNumber *windSpeedKPH;
+@property(nonatomic,strong,readonly,nullable) NSNumber *windDirectionDegrees;
+@property(nonatomic,strong,readonly,nullable) NSNumber *relativeHumidity;
 @property(nonatomic,strong,readonly,nullable) NSNumber *currentTemperature;
 @property(nonatomic,strong,readonly,nullable) NSNumber *maximum;
 @property(nonatomic,strong,readonly,nullable) NSNumber *minimum;

@@ -503,8 +503,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     self.caiyunRender=WCCRenderCaiyunSnapshot(s.snapshot,[WCCPrefs() stringForKey:@"caiyunAlias"],s.stale);
     NSDictionary *r=self.caiyunRender;
     _cityLabel.text=r[@"city"]; _tempLabel.text=r[@"temperature"]; _highLowLabel.text=r[@"highLow"];
-    _precipLabel.text=r[@"precipitation"];
-    _conditionLabel.text=![r[@"ready"] boolValue]?@"未就绪": [NSString stringWithFormat:@"%@%@",r[@"condition"][@"text"],s.stale?@" · 已过期":@""];
+    NSString *outlook=r[@"outlook"];
+    _precipLabel.text=outlook.length?[NSString stringWithFormat:@"%@ · %@",outlook,r[@"precipitation"]]:r[@"precipitation"];
+    _conditionLabel.text=![r[@"ready"] boolValue]?@"未就绪": [NSString stringWithFormat:@"%@%@",[r[@"condition"][@"text"] stringByAppendingString:([r[@"details"] length]?[@" · " stringByAppendingString:r[@"details"]]:@"")],s.stale?@" · 已过期":@""];
     [self updateWeatherIcon]; if(_isExpanded)[self updateHourlyForecast];
 }
 - (void)updateWeatherDisplay {
@@ -758,6 +759,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     NSAssert(NSThread.isMainThread,@"UIKit main thread");
     BOOL iconEffect=WCCTextShadowEnabled(3)||WCCTextGlowEnabled(3);
     _headerView.clipsToBounds=_isExpanded?NO:!iconEffect;
+    WCCApplyMainContentAnimations(_iconView,WCCMainContentSettings(0),WCCMainContentSettings(1),self.mediaVisible && !self.mediaSuspended && !self.presentedViewController && WCCCurrentHostState().visible);
     WCCApplyMainIconEffects(_iconView,WCCTextShadowEnabled(3),WCCTextGlowEnabled(3),WCCTextEffectSettings(3),self.mediaVisible && !self.mediaSuspended && WCCCurrentHostState().visible,self.customMedia.videoRendering && !self.customMedia.hidden);
     // Main header labels only: never style hourly labels or the whole layer.
     NSArray<NSArray<UILabel *> *> *groups=@[@[_tempLabel,_highLowLabel],
