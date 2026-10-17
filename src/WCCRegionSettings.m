@@ -190,7 +190,7 @@
 }
 - (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)index {
     [table deselectRowAtIndexPath:index animated:YES];
-    if(index.section>=9 && index.row<2) {
+    if(index.section>=9 && index.section<=12 && index.row<2) {
         self.colorGroup=index.section-9;NSMutableArray *v=[WCCTextEffectSettings(self.colorGroup) mutableCopy];
         if(index.row==1) { v[0]=@[];if(!WCCSetTextEffectSettings(self.colorGroup,v))[self failed]; }
         else if(@available(iOS 14.0,*)) {

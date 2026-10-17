@@ -34,7 +34,7 @@ int main(void){@autoreleasepool{
  assert(WCCLoadConfiguration(@"00000000-0000-0000-0000-000000000000",&error));assert([changed isEqual:WCCCurrentSliderValues()]);
  WCCTestFailCommit(YES);assert(!WCCSetMainContentSettings(0,@[@YES,@1]));assert(!WCCLoadConfiguration(identifier,&error));assert([changed isEqual:WCCCurrentSliderValues()]);WCCTestFailCommit(NO);
  assert(!WCCSetMainContentSettings(0,@[@1,@0]));assert(!WCCSetMainContentSettings(1,@[@YES,@2]));assert(!WCCSetMainContentSettings(1,@[@YES,@YES]));assert(!WCCSetMainContentSettings(2,@[@YES,@0]));
- assert(!WCCNormalizePresentationValues(@{@"mainOpacity125":@[@YES,@NAN]},5));
+ assert(!WCCNormalizePresentationValues(@{@"mainOpacity125":@[@YES,@(NAN)]},5));
  for(int version=1;version<=4;version++){NSDictionary *old=WCCNormalizePresentationValues(@{},version);assert(old && !old[@"mainOpacity125"]);assert(WCCCommitSliderValues(old));assert([WCCMainContentSettings(0) isEqual:changed[@"mainOpacity125"]]);assert([WCCMainContentSettings(1) isEqual:changed[@"mainScale125"]]);}
  assert(WCCCommitSliderValues(WCCNormalizePresentationValues(@{},5)));assert(([WCCMainContentSettings(0) isEqual:@[@NO,@0]]));
  [WCCPrefs() removePersistentDomainForName:suite];[NSFileManager.defaultManager removeItemAtPath:dir error:NULL];
