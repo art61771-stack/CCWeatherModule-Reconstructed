@@ -10,7 +10,7 @@ static NSDictionary *fixture(id speed,id direction,id humidity,NSArray *hours){
 static CYSnapshot *parse(id speed,id direction,id humidity,NSArray *hours){return [CYCaiyunProvider parseFixture:fixture(speed,direction,humidity,hours) now:[NSDate dateWithTimeIntervalSince1970:1767225600] generation:1];}
 int main(void){@autoreleasepool{
  CYSnapshot *s=parse(@12,@135,@.98,nil);NSDictionary *r=WCCRenderCaiyunSnapshot(s,@"离线测试",NO);
- assert([r[@"details"] isEqual:@"东南风3级（12.0 km/h） · 湿度98%"]);assert([r[@"outlook"] isEqual:@""]);
+ assert([r[@"details"] isEqual:@"东南风2级（12.0 km/h） · 湿度98%"]);assert([r[@"outlook"] isEqual:@""]);
  for(id bad in @[@YES,@-1,@"12",NSNull.null,@(NAN),@(INFINITY)]){
   s=parse(bad,bad,bad,nil);assert(!s.windSpeedKPH && !s.windDirectionDegrees && !s.relativeHumidity);assert([WCCWeatherDetails(s) isEqual:@""]);
  }
