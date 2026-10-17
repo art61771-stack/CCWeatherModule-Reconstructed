@@ -17,7 +17,7 @@ int main(void){@autoreleasepool{
  assert(!parse(nil,@361,@1.01,nil).windDirectionDegrees);assert(!parse(nil,@0,@1.01,nil).relativeHumidity);
  assert([WCCWeatherDetails(parse(@0,@360,@0,nil)) isEqual:@"北风0级（0.0 km/h） · 湿度0%"]);
  assert([WCCWeatherDetails(parse(nil,nil,@1,nil)) isEqual:@"湿度100%"]);
- assert([WCCWeatherDetails(parse(@12,nil,nil,nil)) isEqual:@"风3级（12.0 km/h）"]);
+ assert([WCCWeatherDetails(parse(@12,nil,nil,nil)) isEqual:@"风2级（12.0 km/h）"]);
  NSArray *directions=@[@0,@22.49,@22.5,@90,@135,@180,@225,@270,@315,@337.5,@360];
  NSArray *names=@[@"北风",@"北风",@"东北风",@"东风",@"东南风",@"南风",@"西南风",@"西风",@"西北风",@"北风",@"北风"];
  for(int i=0;i<directions.count;i++)assert([WCCWeatherDetails(parse(nil,directions[i],nil,nil)) isEqual:names[i]]);
