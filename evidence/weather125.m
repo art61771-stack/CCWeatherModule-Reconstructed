@@ -22,7 +22,7 @@ int main(void){@autoreleasepool{
  NSArray *names=@[@"北风",@"北风",@"东北风",@"东风",@"东南风",@"南风",@"西南风",@"西风",@"西北风",@"北风",@"北风"];
  for(int i=0;i<directions.count;i++)assert([WCCWeatherDetails(parse(nil,directions[i],nil,nil)) isEqual:names[i]]);
  double limits[]={.3,1.6,3.4,5.5,8,10.8,13.9,17.2,20.8,24.5,28.5,32.7};
- for(int i=0;i<12;i++){NSString *a=WCCWeatherDetails(parse(@((limits[i]-.0001)*3.6),nil,nil,nil));NSString *b=WCCWeatherDetails(parse(@((limits[i]+.0001)*3.6),nil,nil,nil));assert([a containsString:[NSString stringWithFormat:@"风%d级",i]]);assert([b containsString:[NSString stringWithFormat:@"风%d级",i+1]]);}
+ for(int i=0;i<12;i++){NSString *a=WCCWeatherDetails(parse(@((limits[i]-.0001)*3.6),nil,nil,nil));NSString *b=WCCWeatherDetails(parse(@((limits[i]+.0001)*3.6),nil,nil,nil));assert(([a containsString:[NSString stringWithFormat:@"风%d级",i]]));assert(([b containsString:[NSString stringWithFormat:@"风%d级",i+1]]));}
  NSMutableArray *hours=[NSMutableArray new];NSISO8601DateFormatter *iso=[NSISO8601DateFormatter new];
  NSDate *now=[NSDate dateWithTimeIntervalSince1970:1767225600];
  for(int i=-2;i<=30;i++)[hours addObject:@{@"datetime":[iso stringFromDate:[now dateByAddingTimeInterval:i*3600]],@"value":i<5?@"CLOUDY":@"LIGHT_RAIN"}];
