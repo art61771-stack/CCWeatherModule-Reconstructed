@@ -294,7 +294,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _tempLabel.font = [UIFont systemFontOfSize:MAX(1,g.tempFont) weight:UIFontWeightLight];
     _cityLabel.font = [UIFont systemFontOfSize:MAX(1,g.cityFont) weight:UIFontWeightSemibold];
     _conditionLabel.font = _highLowLabel.font = [UIFont systemFontOfSize:MAX(1,g.detailFont) weight:UIFontWeightRegular];
-    self.greetingLabel.adjustsFontSizeToFitWidth=YES;
+    // The rail, font and alignment together define the visible anchor. Font
+    // fitting changes glyph advance per sentence and made the 1.2.7 frame-only
+    // test pass while real short/long greetings exposed different left edges.
+    self.greetingLabel.adjustsFontSizeToFitWidth=NO;
+    self.greetingLabel.minimumScaleFactor=1;
+    self.greetingLabel.numberOfLines=1;
+    self.greetingLabel.lineBreakMode=NSLineBreakByTruncatingTail;
     self.greetingLabel.font = [UIFont systemFontOfSize:MAX(1,g.greetingFont) weight:UIFontWeightRegular];
     _tempLabel.textAlignment = NSTextAlignmentLeft;
     _highLowLabel.textAlignment = NSTextAlignmentLeft;
@@ -737,10 +743,11 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (_isExpanded) return;
     BOOL right=self.layoutSize.width!=3 && self.layoutSize.width>=2 && self.layoutSize.width<=4 && self.layoutSize.height==1;
     int align=WCCInformationAlignment(WCCRegionOffset(4),right?2:0);
-    // Region keeps the 1.2.4 measured-ink contract. Greeting instead moves its
-    // fixed UILabel rail and aligns inward, so changing text cannot move anchor.
+    // Region keeps the 1.2.4 measured-ink contract. Greeting has an explicit
+    // visible anchor: normalized X <= 0 is the baseline left edge, X > 0 is the
+    // right edge. Never inherit 4x1's trailing metadata alignment at X == 0.
     _cityLabel.textAlignment=_conditionLabel.textAlignment=_precipLabel.textAlignment=align==2?NSTextAlignmentRight:NSTextAlignmentLeft;
-    self.greetingLabel.textAlignment=WCCGreetingAlignment(WCCRegionOffset(6),right?2:0)==2?NSTextAlignmentRight:NSTextAlignmentLeft;
+    self.greetingLabel.textAlignment=WCCGreetingVisibleAlignment(WCCRegionOffset(6))==2?NSTextAlignmentRight:NSTextAlignmentLeft;
     NSInteger region=0;
     for (NSArray<UIView *> *group in [self positionRegions]) {
         // Icon uses the same unscaled slot but combines offset and scale once.

@@ -23,6 +23,6 @@ for file in ['WCCMedia.m','WCCHourly.h','WCCSettings.m','WCCNativeSettingsNaviga
 # 1.2.7 intentionally adds greeting-only helpers to Runtime; 1.2.5 animation
 # primitives and their callers remain present and unchanged in behavior.
 assert 'WCCBreathDuration' in (s/'WCCRefreshPolicy.h').read_text()
-info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.7'
-assert 'Version: 1.2.7' in (p/'control').read_text()
+info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert info['CFBundleVersion']==info['CFBundleShortVersionString'] and tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,5)
+assert 'Version: '+info['CFBundleVersion'] in (p/'control').read_text()
 print('PASS125 static: owner pause routing/settings visibility, independent animation keys, no media reload/hourly changes; original host/native routing/runtime unchanged; 1.2.5 metadata. No UIKit device execution.')

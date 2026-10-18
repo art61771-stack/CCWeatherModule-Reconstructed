@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.7 rootless
+name: CCWeatherModule 1.2.8 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -23,6 +23,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p verification
+          cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime128.c -lm -o /tmp/runtime128
+          /tmp/runtime128 | tee verification/runtime128.txt
+          sh evidence/run128-foundation.sh 2>&1 | tee verification/foundation128.txt
+          python3 evidence/test128.py | tee verification/static128.txt
           cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime127.c -lm -o /tmp/runtime127
           /tmp/runtime127 | tee verification/runtime127.txt
           sh evidence/run127-foundation.sh 2>&1 | tee verification/foundation127.txt
@@ -84,11 +88,11 @@ jobs:
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo 'Greeting 1.2.7 production C geometry and static wiring: RUN. UIKit rendering/device verification: NOT RUN (no executable iOS16 XCTest target); no iOS17/18 substitute. Real Keychain and Caiyun live API: NOT RUN. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+          echo 'Greeting 1.2.8 visible-anchor production C, Apple UIKit stub and static wiring: RUN. 1.2.7/1.2.6/1.2.5/1.2.4 historical regressions: RUN. True glyph rendering/device verification: NOT RUN (Foundation stub is not CoreText/UIKit rasterization). Real Keychain and Caiyun live API: NOT RUN. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: STILL REQUIRES RE-VERIFICATION.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.7-rootless
+          name: CCWeatherModule-1.2.8-rootless
           path: |
             packages/*.deb
             verification/*

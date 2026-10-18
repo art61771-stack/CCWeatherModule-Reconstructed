@@ -238,15 +238,28 @@ static inline WCCRect WCCMainIconTargetForLayout(WCCRect baseline,double width,d
 static inline int WCCInformationAlignment(double preference,int defaultAlignment) {
     return preference<0?0:preference>0?2:defaultAlignment;
 }
-/* Greeting position has stable rail semantics: the preference translates the
- * fixed UILabel rail, never its variable textRect. Negative X left-aligns the
- * ink, positive X right-aligns it, and zero preserves the layout alignment.
- * Thus short/long/random/truncated text grows inward from one fixed edge. */
+/* 1.2.7 ABI remains for historical regression: it describes the old rule
+ * which inherited the layout alignment at zero. Production 1.2.8 deliberately
+ * uses WCCGreetingVisibleAlignment below instead. */
 static inline int WCCGreetingAlignment(double preference,int defaultAlignment) {
     return preference<0?0:preference>0?2:defaultAlignment;
 }
+/* Normalize before choosing the visible side: tiny values which round to zero
+ * must not accidentally inherit a trailing 4x1 layout alignment. Zero and
+ * negative X use the layout rail's left edge; positive X uses its right edge. */
+static inline int WCCGreetingVisibleAlignment(double preference) {
+    return WCCNormalizePositionOffset(6,preference)>0?2:0;
+}
 static inline WCCRect WCCGreetingTranslation(WCCRect rail,double width,double height,double x,double y) {
     return WCCRegionTranslation(rail,width,height,x,y);
+}
+/* Production/test oracle for the visible glyph box. Collapsed production uses
+ * one line and truncation (never font fitting), so measuredHeight is invariant;
+ * the helper also top-anchors a two-line fixture to prove Y is text-independent. */
+static inline WCCRect WCCGreetingVisibleBounds(WCCRect rail,double measuredWidth,double measuredHeight,int alignment) {
+    double w=fmin(rail.w,fmax(0,measuredWidth));
+    double h=fmin(rail.h,fmax(0,measuredHeight));
+    return WCCR(rail.x+(alignment==2?rail.w-w:0),rail.y,w,h);
 }
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.
