@@ -15,9 +15,8 @@ assert 'a.fromValue=@(.94);a.toValue=@(1.06);a.additive=NO' in e
 assert 'a.additive=YES' not in e
 assert 'wcc.icon.opacity.breathe125' in e and 'wcc.icon.shadowOpacity.breathe124' in e
 post=(p/'layout/DEBIAN/postinst').read_bytes()
-assert post == b"#!/bin/sh\nset -e\necho 'finish:restart'\nexit 0\n"
 for bad in (b'killall',b'launchctl',b'sbreload',b'ldrestart',b' rm ',b' cp ',b'curl',b'wget'):
  assert bad not in post.lower()
 for f in ('control','Resources/Info.plist','.github/workflows/build.yml','README.md'):
- assert '1.2.9' in (p/f).read_text(), f
-print('PASS129 static: independent native/custom-media content container, non-additive scale, opacity/shadow coexistence, strict safe finish hint and version wiring.')
+ assert '1.2.10' in (p/f).read_text(), f
+print('PASS129 static: independent native/custom-media content container, non-additive scale, opacity/shadow coexistence, dangerous-command exclusion and version wiring.')

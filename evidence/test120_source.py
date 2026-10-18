@@ -13,9 +13,9 @@ checks=[
  'CYCancelled' in p, 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly' in p,
  'Token' not in ''.join(re.findall(r'forKey:@"([^\"]+)"',s)),
  'return nil;' not in (root/'src/WCCModule.m').read_text().split('WCCLoadWeatherFrameworks();',1)[1].split('WCCContentViewController *controller',1)[0],
- 'Version: 1.2.9' in (root/'control').read_text(), 'Icon: https://' in (root/'control').read_text(),
+ 'Version: 1.2.10' in (root/'control').read_text(), 'Icon: https://' in (root/'control').read_text(),
 ]
-info=plistlib.loads((root/'Resources/Info.plist').read_bytes()); checks.extend([info['CFBundleVersion']>='1.2.8',info['CFBundleShortVersionString']>='1.2.8'])
+info=plistlib.loads((root/'Resources/Info.plist').read_bytes()); checks.extend([tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,8),tuple(map(int,info['CFBundleShortVersionString'].split('.'))) >= (1,2,8)])
 # All network-derived resource choices reside in audited component static mapping.
 for name in ['CLEAR_DAY','CLEAR_NIGHT','PARTLY_CLOUDY_DAY','PARTLY_CLOUDY_NIGHT','CLOUDY','LIGHT_HAZE','MODERATE_HAZE','HEAVY_HAZE','LIGHT_RAIN','MODERATE_RAIN','HEAVY_RAIN','STORM_RAIN','FOG','LIGHT_SNOW','MODERATE_SNOW','HEAVY_SNOW','STORM_SNOW','DUST','SAND','WIND']: checks.append(name in p)
 for i,ok in enumerate(checks): assert ok, f'wiring assertion {i+1}'

@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.9 rootless
+name: CCWeatherModule 1.2.10 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -23,6 +23,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p verification
+          sh evidence/test130_sileo_postinst.sh layout/DEBIAN/postinst | tee verification/sileo130-source.txt
+          python3 evidence/test130.py | tee verification/static130.txt
           cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime129.c -lm -o /tmp/runtime129
           /tmp/runtime129 | tee verification/runtime129.txt
           python3 evidence/test129.py | tee verification/static129.txt
@@ -93,22 +95,28 @@ jobs:
           assert set(k for k,v in members.items() if v.isfile()) == {'control','postinst'}
           m=members['postinst']; assert m.mode==0o755 and m.uname=='root' and m.gname=='wheel'
           PY
-          printf '#!/bin/sh\nset -e\necho '\''finish:restart'\''\nexit 0\n' > /tmp/expected-postinst
-          cmp /tmp/expected-postinst /tmp/wcc-control/postinst
+          cmp layout/DEBIAN/postinst /tmp/wcc-control/postinst
           sh -n /tmp/wcc-control/postinst
-          ! grep -Eiq 'killall|launchctl|sbreload|ldrestart|(^|[[:space:]])(rm|cp|curl|wget)([[:space:]]|$)' /tmp/wcc-control/postinst
+          sh evidence/test130_sileo_postinst.sh /tmp/wcc-control/postinst | tee verification/sileo130-packaged.txt
+          grep -qx ' Version: 1.2.10' verification/control.txt
           dpkg-deb -x "$DEB" /tmp/wcc-payload
-          BIN=/tmp/wcc-payload/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule
+          BUNDLE=/tmp/wcc-payload/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle
+          BIN="$BUNDLE/CCWeatherModule"
+          test -f "$BUNDLE/SettingsIcon@3x.png"
+          cmp Resources/SettingsIcon@3x.png "$BUNDLE/SettingsIcon@3x.png"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$BUNDLE/Info.plist" | grep -qx '1.2.10'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$BUNDLE/Info.plist" | grep -qx '1.2.10'
           lipo -info "$BIN" | tee verification/architectures.txt
+          grep -q 'arm64 arm64e' verification/architectures.txt
           otool -L "$BIN" | tee verification/linkage.txt
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo 'Icon scale 1.2.9 independent content-container production C, matrix presentation-center test, Apple UIKit/QuartzCore historical stubs and static wiring: RUN. Safe postinst finish:restart hint: PACKAGED; Sileo button behavior: NOT DEVICE-VERIFIED. 1.2.8 through 1.2.4 historical regressions: RUN. True UIKit rendering/device verification, iOS 16 simulator and iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+          echo '1.2.10 changes packaging protocol only. Sileo official dynamic-fd finish:restart protocol source and unpacked package tests: RUN. 1.2.9 production icon scaling and 1.2.8 through 1.2.4 historical regressions: RUN. Sileo completion-button behavior on device, true UIKit rendering, iOS 16 simulator and iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.9-rootless
+          name: CCWeatherModule-1.2.10-rootless
           path: |
             packages/*.deb
             verification/*

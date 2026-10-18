@@ -1,4 +1,22 @@
 #!/bin/sh
-set -e
-echo 'finish:restart'
+
+finish() {
+	[ -n "${SILEO:-}" ] || return 0
+
+	read -r fd ver <<EOF
+${SILEO}
+EOF
+
+	case "${fd}" in
+		''|*[!0-9]*|0) return 0 ;;
+	esac
+	case "${ver}" in
+		''|*[!0-9]*) return 0 ;;
+	esac
+	[ "${ver}" -ge 1 ] 2>/dev/null || return 0
+
+	( echo 'finish:restart' >&"${fd}" ) 2>/dev/null || :
+}
+
+finish
 exit 0

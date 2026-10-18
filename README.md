@@ -1,3 +1,12 @@
+# CCWeatherModule 1.2.10 — Sileo 官方完成动作协议
+
+## 1.2.10
+- 本版仅修复 Debian 打包协议、版本与测试；1.2.9 的生产代码、主图中心缩放和全部功能保持不变。
+- `postinst` 遵循 Sileo 官方 `layout/DEBIAN/postinst.in` 语义：从 `SILEO` 读取动态控制文件描述符和协议版本，在版本 ≥ 1 时向该描述符写入唯一一行 `finish:restart`，请求 Sileo 在安装/升级完成页显示“注销/重启 SpringBoard”动作。
+- 为避免 shell 重定向注入，文件描述符仅接受十进制正整数，协议版本仅接受十进制且必须 ≥ 1；缺失、空、版本 0、格式错误、恶意值或未打开描述符均静默退出 0。实现兼容 POSIX `sh`/ash，不使用 `eval`，不向 stdout 冒充协议。
+- 不执行 `killall`、`sbreload`、`launchctl`、`ldrestart` 或自动注销，不删除/覆盖用户资料，不联网。CI 同时测试源码与解包后的实际 `postinst`，核验 root/wheel 0755、唯一 maintainer script、动态 fd3/fd4 捕获和异常输入静默行为。
+- 截图中转换后 `Architecture: iphoneos-arm64e` 与按钮协议无关；按钮由 Sileo 注入的动态 fd 协议决定。真机 Sileo 完成页仍需复验。
+
 # CCWeatherModule 1.2.9 — 主图原地缩放
 
 唯一基线：1.2.8 commit `ed6aac6975b048015344b9d034be963e4ae3a222`。
@@ -8,7 +17,7 @@
 - opacity 呼吸继续与内部 scale 并存；shadowOpacity 继续位于父 `_iconView.layer`，可与内容动画并存。停止、离开控制中心、打开设置、后台/不可见时仅移除各自 key，model transform 始终 identity，不累计。
 - 保留主图滑块、X/Y、4×1 上下空间、shadow/glow；视频仍保持矩形 shadowPath 限制。
 - 测试新增实际矩阵变换后的 bounds center 验证：50/100/200/250%、正负 X/Y、0.9/1.1 端点及100轮启停；同时先复现旧 translated-parent additive scale 漂移。历史 1.2.8–1.2.4 回归继续执行。
-- 包含最小 `postinst`，仅输出 `finish:restart` 后退出，不执行 killall/sbreload/launchctl/ldrestart，不改文件、不联网。映笺本地基准包本身是 control-only；天气为 ControlCenter bundle，故显式提供兼容提示。安装后请在 Sileo 完成页手动点“注销/重启 SpringBoard”；该按钮是否被当前 Sileo 版本识别仍待真机验证。
+- 1.2.9 当时包含了错误的 stdout `finish:restart` 提示；该历史实现未使用 Sileo 注入的动态控制 fd，因此真机不显示按钮。1.2.10 已按官方协议修复。
 
 ## 真机状态
 主图视觉中心、GIF/MP4、Sileo 完成按钮、iPhone 14 Pro Max iOS 16.6 RootHide 均 **NOT RUN / 待真机验证**；CI 的 C 矩阵、Apple QuartzCore/UIKit 桩和静态接线不冒充真机渲染。

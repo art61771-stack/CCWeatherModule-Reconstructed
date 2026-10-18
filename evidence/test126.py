@@ -8,5 +8,5 @@ assert 'WCCRenderSystemWeatherDetails(_currentCity' in c and 'native[@"details"]
 assert 'src/WCCSystemWeatherDetails.m' in mk
 info=plistlib.loads((p/'Resources/Info.plist').read_bytes()); assert info['CFBundleVersion']==info['CFBundleShortVersionString'] and tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,6)
 assert 'Version: '+info['CFBundleVersion'] in (p/'control').read_text()
-w=(p/'.github/workflows/build.yml').read_text(); assert 'run126-foundation.sh' in w and 'CCWeatherModule-1.2.9-rootless' in w
+w=(p/'.github/workflows/build.yml').read_text(); assert 'run126-foundation.sh' in w and 'CCWeatherModule-1.2.10-rootless' in w
 print('PASS126 static production wiring, safe runtime helper, source binding and 1.2.6 metadata')
