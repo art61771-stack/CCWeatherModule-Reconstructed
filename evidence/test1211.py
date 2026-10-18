@@ -7,7 +7,7 @@ assert 'WCCWeatherDetailProjection.m' in make and 'applyWeatherTextProjection' i
 method=vc[vc.index('- (void)weatherDetailsPreferenceChanged {'):vc.index('- (void)preferencesChanged {')]
 assert 'refreshManual' not in method
 assert 'drawGreeting' not in method
-assert '@"version":@6' in cfg and 'detailsBefore' in cfg
+assert '@"version":@7' in cfg and 'detailsBefore' in cfg
 assert 'Version: 1.2.12' in (p/'control').read_text()
 assert 'CCWeatherModule-1.2.12-rootless' in (p/'.github/workflows/build.yml').read_text()
 assert '1.2.12' in (p/'Resources/Info.plist').read_text()
