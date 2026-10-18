@@ -22,7 +22,7 @@ assert 'WCCApplyConfiguredTextEffects(label,enabled,glow,settings,' in c and 'WC
 import source124_contract
 source124_contract.verify(p)
 info=plistlib.loads((p/'Resources/Info.plist').read_bytes())
-assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.6'
-assert 'Version: 1.2.6' in (p/'control').read_text()
-assert 'CCWeatherModule-1.2.6-rootless' in (p/'.github/workflows/build.yml').read_text()
+assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.7'
+assert 'Version: 1.2.7' in (p/'control').read_text()
+assert 'CCWeatherModule-1.2.7-rootless' in (p/'.github/workflows/build.yml').read_text()
 print('PASS123 static production wiring: event-gated RNG, pure binding/layout/effects, independent CRUD, three glow groups, provider TTL-only and source transaction contract, version consistency. UIKit/device NOT RUN.')

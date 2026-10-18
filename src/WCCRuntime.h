@@ -238,6 +238,16 @@ static inline WCCRect WCCMainIconTargetForLayout(WCCRect baseline,double width,d
 static inline int WCCInformationAlignment(double preference,int defaultAlignment) {
     return preference<0?0:preference>0?2:defaultAlignment;
 }
+/* Greeting position has stable rail semantics: the preference translates the
+ * fixed UILabel rail, never its variable textRect. Negative X left-aligns the
+ * ink, positive X right-aligns it, and zero preserves the layout alignment.
+ * Thus short/long/random/truncated text grows inward from one fixed edge. */
+static inline int WCCGreetingAlignment(double preference,int defaultAlignment) {
+    return preference<0?0:preference>0?2:defaultAlignment;
+}
+static inline WCCRect WCCGreetingTranslation(WCCRect rail,double width,double height,double x,double y) {
+    return WCCRegionTranslation(rail,width,height,x,y);
+}
 /* Place a 10pt greeting only in unused header space. UIKit supplies resolved
  * frames, including intrinsic text heights; never move the original elements.
  * Prefer the bottom rail, then the widest unoccupied horizontal segment. */

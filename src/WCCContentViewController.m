@@ -737,8 +737,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (_isExpanded) return;
     BOOL right=self.layoutSize.width!=3 && self.layoutSize.width>=2 && self.layoutSize.width<=4 && self.layoutSize.height==1;
     int align=WCCInformationAlignment(WCCRegionOffset(4),right?2:0);
-    // Change alignment BEFORE measuring ink; use absolute preference, not delta.
+    // Region keeps the 1.2.4 measured-ink contract. Greeting instead moves its
+    // fixed UILabel rail and aligns inward, so changing text cannot move anchor.
     _cityLabel.textAlignment=_conditionLabel.textAlignment=_precipLabel.textAlignment=align==2?NSTextAlignmentRight:NSTextAlignmentLeft;
+    self.greetingLabel.textAlignment=WCCGreetingAlignment(WCCRegionOffset(6),right?2:0)==2?NSTextAlignmentRight:NSTextAlignmentLeft;
     NSInteger region=0;
     for (NSArray<UIView *> *group in [self positionRegions]) {
         // Icon uses the same unscaled slot but combines offset and scale once.
@@ -746,6 +748,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         CGRect baseline=CGRectNull;
         for (UIView *view in group) if (!view.hidden && !CGRectIsEmpty(view.frame)) {
             CGRect visible=view.frame;
+            // Greeting is the fixed rail itself. Its text alignment makes the
+            // selected visible edge coincide with the rail edge at saturation.
+            if(region==3) {
+                baseline=visible;
+                continue;
+            }
             if([view isKindOfClass:UILabel.class]) {
                 UILabel *label=(UILabel *)view;
                 if(!label.text.length && !label.attributedText.length)continue;
@@ -757,7 +765,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
             baseline=CGRectIsNull(baseline)?visible:CGRectUnion(baseline,visible);
         }
         if (!CGRectIsNull(baseline)) {
-            WCCRect delta=WCCRegionTranslation(WCCR(baseline.origin.x,baseline.origin.y,baseline.size.width,baseline.size.height),
+            WCCRect rail=WCCR(baseline.origin.x,baseline.origin.y,baseline.size.width,baseline.size.height);
+            WCCRect delta=region==3 ? WCCGreetingTranslation(rail,_headerView.bounds.size.width,_headerView.bounds.size.height,
+                WCCRegionOffset(6),WCCRegionOffset(7)) : WCCRegionTranslation(rail,
                 _headerView.bounds.size.width,_headerView.bounds.size.height,WCCRegionOffset(region*2),WCCRegionOffset(region*2+1));
             for (UIView *view in group) view.transform=CGAffineTransformMakeTranslation(delta.x,delta.y);
         }
