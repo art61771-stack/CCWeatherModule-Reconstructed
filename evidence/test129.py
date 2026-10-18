@@ -14,7 +14,7 @@ assert 'animationWithKeyPath:i?@"transform.scale":@"opacity"' in e
 assert 'a.fromValue=@(.94);a.toValue=@(1.06);a.additive=NO' in e
 assert 'a.additive=YES' not in e
 assert 'wcc.icon.opacity.breathe125' in e and 'wcc.icon.shadowOpacity.breathe124' in e
-post=(p/'postinst').read_bytes()
+post=(p/'layout/DEBIAN/postinst').read_bytes()
 assert post == b"#!/bin/sh\nset -e\necho 'finish:restart'\nexit 0\n"
 for bad in (b'killall',b'launchctl',b'sbreload',b'ldrestart',b' rm ',b' cp ',b'curl',b'wget'):
  assert bad not in post.lower()

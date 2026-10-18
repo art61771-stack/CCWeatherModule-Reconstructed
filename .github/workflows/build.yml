@@ -83,9 +83,9 @@ jobs:
           dpkg-deb -I "$DEB" | tee verification/control.txt
           dpkg-deb -c "$DEB" | tee verification/contents.txt
           dpkg-deb -e "$DEB" /tmp/wcc-control
-          SCRIPTS=()
-          for f in /tmp/wcc-control/*; do test "$(basename "$f")" = control || SCRIPTS+=("$(basename "$f")"); done
-          test "${SCRIPTS[*]}" = postinst
+          SCRIPTS=''
+          for f in /tmp/wcc-control/*; do test "$(basename "$f")" = control || SCRIPTS="$SCRIPTS $(basename "$f")"; done
+          test "${SCRIPTS# }" = postinst
           test "$(stat -f '%Lp' /tmp/wcc-control/postinst)" = 755
           test "$(stat -f '%Su:%Sg' /tmp/wcc-control/postinst)" = root:wheel
           printf '#!/bin/sh\nset -e\necho '\''finish:restart'\''\nexit 0\n' > /tmp/expected-postinst
