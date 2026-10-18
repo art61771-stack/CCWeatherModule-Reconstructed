@@ -20,7 +20,7 @@ assert 'WCCBreathDuration' in new
 for file in ['WCCHourly.h','WCCNativeSettingsNavigation.m','WCCHostObserver.m']:
  baseline=subprocess.check_output(['git','show','c5685b444a5cef18f87327fd0dd9229cd81e5e91:src/'+file],cwd=p)
  assert (s/file).read_bytes()==baseline,file
-# 1.2.12 intentionally extends WCCMedia with aspectFill and WCCSettings with one native background page;
+# 1.2.13 intentionally extends WCCMedia with aspectFill and WCCSettings with one native background page;
 # animation ownership assertions above still protect 1.2.5 behavior.
 # 1.2.7 intentionally adds greeting-only helpers to Runtime; 1.2.5 animation
 # primitives and their callers remain present and unchanged in behavior.

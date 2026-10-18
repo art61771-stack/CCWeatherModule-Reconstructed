@@ -13,6 +13,7 @@
 #import "WCCSystemWeatherDetails.h"
 #import "WCCWeatherDetailProjection.h"
 #import "WCCBackground.h"
+#import "WCCBackgroundClip.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <stdbool.h>
@@ -72,9 +73,12 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) BOOL mediaVisible;
 @property(nonatomic) BOOL mediaSuspended;
 @property(nonatomic,copy) NSString *mediaAssetKey;
+@property(nonatomic,strong) UIView *backgroundClipView;
 @property(nonatomic,strong) WCCMediaView *backgroundMedia;
 @property(nonatomic,strong) UIView *backgroundMaskView;
+@property(nonatomic) WCCBackgroundClipSource backgroundClipSource;
 - (void)backgroundChanged;
+- (void)layoutBackgroundClip;
 - (void)updateBackgroundPlayback;
 @end
 // Auto Layout can resolve scroll bounds after the controller's layout callback.
@@ -156,7 +160,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _isExpanded = expanded;
     if (expanded) [self updateHourlyForecast]; else [self clearHourlyItems];
     _hourlyContainer.alpha = expanded ? 1 : 0;
-    [self.view setNeedsLayout];
+    [self.view setNeedsLayout]; [self.view layoutIfNeeded]; [self layoutBackgroundClip];
 }
 - (void)didTransitionToExpandedContentMode:(BOOL)expanded {
     _isExpanded = expanded;
@@ -253,13 +257,20 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(weatherDetailsPreferenceChanged) name:WCCWeatherDetailsChanged object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(mainIconScaleChanged) name:WCCMainIconScaleChanged object:nil];
     self.view.backgroundColor = UIColor.clearColor;
-    self.backgroundMedia=[[WCCMediaView alloc] initWithFrame:self.view.bounds];
+    // Media and its black overlay alone share the host module border. Root stays
+    // unclipped so weather text, icon shadow/glow and animations remain intact.
+    self.backgroundClipView=[[UIView alloc] initWithFrame:self.view.bounds];
+    self.backgroundClipView.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    self.backgroundClipView.clipsToBounds=YES; self.backgroundClipView.userInteractionEnabled=NO;
+    [self.view addSubview:self.backgroundClipView];
+    self.backgroundMedia=[[WCCMediaView alloc] initWithFrame:self.backgroundClipView.bounds];
     self.backgroundMedia.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    self.backgroundMedia.aspectFill=YES; self.backgroundMedia.clipsToBounds=YES; self.backgroundMedia.userInteractionEnabled=NO;
-    [self.view addSubview:self.backgroundMedia];
-    self.backgroundMaskView=[[UIView alloc] initWithFrame:self.view.bounds]; self.backgroundMaskView.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    self.backgroundMedia.aspectFill=YES; self.backgroundMedia.userInteractionEnabled=NO;
+    [self.backgroundClipView addSubview:self.backgroundMedia];
+    self.backgroundMaskView=[[UIView alloc] initWithFrame:self.backgroundClipView.bounds]; self.backgroundMaskView.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.backgroundMaskView.backgroundColor=UIColor.blackColor; self.backgroundMaskView.userInteractionEnabled=NO;
-    [self.view addSubview:self.backgroundMaskView];
+    [self.backgroundClipView addSubview:self.backgroundMaskView];
+    [self layoutBackgroundClip];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(backgroundChanged) name:WCCBackgroundChanged object:nil];
     [self setupHeaderView]; [self setupHourlyContainer];
     [self preferencesChanged]; [self updateWeatherDisplay]; [self forceCityUpdate];
@@ -504,10 +515,19 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self applyWeatherTextProjection];
     [self.view setNeedsLayout];
 }
+- (void)layoutBackgroundClip {
+    if (!self.isViewLoaded || !self.backgroundClipView) return;
+    self.backgroundClipSource=WCCUpdateBackgroundClipView(self.backgroundClipView,self.view);
+    self.backgroundMedia.frame=self.backgroundClipView.bounds;
+    self.backgroundMaskView.frame=self.backgroundClipView.bounds;
+    [self.backgroundMedia setNeedsLayout]; [self.backgroundMedia layoutIfNeeded];
+}
 - (void)backgroundChanged {
     if(!NSThread.isMainThread){dispatch_async(dispatch_get_main_queue(),^{[self backgroundChanged];});return;}
+    // Establish current bounds/path before async image/video readiness can reveal a frame.
+    [self layoutBackgroundClip];
     NSString *path=WCCBackgroundPath(); [self.backgroundMedia loadPath:path];
-    self.backgroundMedia.hidden=path==nil; self.backgroundMaskView.hidden=path==nil; self.backgroundMaskView.alpha=WCCBackgroundMask();
+    self.backgroundClipView.hidden=path==nil; self.backgroundMedia.hidden=path==nil; self.backgroundMaskView.hidden=path==nil; self.backgroundMaskView.alpha=WCCBackgroundMask();
     [self updateBackgroundPlayback];
 }
 - (void)updateBackgroundPlayback { self.backgroundMedia.active=self.mediaVisible&&!self.mediaSuspended&&!self.presentedViewController&&WCCCurrentHostState().visible; }
@@ -887,6 +907,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    // Host geometry/mask can change during size and expanded transitions. Update
+    // the media clip first, without ever clipping the controller root.
+    [self layoutBackgroundClip];
     // Auto Layout has resolved original expanded constraints before translation.
     [self bindGreetingText];
     [self applyTextShadows];

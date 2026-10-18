@@ -23,6 +23,6 @@ import source124_contract
 source124_contract.verify(p)
 info=plistlib.loads((p/'Resources/Info.plist').read_bytes())
 assert info['CFBundleVersion']==info['CFBundleShortVersionString'] and tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,8)
-assert 'Version: 1.2.12' in (p/'control').read_text()
-assert 'CCWeatherModule-1.2.12-rootless' in (p/'.github/workflows/build.yml').read_text()
+assert 'Version: 1.2.13' in (p/'control').read_text()
+assert 'CCWeatherModule-1.2.13-rootless' in (p/'.github/workflows/build.yml').read_text()
 print('PASS123 static production wiring: event-gated RNG, pure binding/layout/effects, independent CRUD, three glow groups, provider TTL-only and source transaction contract, version consistency. UIKit/device NOT RUN.')

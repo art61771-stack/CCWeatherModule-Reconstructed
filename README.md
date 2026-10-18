@@ -1,4 +1,12 @@
-# CCWeatherModule 1.2.12 — 天气详细信息总开关
+# CCWeatherModule 1.2.13 — 背景严格贴合模块边框
+
+## 1.2.13
+
+- 新增专用 `backgroundClipView`，只有背景图片/视频与黑色蒙版进入该容器并共享同一裁切；天气文字、主图 shadow/glow、呼吸动画与小时内容仍位于容器之外，根视图不启用 `clipsToBounds`。
+- 每次布局、尺寸/trait 引发的布局及折叠/展开转场都先同步裁切再显示媒体。`AVPlayerLayer` 继续由 `WCCMediaView` 按 clip bounds 布局，图片/视频保持 aspect-fill，背景层仍为最底层且不拦截触摸。
+- 仅安全读取公开 `UIView/CALayer` 几何：向上遍历可覆盖模块的祖先；若发现 `CAShapeLayer` mask，则把 path 坐标转换到插件 root 后复制；否则复制实际宿主圆角矩形及 continuous corner curve。绝不修改 CCSupport/系统 host。
+- 若插件无权看到可靠宿主边界，保守回退为当前模块 bounds，圆角按当前最短边比例计算并限制在半边以内，不依赖某张截图或固定 pt 值。该回退仍保证媒体/蒙版不越出插件 bounds，但未声称与所有 iOS 私有宿主材质像素级一致。
+- 新增 1213 几何/静态测试：五种模块尺寸、四角 outside rejected/inside visible、mask 坐标转换、100 次布局不积累、媒体与 overlay 同一 superview/mask、root 文字/图标不被 mask、转场先布局、无 host fallback。真实 UIKit/CCSupport 边框与真机转场仍待验证。
 
 ## 1.2.12
 
