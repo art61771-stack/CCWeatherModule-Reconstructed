@@ -6,6 +6,7 @@
 #import "WCCGallery.h"
 #import "WCCRegionSettings.h"
 #import "WCCWeatherSettings.h"
+#import "WCCBackgroundSettings.h"
 #import <objc/message.h>
 #import <objc/runtime.h>
 #include <math.h>
@@ -240,6 +241,14 @@ static void WCCShow(UIViewController *p, UIViewController *a, void (^rejected)(v
         pop.sourceView=p.view; pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);
         pop.permittedArrowDirections=0; pop.delegate=page;
         WCCShow(p, nav, completion);
+    }); });
+    WCCAction(a, @"自定义背景 / 蒙版", ^{ WCCAfterAlert(p, ^{
+        WCCBackgroundSettings *page=[[WCCBackgroundSettings alloc] initWithStyle:UITableViewStyleInsetGrouped];
+        WCCSettingsSession *owner=WCCSession(p); page.ownerValid=^BOOL{return owner&&!owner.ended&&WCCSession(p)==owner&&p.view.window!=nil;};
+        page.onDone=WCCReturn(p,^{ [self presentFrom:p completion:completion]; });
+        UINavigationController *nav=[[WCCNativeSettingsNavigation alloc] initWithRootViewController:page];nav.modalPresentationStyle=UIModalPresentationCustom;nav.preferredContentSize=CGSizeMake(350,500);
+        UIPopoverPresentationController *pop=nav.popoverPresentationController;pop.sourceView=p.view;pop.sourceRect=CGRectMake(CGRectGetMidX(p.view.bounds),CGRectGetMidY(p.view.bounds),1,1);pop.permittedArrowDirections=0;
+        WCCShow(p,nav,completion);
     }); });
     WCCAction(a, @"自定义图标", ^{ WCCAfterAlert(p, ^{ [self iconsFrom:p completion:completion]; }); });
     WCCAction(a, @"模块尺寸（列 × 行）", ^{ WCCAfterAlert(p, ^{ [self sizesFrom:p completion:completion]; }); });

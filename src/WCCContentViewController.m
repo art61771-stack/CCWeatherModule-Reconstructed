@@ -12,6 +12,7 @@
 #import "WCCWeatherSource.h"
 #import "WCCSystemWeatherDetails.h"
 #import "WCCWeatherDetailProjection.h"
+#import "WCCBackground.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <stdbool.h>
@@ -71,6 +72,10 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) BOOL mediaVisible;
 @property(nonatomic) BOOL mediaSuspended;
 @property(nonatomic,copy) NSString *mediaAssetKey;
+@property(nonatomic,strong) WCCMediaView *backgroundMedia;
+@property(nonatomic,strong) UIView *backgroundMaskView;
+- (void)backgroundChanged;
+- (void)updateBackgroundPlayback;
 @end
 // Auto Layout can resolve scroll bounds after the controller's layout callback.
 // Observe the actual scroll view, not just its parent controller.
@@ -229,7 +234,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     view.visibilityChanged=^(BOOL visible) {
         typeof(self) self=weak; if (!self) return;
         if (visible) { [self consumeHostSession]; self.mediaVisible=YES; [WCCWeatherSource.shared setAutomaticActive:YES]; [self preferencesChanged]; }
-        else if (!self.presentedViewController) { [WCCSettings cancelFrom:self]; [WCCFloatingPanel closeFor:self]; self.mediaVisible=NO; [WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active=NO; [self refreshHourlyMedia]; }
+        else if (!self.presentedViewController) { [WCCSettings cancelFrom:self]; [WCCFloatingPanel closeFor:self]; self.mediaVisible=NO; [WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active=NO; self.backgroundMedia.active=NO; [self refreshHourlyMedia]; }
     }; self.view=view;
 }
 - (void)controlCenterWillPresent {
@@ -248,6 +253,14 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(weatherDetailsPreferenceChanged) name:WCCWeatherDetailsChanged object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(mainIconScaleChanged) name:WCCMainIconScaleChanged object:nil];
     self.view.backgroundColor = UIColor.clearColor;
+    self.backgroundMedia=[[WCCMediaView alloc] initWithFrame:self.view.bounds];
+    self.backgroundMedia.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    self.backgroundMedia.aspectFill=YES; self.backgroundMedia.clipsToBounds=YES; self.backgroundMedia.userInteractionEnabled=NO;
+    [self.view addSubview:self.backgroundMedia];
+    self.backgroundMaskView=[[UIView alloc] initWithFrame:self.view.bounds]; self.backgroundMaskView.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    self.backgroundMaskView.backgroundColor=UIColor.blackColor; self.backgroundMaskView.userInteractionEnabled=NO;
+    [self.view addSubview:self.backgroundMaskView];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(backgroundChanged) name:WCCBackgroundChanged object:nil];
     [self setupHeaderView]; [self setupHourlyContainer];
     [self preferencesChanged]; [self updateWeatherDisplay]; [self forceCityUpdate];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^{ [self refreshWeatherData]; });
@@ -472,13 +485,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (gesture.state != UIGestureRecognizerStateRecognized || self.presentedViewController || self.mediaSuspended) return;
     if (![NSThread isMainThread] || !self.isViewLoaded || !self.view.window || self.isBeingDismissed || self.isBeingPresented || self.transitionCoordinator) return;
     // 122 restores the 120 native settings presentation and media suspension.
-    self.mediaSuspended=YES; self.customMedia.active=NO; [self refreshHourlyMedia];
+    self.mediaSuspended=YES; self.customMedia.active=NO; self.backgroundMedia.active=NO; [self refreshHourlyMedia];
     __weak typeof(self) weak = self;
     [WCCSettings presentFrom:self completion:^{ weak.mediaSuspended=NO; [weak preferencesChanged]; }];
 }
 - (void)showCustomNameAlert {
     if (self.presentedViewController) return;
-    self.mediaSuspended=YES; self.customMedia.active = NO; [self refreshHourlyMedia];
+    self.mediaSuspended=YES; self.customMedia.active = NO; self.backgroundMedia.active=NO; [self refreshHourlyMedia];
     __weak typeof(self) weak = self;
     [WCCSettings editLandmarkFrom:self completion:^{ weak.mediaSuspended=NO; [weak preferencesChanged]; }];
 }
@@ -491,13 +504,21 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self applyWeatherTextProjection];
     [self.view setNeedsLayout];
 }
+- (void)backgroundChanged {
+    if(!NSThread.isMainThread){dispatch_async(dispatch_get_main_queue(),^{[self backgroundChanged];});return;}
+    NSString *path=WCCBackgroundPath(); [self.backgroundMedia loadPath:path];
+    self.backgroundMedia.hidden=path==nil; self.backgroundMaskView.hidden=path==nil; self.backgroundMaskView.alpha=WCCBackgroundMask();
+    [self updateBackgroundPlayback];
+}
+- (void)updateBackgroundPlayback { self.backgroundMedia.active=self.mediaVisible&&!self.mediaSuspended&&!self.presentedViewController&&WCCCurrentHostState().visible; }
+- (void)didReceiveMemoryWarning { [super didReceiveMemoryWarning]; if(!self.mediaVisible){self.backgroundMedia.active=NO;[self.backgroundMedia loadPath:nil];} }
 - (void)preferencesChanged {
     _displayMode = MAX(0, MIN(2, [WCCPrefs() integerForKey:@"displayMode"]));
     _customLocationName = [WCCPrefs() stringForKey:@"landmark"];
     if (_displayMode == 2 && !_customLocationName.length) _displayMode = 0;
     [self updateCityLabel]; [self updateWeatherIcon]; [self cacheHourlyMediaPaths]; [self refreshHourlyMedia];
     self.customMedia.active = self.mediaVisible && !self.mediaSuspended && !self.presentedViewController;
-    [self applyWeatherTextProjection];
+    [self applyWeatherTextProjection]; [self backgroundChanged];
 }
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = WCCCurrentHostState().visible; [WCCWeatherSource.shared setAutomaticActive:self.mediaVisible]; [self preferencesChanged]; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; if(!self.presentedViewController || !WCCCurrentHostState().visible)[WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active = NO; [self refreshHourlyMedia]; }

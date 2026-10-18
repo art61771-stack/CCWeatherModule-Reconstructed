@@ -174,12 +174,13 @@ BOOL WCCSetMainContentSettings(NSInteger kind,NSArray *settings) {
     BOOL ok=WCCCommitPartial(@{WCCContentKey(kind):settings});if(ok)WCCNotify(WCCRegionPositionChanged);return ok;
 }
 NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger version) {
-    if(![input isKindOfClass:NSDictionary.class] || (version<1 || version>6))return nil;
+    if(![input isKindOfClass:NSDictionary.class] || (version<1 || version>7))return nil;
     NSArray *keys=version==1?[WCCRegionPositionKeys() arrayByAddingObject:@"mainCustomIconPercent"]:[[[WCCRegionPositionKeys() arrayByAddingObjectsFromArray:WCCScaleKeys()] arrayByAddingObjectsFromArray:WCCShadowKeys()] arrayByAddingObjectsFromArray:@[@"customGreetingEnabled",@"customGreetingText"]];
     if(version>=3)keys=[[keys arrayByAddingObjectsFromArray:WCCGlowKeys()] arrayByAddingObjectsFromArray:@[@"randomGreeting122",@"greetingEntries122"]];
     if(version>=4)keys=[keys arrayByAddingObjectsFromArray:@[WCCEffectKey(0),WCCEffectKey(1),WCCEffectKey(2),WCCEffectKey(3),@"mainIconShadow124",@"mainIconGlow124"]];
     if(version>=5)keys=[keys arrayByAddingObjectsFromArray:@[@"mainOpacity125",@"mainScale125"]];
     if(version>=6)keys=[keys arrayByAddingObject:@"weatherDetailsEnabled1211"];
+    if(version>=7)keys=[keys arrayByAddingObjectsFromArray:@[@"backgroundType1212",@"backgroundFile1212",@"backgroundMask1212"]];
     for(id key in input)if(![keys containsObject:key])return nil;
     NSMutableDictionary *out=[NSMutableDictionary dictionary];
     for(NSInteger i=0;i<8;i++) {
@@ -219,7 +220,8 @@ NSDictionary *WCCNormalizePresentationValues(NSDictionary *input,NSInteger versi
     if(version>=4)for(NSString *key in @[@"mainIconShadow124",@"mainIconGlow124"]){id v=input[key]?:@NO;if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;out[key]=v;}
     if(version>=5)for(int i=0;i<2;i++){id v=input[WCCContentKey(i)]?:@[@NO,@0];if(!WCCValidContent(v))return nil;out[WCCContentKey(i)]=v;}
     if(version>=6){id v=input[@"weatherDetailsEnabled1211"]?:@YES;if(![v isKindOfClass:NSNumber.class] || CFGetTypeID((__bridge CFTypeRef)v)!=CFBooleanGetTypeID())return nil;out[@"weatherDetailsEnabled1211"]=v;}
-    // v1/v2 intentionally leave new preferences untouched; v3 snapshots all.
+    if(version>=7){id type=input[@"backgroundType1212"]?:@0,file=input[@"backgroundFile1212"]?:@"",mask=input[@"backgroundMask1212"]?:@.35;if(!WCCNumber(type)||([type integerValue]<0||[type integerValue]>2)||![file isKindOfClass:NSString.class]||(![@"" isEqual:file]&&![@"current-image.jpg" isEqual:file]&&![@"current-video.mp4" isEqual:file])||!WCCNumber(mask)||!isfinite([mask doubleValue]))return nil;NSInteger k=[type integerValue];if((k==1&&![file isEqual:@"current-image.jpg"])||(k==2&&![file isEqual:@"current-video.mp4"])||(k==0&&[file length]))return nil;out[@"backgroundType1212"]=@(k);out[@"backgroundFile1212"]=file;out[@"backgroundMask1212"]=@(MIN(1,MAX(0,[mask doubleValue])));}
+    // v1-v6 intentionally leave background preferences untouched.
     out[@"customGreetingText"]=text;return out;
 }
 static NSString *WCCPreferenceSuite=@"com.simon.ccweathermodule.custom";
@@ -235,7 +237,7 @@ NSUserDefaults *WCCPrefs(void) {
 }
 BOOL WCCCommitSliderValues(NSDictionary *values) {
     if(![values isKindOfClass:NSDictionary.class])return NO;
-    NSDictionary *normalized=WCCNormalizePresentationValues(values,values[@"weatherDetailsEnabled1211"]?6:values[@"mainOpacity125"] || values[@"mainScale125"]?5:values[@"mainIconShadow124"] || values[@"mainIconGlow124"] || values[@"textEffect124_3"] || values[@"textEffect124_0"] || values[@"textEffect124_1"] || values[@"textEffect124_2"]?4:values[@"mainCustomIconPercent"]?1:(values[@"greetingEntries122"] || values[@"randomGreeting122"] || values[@"temperatureGlow122"] || values[@"informationGlow122"] || values[@"greetingGlow122"]?3:2));
+    NSDictionary *normalized=WCCNormalizePresentationValues(values,values[@"backgroundType1212"]||values[@"backgroundFile1212"]||values[@"backgroundMask1212"]?7:values[@"weatherDetailsEnabled1211"]?6:values[@"mainOpacity125"] || values[@"mainScale125"]?5:values[@"mainIconShadow124"] || values[@"mainIconGlow124"] || values[@"textEffect124_3"] || values[@"textEffect124_0"] || values[@"textEffect124_1"] || values[@"textEffect124_2"]?4:values[@"mainCustomIconPercent"]?1:(values[@"greetingEntries122"] || values[@"randomGreeting122"] || values[@"temperatureGlow122"] || values[@"informationGlow122"] || values[@"greetingGlow122"]?3:2));
     return normalized && WCCCommitPartial(normalized);
 }
 static BOOL WCCCommitPartial(NSDictionary *values) {

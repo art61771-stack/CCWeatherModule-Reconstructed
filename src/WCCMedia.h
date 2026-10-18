@@ -5,6 +5,7 @@ FOUNDATION_EXPORT NSData *WCCPreview(NSString *path);
 @property(nonatomic) BOOL active;
 @property(nonatomic,readonly) BOOL hasMedia;
 @property(nonatomic,readonly) BOOL videoRendering;
+@property(nonatomic) BOOL aspectFill;
 @property(nonatomic,copy) void (^mediaChanged)(void);
 @property(nonatomic,copy) void (^mediaFailed)(NSString *reason);
 - (void)loadPath:(NSString *)path;

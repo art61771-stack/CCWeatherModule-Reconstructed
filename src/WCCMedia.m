@@ -56,6 +56,7 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
     } return self;
 }
 - (BOOL)videoRendering { return _layer!=nil && self.hasMedia; }
+- (void)setAspectFill:(BOOL)aspectFill { _aspectFill=aspectFill; _image.contentMode=aspectFill?UIViewContentModeScaleAspectFill:UIViewContentModeScaleAspectFit; _layer.videoGravity=aspectFill?AVLayerVideoGravityResizeAspectFill:AVLayerVideoGravityResizeAspect; }
 - (BOOL)hasMedia { return _image.image != nil || (_layer.readyForDisplay && _player.status != AVPlayerStatusFailed && _looper.status != AVPlayerLooperStatusFailed); }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)self) {
@@ -136,7 +137,7 @@ NSData *WCCPreview(NSString *path) { UIImage *im = WCCDecode(path); return im ? 
                 AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:composition];
                 self->_player = [AVQueuePlayer new]; self->_player.muted = YES;
                 self->_looper = [AVPlayerLooper playerLooperWithPlayer:self->_player templateItem:item];
-                self->_layer = [AVPlayerLayer playerLayerWithPlayer:self->_player]; self->_layer.videoGravity = AVLayerVideoGravityResizeAspect;
+                self->_layer = [AVPlayerLayer playerLayerWithPlayer:self->_player]; self->_layer.videoGravity = self.aspectFill?AVLayerVideoGravityResizeAspectFill:AVLayerVideoGravityResizeAspect;
                 [self->_layer addObserver:self forKeyPath:@"readyForDisplay" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];
                 [self->_player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];
                 [self->_looper addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:(__bridge void *)self];

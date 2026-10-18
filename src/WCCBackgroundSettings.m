@@ -1,0 +1,29 @@
+#import "WCCBackgroundSettings.h"
+#import "WCCBackground.h"
+#import <PhotosUI/PhotosUI.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
+@interface WCCBackgroundSettings () <PHPickerViewControllerDelegate>
+@property(nonatomic,strong) UILabel *status;
+@property(nonatomic,strong) UISlider *mask;
+@property(nonatomic,strong) UILabel *maskValue;
+@property(nonatomic) NSUInteger generation;
+@end
+@implementation WCCBackgroundSettings
+- (void)viewDidLoad{[super viewDidLoad];self.title=@"自定义背景";self.tableView=[[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];self.status=[UILabel new];self.status.numberOfLines=0;self.status.font=[UIFont systemFontOfSize:14];self.status.textColor=UIColor.secondaryLabelColor;self.mask=[UISlider new];self.mask.minimumValue=0;self.mask.maximumValue=1;self.mask.accessibilityLabel=@"背景黑色蒙版";[self.mask addTarget:self action:@selector(maskChanged:) forControlEvents:UIControlEventValueChanged];self.maskValue=[UILabel new];self.maskValue.textAlignment=NSTextAlignmentRight;[self sync];}
+- (void)dealloc{[self cancelPicker];}
+- (void)sync{NSString *path=WCCBackgroundPath();WCCBackgroundKind kind=WCCBackgroundType();self.status.text=path?[NSString stringWithFormat:@"当前：%@\n%@",kind==WCCBackgroundKindVideo?@"视频（静音循环）":@"图片",path.lastPathComponent]:@"当前：未设置";self.mask.value=WCCBackgroundMask();self.maskValue.text=[NSString stringWithFormat:@"%.0f%%",self.mask.value*100];self.mask.accessibilityValue=self.maskValue.text;[self.tableView reloadData];}
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)t{return 2;}
+- (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s{return s==0?4:1;}
+- (NSString *)tableView:(UITableView *)t titleForHeaderInSection:(NSInteger)s{return s==0?@"自定义背景":@"黑色蒙版";}
+- (NSString *)tableView:(UITableView *)t titleForFooterInSection:(NSInteger)s{return s==0?@"使用系统 PHPicker，仅取得你选择的单个项目，无需完整相册权限。复制成功后才替换旧背景；图片/视频最大64MB。":@"0% 完全透明（原图最亮），100% 完全黑；图片和视频共用，默认35%。";}
+- (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)i{UITableViewCell *c=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];if(i.section==0){if(i.row==0){[c.contentView addSubview:self.status];self.status.frame=CGRectMake(16,8,t.bounds.size.width-64,50);c.selectionStyle=UITableViewCellSelectionStyleNone;}else c.textLabel.text=@[@"",@"从系统相册选择图片",@"从系统相册选择视频",@"清除插件背景"][i.row];if(i.row==3)c.textLabel.textColor=UIColor.systemRedColor;}else{[c.contentView addSubview:self.mask];[c.contentView addSubview:self.maskValue];self.mask.frame=CGRectMake(16,9,t.bounds.size.width-100,28);self.maskValue.frame=CGRectMake(t.bounds.size.width-76,8,55,30);c.selectionStyle=UITableViewCellSelectionStyleNone;}return c;}
+- (CGFloat)tableView:(UITableView *)t heightForRowAtIndexPath:(NSIndexPath *)i{return i.section==0&&i.row==0?66:48;}
+- (void)tableView:(UITableView *)t didSelectRowAtIndexPath:(NSIndexPath *)i{[t deselectRowAtIndexPath:i animated:YES];if(i.section||i.row==0)return;if(i.row==3){NSError *e=nil;if(!WCCClearBackground(&e))[self error:e.localizedDescription];[self sync];return;}[self pick:i.row==1?WCCBackgroundKindImage:WCCBackgroundKindVideo];}
+- (void)maskChanged:(UISlider *)s{self.maskValue.text=[NSString stringWithFormat:@"%.0f%%",s.value*100];self.mask.accessibilityValue=self.maskValue.text;WCCSetBackgroundMask(s.value);}
+- (void)pick:(WCCBackgroundKind)kind{if(@available(iOS 14.0,*)){PHPickerConfiguration *cfg=[[PHPickerConfiguration alloc] init];cfg.selectionLimit=1;cfg.filter=kind==WCCBackgroundKindImage?PHPickerFilter.imagesFilter:PHPickerFilter.videosFilter;PHPickerViewController *picker=[[PHPickerViewController alloc] initWithConfiguration:cfg];picker.delegate=self;picker.view.tag=kind;self.generation++;[self presentViewController:picker animated:YES completion:nil];}else [self error:@"系统相册选择需要 iOS 14 或更高版本。"];}
+- (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){WCCBackgroundKind kind=picker.view.tag;NSUInteger expected=self.generation;[picker dismissViewControllerAnimated:YES completion:nil];PHPickerResult *r=results.firstObject;if(!r)return;NSString *type=kind==WCCBackgroundKindImage?UTTypeImage.identifier:UTTypeMovie.identifier;if(![r.itemProvider hasItemConformingToTypeIdentifier:type]){[self error:@"选择内容类型不受支持。"];return;}__weak typeof(self) weak=self;[r.itemProvider loadFileRepresentationForTypeIdentifier:type completionHandler:^(NSURL *url,NSError *loadError){if(loadError||!url){dispatch_async(dispatch_get_main_queue(),^{[weak error:loadError.localizedDescription?:@"相册读取失败。"];});return;}NSError *copyError=nil;BOOL ok=WCCInstallBackgroundFile(url,kind,&copyError);dispatch_async(dispatch_get_main_queue(),^{typeof(self) self=weak;if(!self||!WCCBackgroundPickerGenerationCurrent(expected,self.generation,NO,self.ownerValid?self.ownerValid():self.view.window!=nil))return;if(!ok)[self error:copyError.localizedDescription];[self sync];});}];}
+- (void)cancelPicker{self.generation++;if([self.presentedViewController isKindOfClass:PHPickerViewController.class])[self.presentedViewController dismissViewControllerAnimated:NO completion:nil];}
+- (void)done{[self cancelPicker];void(^d)(void)=self.onDone;self.onDone=nil;if(d)[self dismissViewControllerAnimated:YES completion:d];}
+- (void)error:(NSString *)message{UIAlertController *a=[UIAlertController alertControllerWithTitle:@"背景未更改" message:message preferredStyle:UIAlertControllerStyleAlert];[a addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];[self presentViewController:a animated:YES completion:nil];}
+@end
