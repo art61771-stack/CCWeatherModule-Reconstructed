@@ -11,8 +11,11 @@ import source124_contract
 source124_contract.verify(p)
 config=(s/'WCCConfigurations.m').read_text(); previous=(old/'WCCConfigurations.m').read_text()
 # Config schema evolves, but filesystem confinement and backup-before-commit stay.
-for start,end in [('static BOOL WCCSafeConfigurationDirectory','static BOOL WCCSafeConfigurationFile'),('static NSString *WCCConfigPath','static NSDictionary *WCCValidatedConfiguration'),('BOOL WCCLoadConfiguration','BOOL WCCDeleteConfiguration')]:
+for start,end in [('static BOOL WCCSafeConfigurationDirectory','static BOOL WCCSafeConfigurationFile'),('static NSString *WCCConfigPath','static NSDictionary *WCCValidatedConfiguration')]:
  assert method(config,start,end)==method(previous,start,end),start
+load=method(config,'BOOL WCCLoadConfiguration','BOOL WCCDeleteConfiguration')
+for guard in ['WCCReadConfiguration(identifier,error)','WCCWriteConfiguration(WCCBackupID','WCCCommitSliderValues(values)','偏好提交失败','WCCRegionPositionChanged']:
+ assert guard in load,guard
 safe=method(config,'static BOOL WCCSafeConfigurationFile','static NSString *WCCConfigPath')
 for guard in ['WCCSafeConfigurationDirectory(error)','lstat(path.fileSystemRepresentation,&st)','!S_ISREG(st.st_mode)','st.st_size<1','!mustExist && errno==ENOENT']:assert guard in safe
 u=(s/'WCCSettings.m').read_text();f=(s/'WCCFloatingPanel.m').read_text()
