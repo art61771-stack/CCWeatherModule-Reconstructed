@@ -18,5 +18,5 @@ post=(p/'layout/DEBIAN/postinst').read_bytes()
 for bad in (b'killall',b'launchctl',b'sbreload',b'ldrestart',b' rm ',b' cp ',b'curl',b'wget'):
  assert bad not in post.lower()
 for f in ('control','Resources/Info.plist','.github/workflows/build.yml','README.md'):
- assert '1.2.11' in (p/f).read_text(), f
+ assert '1.2.12' in (p/f).read_text(), f
 print('PASS129 static: independent native/custom-media content container, non-additive scale, opacity/shadow coexistence, dangerous-command exclusion and version wiring.')
