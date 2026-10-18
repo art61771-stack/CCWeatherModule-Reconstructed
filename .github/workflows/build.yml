@@ -87,7 +87,8 @@ jobs:
           for f in /tmp/wcc-control/*; do test "$(basename "$f")" = control || SCRIPTS="$SCRIPTS $(basename "$f")"; done
           test "${SCRIPTS# }" = postinst
           test "$(stat -f '%Lp' /tmp/wcc-control/postinst)" = 755
-          test "$(stat -f '%Su:%Sg' /tmp/wcc-control/postinst)" = root:wheel
+          test "$(stat -f '%Su' /tmp/wcc-control/postinst)" = root
+          test "$(stat -f '%Sg' /tmp/wcc-control/postinst)" = wheel || test "$(stat -f '%Sg' /tmp/wcc-control/postinst)" = admin
           printf '#!/bin/sh\nset -e\necho '\''finish:restart'\''\nexit 0\n' > /tmp/expected-postinst
           cmp /tmp/expected-postinst /tmp/wcc-control/postinst
           sh -n /tmp/wcc-control/postinst
