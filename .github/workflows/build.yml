@@ -88,7 +88,6 @@ jobs:
           test "${SCRIPTS# }" = postinst
           dpkg-deb --ctrl-tarfile "$DEB" | tar -tvf - > /tmp/control-tar-list
           grep -Eq '^-rwxr-xr-x root/(wheel|root)[[:space:]]+[0-9]+ .* (\./)?postinst$' /tmp/control-tar-list
-          test "$(stat -f '%Lp' /tmp/wcc-control/postinst)" = 755
           printf '#!/bin/sh\nset -e\necho '\''finish:restart'\''\nexit 0\n' > /tmp/expected-postinst
           cmp /tmp/expected-postinst /tmp/wcc-control/postinst
           sh -n /tmp/wcc-control/postinst
