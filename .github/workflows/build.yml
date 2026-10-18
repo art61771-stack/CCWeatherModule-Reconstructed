@@ -86,8 +86,13 @@ jobs:
           SCRIPTS=''
           for f in /tmp/wcc-control/*; do test "$(basename "$f")" = control || SCRIPTS="$SCRIPTS $(basename "$f")"; done
           test "${SCRIPTS# }" = postinst
-          dpkg-deb --ctrl-tarfile "$DEB" | tar -tvf - > /tmp/control-tar-list
-          grep -Eq '^-rwxr-xr-x root/(wheel|root)[[:space:]]+[0-9]+ .* (\./)?postinst$' /tmp/control-tar-list
+          DEB="$DEB" python3 - <<'PY'
+          import io,os,subprocess,tarfile
+          raw=subprocess.check_output(['dpkg-deb','--ctrl-tarfile',os.environ['DEB']])
+          members={m.name.lstrip('./'):m for m in tarfile.open(fileobj=io.BytesIO(raw)).getmembers()}
+          assert set(k for k,v in members.items() if v.isfile()) == {'control','postinst'}
+          m=members['postinst']; assert m.mode==0o755 and m.uid==0 and m.gid==0
+          PY
           printf '#!/bin/sh\nset -e\necho '\''finish:restart'\''\nexit 0\n' > /tmp/expected-postinst
           cmp /tmp/expected-postinst /tmp/wcc-control/postinst
           sh -n /tmp/wcc-control/postinst
