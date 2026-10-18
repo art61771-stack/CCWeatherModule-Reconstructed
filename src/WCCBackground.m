@@ -32,7 +32,7 @@ static BOOL WCCRegular(NSString *path,unsigned long long *size){struct stat st;i
 static NSString *WCCNameFor(WCCBackgroundKind kind){return kind==WCCBackgroundKindImage?@"current-image.jpg":kind==WCCBackgroundKindVideo?@"current-video.mp4":nil;}
 NSString *WCCBackgroundRelativeName(void){id v=[WCCPrefs() objectForKey:@"backgroundFile1212"];return [v isKindOfClass:NSString.class]?v:nil;}
 WCCBackgroundKind WCCBackgroundType(void){id v=[WCCPrefs() objectForKey:@"backgroundType1212"];NSInteger n=[v isKindOfClass:NSNumber.class]?[v integerValue]:0;return n==1||n==2?n:0;}
-CGFloat WCCBackgroundMask(void){id v=[WCCPrefs() objectForKey:@"backgroundMask1212"];double n=[v isKindOfClass:NSNumber.class]?[v doubleValue]:.35;if(!isfinite(n))n=.35;return MIN(1,MAX(0,n));}
+double WCCBackgroundMask(void){id v=[WCCPrefs() objectForKey:@"backgroundMask1212"];double n=[v isKindOfClass:NSNumber.class]?[v doubleValue]:.35;if(!isfinite(n))n=.35;return MIN(1,MAX(0,n));}
 NSString *WCCBackgroundPath(void){WCCBackgroundKind kind=WCCBackgroundType();NSString *name=WCCBackgroundRelativeName();if(!kind||![name isEqual:WCCNameFor(kind)]||!WCCBackgroundAllowedRoot(WCCBackgroundRoot()))return nil;NSString *path=[WCCBackgroundRoot() stringByAppendingPathComponent:name];unsigned long long size=0;return WCCRegular(path,&size)&&size<=WCCBackgroundLimit?path:nil;}
 static BOOL WCCCommit(NSDictionary *values){
  NSUserDefaults *p=WCCPrefs();NSDictionary *before=[p persistentDomainForName:@"com.simon.ccweathermodule.custom"]?:@{};NSMutableDictionary *after=[before mutableCopy];[after addEntriesFromDictionary:values];[p setPersistentDomain:after forName:@"com.simon.ccweathermodule.custom"];BOOL ok=[p synchronize];
@@ -42,7 +42,7 @@ static BOOL WCCCommit(NSDictionary *values){
  if(!ok){[p setPersistentDomain:before forName:@"com.simon.ccweathermodule.custom"];[p synchronize];}return ok;
 }
 static void WCCNotify(void){dispatch_async(dispatch_get_main_queue(),^{[NSNotificationCenter.defaultCenter postNotificationName:WCCBackgroundChanged object:nil];});}
-BOOL WCCSetBackgroundMask(CGFloat value){if(!NSThread.isMainThread||!isfinite(value))return NO;BOOL ok=WCCCommit(@{@"backgroundMask1212":@(MIN(1,MAX(0,value)))});if(ok)WCCNotify();return ok;}
+BOOL WCCSetBackgroundMask(double value){if(!NSThread.isMainThread||!isfinite(value))return NO;BOOL ok=WCCCommit(@{@"backgroundMask1212":@(MIN(1,MAX(0,value)))});if(ok)WCCNotify();return ok;}
 static NSError *WCCError(NSString *s){return [NSError errorWithDomain:@"WCCBackground" code:1 userInfo:@{NSLocalizedDescriptionKey:s}];}
 BOOL WCCInstallBackgroundFile(NSURL *source,WCCBackgroundKind kind,NSError **error){
  if(!source.isFileURL||(kind!=WCCBackgroundKindImage&&kind!=WCCBackgroundKindVideo)){if(error)*error=WCCError(@"选择结果无效。");return NO;}
