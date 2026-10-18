@@ -387,8 +387,17 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 - (void)setupHeaderView {
     _headerView = [UIView new]; _headerView.backgroundColor = UIColor.clearColor;
     [self.view addSubview:_headerView];
-    _iconView = [UIImageView new]; _iconView.contentMode = UIViewContentModeScaleAspectFit;
-    _iconView.tintColor = UIColor.whiteColor;
+    // _iconView owns user positioning/size and shadow only. The inner content
+    // view owns visual opacity/scale breathing, so a translated/scaled parent
+    // never has its translation multiplied by a presentation transform.
+    _iconView = [UIImageView new];
+    _iconContentView = [UIView new];
+    _iconContentView.userInteractionEnabled = NO;
+    _systemIconView = [UIImageView new];
+    _systemIconView.contentMode = UIViewContentModeScaleAspectFit;
+    _systemIconView.tintColor = UIColor.whiteColor;
+    [_iconContentView addSubview:_systemIconView];
+    [_iconView addSubview:_iconContentView];
     _cityLabel = WCCLabel(18, UIFontWeightSemibold, 1);
     _conditionLabel = WCCLabel(13, UIFontWeightRegular, .8);
     _precipLabel = WCCLabel(12, UIFontWeightRegular, .6);
@@ -415,9 +424,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self.view addGestureRecognizer:tap];
     [self.view addGestureRecognizer:settingsTap];
     _headerView.userInteractionEnabled = YES;
-    self.customMedia = [[WCCMediaView alloc] initWithFrame:_iconView.bounds];
+    self.customMedia = [[WCCMediaView alloc] initWithFrame:_iconContentView.bounds];
     self.customMedia.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [_iconView addSubview:self.customMedia];
+    [_iconContentView addSubview:self.customMedia];
     __weak typeof(self) weak = self;
     self.customMedia.mediaChanged = ^{ [weak renderWeatherIcon]; };
 }
@@ -661,14 +670,14 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self layoutMainCustomMedia];
     self.customMedia.hidden = ![WCCPrefs() boolForKey:@"customIcon"];
     [self applyTextShadows];
-    if (!self.customMedia.hidden && self.customMedia.hasMedia) { _iconView.image = nil; return; }
-    if(WCCWeatherSource.shared.caiyun) { _iconView.image=[self caiyunImage:self.caiyunRender[@"condition"]]; return; }
+    if (!self.customMedia.hidden && self.customMedia.hasMedia) { _systemIconView.image = nil; return; }
+    if(WCCWeatherSource.shared.caiyun) { _systemIconView.image=[self caiyunImage:self.caiyunRender[@"condition"]]; return; }
     NSInteger code = [_currentCity conditionCode];
     if ([_currentCity temperature]) {
         UIImage *image = [self systemWeatherImageForConditionCode:code];
-        _iconView.image = image ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:42 weight:UIImageSymbolWeightRegular]];
+        _systemIconView.image = image ?: [UIImage systemImageNamed:[self systemSymbolForConditionCode:code] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:42 weight:UIImageSymbolWeightRegular]];
     } else {
-        _iconView.image = [UIImage systemImageNamed:@"cloud.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:42 weight:UIImageSymbolWeightRegular]];
+        _systemIconView.image = [UIImage systemImageNamed:@"cloud.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:42 weight:UIImageSymbolWeightRegular]];
     }
 }
 - (void)clearHourlyItems {
@@ -786,7 +795,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     NSAssert(NSThread.isMainThread,@"UIKit main thread");
     BOOL iconEffect=WCCTextShadowEnabled(3)||WCCTextGlowEnabled(3);
     _headerView.clipsToBounds=_isExpanded?NO:!iconEffect;
-    WCCApplyMainContentAnimations(_iconView,WCCMainContentSettings(0),WCCMainContentSettings(1),self.mediaVisible && !self.mediaSuspended && !self.presentedViewController && WCCCurrentHostState().visible);
+    WCCApplyMainContentAnimations(_iconContentView,WCCMainContentSettings(0),WCCMainContentSettings(1),self.mediaVisible && !self.mediaSuspended && !self.presentedViewController && WCCCurrentHostState().visible);
     WCCApplyMainIconEffects(_iconView,WCCTextShadowEnabled(3),WCCTextGlowEnabled(3),WCCTextEffectSettings(3),self.mediaVisible && !self.mediaSuspended && WCCCurrentHostState().visible,self.customMedia.videoRendering && !self.customMedia.hidden);
     // Main header labels only: never style hourly labels or the whole layer.
     NSArray<NSArray<UILabel *> *> *groups=@[@[_tempLabel,_highLowLabel],
@@ -826,9 +835,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(_isExpanded));
     CGFloat sx=slot.size.width>0?target.w/slot.size.width:1;
     CGFloat sy=slot.size.height>0?target.h/slot.size.height:1;
+    _iconContentView.transform=CGAffineTransformIdentity;
+    _iconContentView.frame=_iconView.bounds;
+    _systemIconView.frame=_iconContentView.bounds;
     self.customMedia.transform=CGAffineTransformIdentity;
     self.customMedia.autoresizingMask=UIViewAutoresizingNone;
-    self.customMedia.frame=_iconView.bounds;
+    self.customMedia.frame=_iconContentView.bounds;
     // Native image, PNG/GIF/MP4 and failed-media fallback share this transform.
     _iconView.transform=CGAffineTransformMake(sx,0,0,sy,
         target.x+target.w/2-CGRectGetMidX(slot),target.y+target.h/2-CGRectGetMidY(slot));

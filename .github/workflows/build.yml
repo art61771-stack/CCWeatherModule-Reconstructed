@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.8 rootless
+name: CCWeatherModule 1.2.9 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -23,6 +23,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p verification
+          cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime129.c -lm -o /tmp/runtime129
+          /tmp/runtime129 | tee verification/runtime129.txt
+          python3 evidence/test129.py | tee verification/static129.txt
           cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime128.c -lm -o /tmp/runtime128
           /tmp/runtime128 | tee verification/runtime128.txt
           sh evidence/run128-foundation.sh 2>&1 | tee verification/foundation128.txt
@@ -80,7 +83,15 @@ jobs:
           dpkg-deb -I "$DEB" | tee verification/control.txt
           dpkg-deb -c "$DEB" | tee verification/contents.txt
           dpkg-deb -e "$DEB" /tmp/wcc-control
-          for s in preinst postinst prerm postrm config; do test ! -e /tmp/wcc-control/$s; done
+          SCRIPTS=()
+          for f in /tmp/wcc-control/*; do test "$(basename "$f")" = control || SCRIPTS+=("$(basename "$f")"); done
+          test "${SCRIPTS[*]}" = postinst
+          test "$(stat -f '%Lp' /tmp/wcc-control/postinst)" = 755
+          test "$(stat -f '%Su:%Sg' /tmp/wcc-control/postinst)" = root:wheel
+          printf '#!/bin/sh\nset -e\necho '\''finish:restart'\''\nexit 0\n' > /tmp/expected-postinst
+          cmp /tmp/expected-postinst /tmp/wcc-control/postinst
+          sh -n /tmp/wcc-control/postinst
+          ! grep -Eiq 'killall|launchctl|sbreload|ldrestart|(^|[[:space:]])(rm|cp|curl|wget)([[:space:]]|$)' /tmp/wcc-control/postinst
           dpkg-deb -x "$DEB" /tmp/wcc-payload
           BIN=/tmp/wcc-payload/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle/CCWeatherModule
           lipo -info "$BIN" | tee verification/architectures.txt
@@ -88,11 +99,11 @@ jobs:
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo 'Greeting 1.2.8 visible-anchor production C, Apple UIKit stub and static wiring: RUN. 1.2.7/1.2.6/1.2.5/1.2.4 historical regressions: RUN. True glyph rendering/device verification: NOT RUN (Foundation stub is not CoreText/UIKit rasterization). Real Keychain and Caiyun live API: NOT RUN. runtime119/configurations119 superseded by 120 complete-boundary and v2 tests; original archived unchanged. iOS 16 simulator: NOT RUN. iPhone 14 Pro Max iOS 16.6 RootHide: STILL REQUIRES RE-VERIFICATION.' > verification/runtime-status.txt
+          echo 'Icon scale 1.2.9 independent content-container production C, matrix presentation-center test, Apple UIKit/QuartzCore historical stubs and static wiring: RUN. Safe postinst finish:restart hint: PACKAGED; Sileo button behavior: NOT DEVICE-VERIFIED. 1.2.8 through 1.2.4 historical regressions: RUN. True UIKit rendering/device verification, iOS 16 simulator and iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.8-rootless
+          name: CCWeatherModule-1.2.9-rootless
           path: |
             packages/*.deb
             verification/*

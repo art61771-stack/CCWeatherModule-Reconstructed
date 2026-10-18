@@ -1,3 +1,20 @@
+# CCWeatherModule 1.2.9 — 主图原地缩放
+
+唯一基线：1.2.8 commit `ed6aac6975b048015344b9d034be963e4ae3a222`。
+
+## 1.2.9
+- 根因：1.2.8 把 `additive=YES` 的 transform 缩放直接加在 `_iconView.layer`；而 `_iconView.transform` 同时承载用户大小与 X/Y 位移。Core Animation presentation 合成时会把既有 translation 一并参与缩放，故非零位移、非 100% 主图下呼吸端点发生中心漂移。
+- 修复：`_iconView` 只保留用户最终位置、50–250%/展开50–150%大小及 shadow/glow；新增内部 `_iconContentView`，系统天气图放入 `_systemIconView`，PNG/GIF/MP4 `WCCMediaView` 也放入同一内容容器。缩放只在内部内容层使用非 additive `transform.scale`（0.94↔1.06），父层几何完全不动画，不改 anchorPoint。
+- opacity 呼吸继续与内部 scale 并存；shadowOpacity 继续位于父 `_iconView.layer`，可与内容动画并存。停止、离开控制中心、打开设置、后台/不可见时仅移除各自 key，model transform 始终 identity，不累计。
+- 保留主图滑块、X/Y、4×1 上下空间、shadow/glow；视频仍保持矩形 shadowPath 限制。
+- 测试新增实际矩阵变换后的 bounds center 验证：50/100/200/250%、正负 X/Y、0.9/1.1 端点及100轮启停；同时先复现旧 translated-parent additive scale 漂移。历史 1.2.8–1.2.4 回归继续执行。
+- 包含最小 `postinst`，仅输出 `finish:restart` 后退出，不执行 killall/sbreload/launchctl/ldrestart，不改文件、不联网。映笺本地基准包本身是 control-only；天气为 ControlCenter bundle，故显式提供兼容提示。安装后请在 Sileo 完成页手动点“注销/重启 SpringBoard”；该按钮是否被当前 Sileo 版本识别仍待真机验证。
+
+## 真机状态
+主图视觉中心、GIF/MP4、Sileo 完成按钮、iPhone 14 Pro Max iOS 16.6 RootHide 均 **NOT RUN / 待真机验证**；CI 的 C 矩阵、Apple QuartzCore/UIKit 桩和静态接线不冒充真机渲染。
+
+---
+
 # CCWeatherModule 1.2.8 — 问候可见文字锚点
 
 修复基线为已确认失败的 1.2.7 commit `9a1ef30107e9e7682ef3201678fd7d7966398550`。

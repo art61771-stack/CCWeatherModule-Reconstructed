@@ -21,7 +21,7 @@ int main(void){@autoreleasepool{
     CABasicAnimation *anim=(id)[v.layer animationForKey:keys[i]];
     if(active && (i?scale:opacity)){
      assert(anim && anim.autoreverses);near125(anim.duration,WCCBreathDuration(i?y:x)/2);
-     if(i){assert(anim.additive);CATransform3D lo=[anim.fromValue CATransform3DValue],hi=[anim.toValue CATransform3DValue];near125(lo.m11,.94);near125(lo.m22,.94);near125(hi.m11,1.06);near125(hi.m22,1.06);}
+     if(i){assert(!anim.additive);assert([anim.keyPath isEqual:@"transform.scale"]);near125([anim.fromValue doubleValue],.94);near125([anim.toValue doubleValue],1.06);}
      else {near125([anim.fromValue doubleValue],.8*.45);near125([anim.toValue doubleValue],.8);}
     }else assert(!anim);
    }
@@ -38,5 +38,5 @@ int main(void){@autoreleasepool{
  for(int version=1;version<=4;version++){NSDictionary *old=WCCNormalizePresentationValues(@{},version);assert(old && !old[@"mainOpacity125"]);assert(WCCCommitSliderValues(old));assert([WCCMainContentSettings(0) isEqual:changed[@"mainOpacity125"]]);assert([WCCMainContentSettings(1) isEqual:changed[@"mainScale125"]]);}
  assert(WCCCommitSliderValues(WCCNormalizePresentationValues(@{},5)));assert(([WCCMainContentSettings(0) isEqual:@[@NO,@0]]));
  [WCCPrefs() removePersistentDomainForName:suite];[NSFileManager.defaultManager removeItemAtPath:dir error:NULL];
- puts("PASS125 production preferences/config transaction + real CALayer: independent opacity/scale/shadow coexisting; 36 speed/switch combinations; endpoints/additive transform/base opacity and position preserved; inactive removes own keys and resumes; v5 backup/load/rollback; v1..v4 preservation. UIKit shim; no device pixel rendering.");
+ puts("PASS125 production preferences/config transaction + real CALayer: independent opacity/scale/shadow coexisting; 36 speed/switch combinations; endpoints/non-additive child transform/base opacity and position preserved; inactive removes own keys and resumes; v5 backup/load/rollback; v1..v4 preservation. UIKit shim; no device pixel rendering.");
 }return 0;}

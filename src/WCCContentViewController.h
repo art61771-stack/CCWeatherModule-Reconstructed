@@ -3,6 +3,8 @@
     UIViewController *_lockscreenController;
     UIView *_headerView;
     UIImageView *_iconView;
+    UIView *_iconContentView;
+    UIImageView *_systemIconView;
     UILabel *_cityLabel, *_conditionLabel, *_precipLabel, *_tempLabel, *_highLowLabel;
     UIView *_hourlyContainer, *_dividerLine;
     UIScrollView *_hourlyScrollView;

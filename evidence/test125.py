@@ -7,14 +7,14 @@ def method(name):
  a=c.index('{',m.start());i=a+1;depth=1
  while depth:depth+=(c[i]=='{')-(c[i]=='}');i+=1
  return c[m.start():i]
-assert 'WCCApplyMainContentAnimations(_iconView,WCCMainContentSettings(0),WCCMainContentSettings(1),self.mediaVisible && !self.mediaSuspended && !self.presentedViewController && WCCCurrentHostState().visible)' in c
+assert 'WCCApplyMainContentAnimations(_iconContentView,WCCMainContentSettings(0),WCCMainContentSettings(1),self.mediaVisible && !self.mediaSuspended && !self.presentedViewController && WCCCurrentHostState().visible)' in c
 assert '[self applyTextShadows]' in method('refreshHourlyMedia')
 for name in ['handleTwoFingerDoubleTap:','showCustomNameAlert','viewWillDisappear:','controlCenterDidDismiss','willResignActive']:
  assert '[self refreshHourlyMedia]' in method(name),name
 assert 'WCCApplyMainContentAnimations' not in (s/'WCCMedia.m').read_text()
 new=effects.split('void WCCApplyMainContentAnimations(')[1]
 for bad in ['removeAllAnimations','loadPath','AVPlayer','shadowOpacity=','layer.transform=','layer.opacity=','icon.transform=']:assert bad not in new,bad
-assert 'a.additive=YES' in new
+assert 'a.additive=NO' in new and '@"transform.scale"' in new
 assert '@"wcc.icon.opacity.breathe125"' in new and '@"wcc.icon.transform.scale125"' in new
 assert 'WCCBreathDuration' in new
 for file in ['WCCMedia.m','WCCHourly.h','WCCSettings.m','WCCNativeSettingsNavigation.m','WCCHostObserver.m']:

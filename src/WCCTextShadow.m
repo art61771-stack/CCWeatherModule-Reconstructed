@@ -122,8 +122,8 @@ void WCCApplyMainContentAnimations(UIView *icon,NSArray *opacity,NSArray *scale,
         double duration=WCCBreathDuration([v[1] doubleValue])/2;
         CABasicAnimation *old=(id)[layer animationForKey:key];
         if(old && fabs(old.duration-duration)<.001 && (i || fabs([old.toValue doubleValue]-layer.opacity)<.0001))continue;
-        CABasicAnimation *a=[CABasicAnimation animationWithKeyPath:i?@"transform":@"opacity"];
-        if(i){a.fromValue=[NSValue valueWithCATransform3D:CATransform3DMakeScale(.94,.94,1)];a.toValue=[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.06,1.06,1)];a.additive=YES;}
+        CABasicAnimation *a=[CABasicAnimation animationWithKeyPath:i?@"transform.scale":@"opacity"];
+        if(i){a.fromValue=@(.94);a.toValue=@(1.06);a.additive=NO;}
         else {a.fromValue=@(layer.opacity*.45);a.toValue=@(layer.opacity);}
         a.duration=duration;a.autoreverses=YES;a.repeatCount=HUGE_VALF;
         a.timingFunction=[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
