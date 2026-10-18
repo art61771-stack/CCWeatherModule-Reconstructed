@@ -68,6 +68,7 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) WCCGreetingState greetingState;
 @property(nonatomic,copy) NSString *selectedCustomGreeting;
 @property(nonatomic) CGRect collapsedIconSlot;
+@property(nonatomic) CGRect collapsedGreetingRail;
 @property(nonatomic) WCCLayoutSize layoutSize;
 @property(nonatomic,strong) WCCMediaView *customMedia;
 @property(nonatomic) BOOL mediaVisible;
@@ -320,7 +321,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     self.customMedia.frame = _iconView.bounds;
     _cityLabel.frame = WCCCGRect(g.city); _tempLabel.frame = WCCCGRect(g.temperature);
     _conditionLabel.frame = WCCCGRect(g.condition); _highLowLabel.frame = WCCCGRect(g.highLow);
-    _precipLabel.frame = WCCCGRect(g.precipitation); self.greetingLabel.frame = WCCCGRect(g.greeting);
+    _precipLabel.frame = WCCCGRect(g.precipitation);
+    self.collapsedGreetingRail=WCCCGRect(g.greeting);
+    self.greetingLabel.frame=self.collapsedGreetingRail;
     _precipLabel.hidden = !g.details; _highLowLabel.hidden = !g.details;
     _precipLabel.font = [UIFont systemFontOfSize:MAX(1,g.detailFont) weight:UIFontWeightRegular];
     _tempLabel.font = [UIFont systemFontOfSize:MAX(1,g.tempFont) weight:UIFontWeightLight];
@@ -812,11 +815,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if (_isExpanded) return;
     BOOL right=self.layoutSize.width!=3 && self.layoutSize.width>=2 && self.layoutSize.width<=4 && self.layoutSize.height==1;
     int align=WCCInformationAlignment(WCCRegionOffset(4),right?2:0);
-    // Region keeps the 1.2.4 measured-ink contract. Greeting has an explicit
-    // visible anchor: normalized X <= 0 is the baseline left edge, X > 0 is the
-    // right edge. Never inherit 4x1's trailing metadata alignment at X == 0.
+    // Region keeps the 1.2.4 measured-ink contract. Greeting differs: its X
+    // preference is always the actual visible text LEFT origin, for every sign.
     _cityLabel.textAlignment=_conditionLabel.textAlignment=_precipLabel.textAlignment=align==2?NSTextAlignmentRight:NSTextAlignmentLeft;
-    self.greetingLabel.textAlignment=WCCGreetingVisibleAlignment(WCCRegionOffset(6))==2?NSTextAlignmentRight:NSTextAlignmentLeft;
+    self.greetingLabel.textAlignment=NSTextAlignmentLeft;
     NSInteger region=0;
     for (NSArray<UIView *> *group in [self positionRegions]) {
         // Icon uses the same unscaled slot but combines offset and scale once.
@@ -824,10 +826,15 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         CGRect baseline=CGRectNull;
         for (UIView *view in group) if (!view.hidden && !CGRectIsEmpty(view.frame)) {
             CGRect visible=view.frame;
-            // Greeting is the fixed rail itself. Its text alignment makes the
-            // selected visible edge coincide with the rail edge at saturation.
+            // Greeting uses its geometry frame, never textRect/current ink.
+            // Replace the frame with a left-origin rail reaching module right;
+            // this keeps short/long/random strings at the same visible X.
             if(region==3) {
-                baseline=visible;
+                CGRect fixed=self.collapsedGreetingRail;
+                WCCRect target=WCCGreetingRail(WCCR(fixed.origin.x,fixed.origin.y,fixed.size.width,fixed.size.height),
+                    _headerView.bounds.size.width,_headerView.bounds.size.height,WCCRegionOffset(6),WCCRegionOffset(7));
+                self.greetingLabel.frame=WCCCGRect(target);
+                baseline=CGRectNull;
                 continue;
             }
             if([view isKindOfClass:UILabel.class]) {

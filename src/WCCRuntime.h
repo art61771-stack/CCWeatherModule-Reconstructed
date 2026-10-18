@@ -136,8 +136,11 @@ static inline WCCGeometry WCCBalanceMeasuredStrip(WCCGeometry g,double width,dou
     g.city.w=g.condition.w=g.precipitation.w=right;
     double bottom=g.details ? g.precipitation.y+g.precipitation.h : g.condition.y+g.condition.h;
     g.icon.y=(g.city.y+bottom-g.icon.h)/2;
-    g.greeting.w=fmin(available,fmax(0,greetingWidth));
+    /* Greeting is a fixed rail from its geometry origin to the module right.
+     * Its width must never depend on the current sentence measurement. */
+    (void)greetingWidth;
     g.greeting.x=x;
+    g.greeting.w=fmax(0,w-x);
     return g;
 }
 /* Absolute translations of baseline unions. Zero is always identity, including
@@ -244,14 +247,25 @@ static inline int WCCInformationAlignment(double preference,int defaultAlignment
 static inline int WCCGreetingAlignment(double preference,int defaultAlignment) {
     return preference<0?0:preference>0?2:defaultAlignment;
 }
-/* Normalize before choosing the visible side: tiny values which round to zero
- * must not accidentally inherit a trailing 4x1 layout alignment. Zero and
- * negative X use the layout rail's left edge; positive X uses its right edge. */
+/* 1.2.8 historical ABI: production no longer switches greeting alignment. */
 static inline int WCCGreetingVisibleAlignment(double preference) {
-    return WCCNormalizePositionOffset(6,preference)>0?2:0;
+    (void)preference;
+    return 0;
+}
+/* The collapsed greeting preference controls the actual visible text origin.
+ * Keep at least one point visible at the right extreme. Horizontal clamping
+ * depends only on module geometry, never on measured/current text width. */
+enum { WCCGreetingMinimumVisibleWidth = 1 };
+static inline WCCRect WCCGreetingRail(WCCRect baseline,double width,double height,double x,double y) {
+    double right=fmax(0,width), minimum=fmin((double)WCCGreetingMinimumVisibleWidth,right);
+    double origin=baseline.x+WCCNormalizePositionOffset(6,x);
+    origin=fmax(0,fmin(right-minimum,origin));
+    double dy=WCCRegionAxis(baseline.y,baseline.h,height,y);
+    return WCCR(origin,baseline.y+dy,fmax(0,right-origin),baseline.h);
 }
 static inline WCCRect WCCGreetingTranslation(WCCRect rail,double width,double height,double x,double y) {
-    return WCCRegionTranslation(rail,width,height,x,y);
+    WCCRect target=WCCGreetingRail(rail,width,height,x,y);
+    return WCCR(target.x-rail.x,target.y-rail.y,0,0);
 }
 /* Production/test oracle for the visible glyph box. Collapsed production uses
  * one line and truncation (never font fitting), so measuredHeight is invariant;

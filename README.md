@@ -1,4 +1,12 @@
-# CCWeatherModule 1.2.13 — 背景严格贴合模块边框
+# CCWeatherModule 1.2.14 — 折叠问候语固定实际可见左缘
+
+## 1.2.14
+
+- 修正 1.2.8 的错误规则：不再让正 X 偏移改为“固定右缘”。折叠问候语滑块现在始终控制实际可见文字左缘，负值、零、正值语义完全一致；文字始终左对齐并向右延展。
+- 问候 rail 宽度与当前文字无关：`origin.x = clamp(geometry greeting.x + normalized offset, 0, moduleWidth - 1pt)`，`rail.right = moduleWidth`。最右端保留 1pt 可见宽度；clamp 只依据模块 geometry，不使用 `textRect` 或当前句子宽度。默认 0 沿用原 geometry origin，已有 `greetingOffsetX` 不迁移、不重写。
+- 句子切换、随机问候、布局/天气刷新、1/2 行测试夹具及 fit/truncation 都不会改变左缘；空间不足仅在右侧截断/缩放。Y 继续按固定 rail frame 计算，不随文字高度或行数漂移。展开模式不应用折叠 offset，收回后恢复同一 origin。
+- 地区信息组继续保留负左、正右的实际文字逻辑；1.2.13 背景 mask、1.2.12 picker、1.2.10 Sileo 动态 fd、1.2.9 动画及其余功能保持回归覆盖。
+- 新增 1214 C/Apple Foundation UILabel 桩与生产接线测试：先复现 1.2.8 正 X 下短/长句 visibleLeft 不同，再覆盖五尺寸、0/±0.49/±数值/极限、100 次换句、1/2 行、fit/truncation、真实 frame/alignment 接线。UILabel 桩计算 actual visible left；不产生日志、不读取或记录问候正文。
 
 ## 1.2.13
 

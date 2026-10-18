@@ -13,7 +13,9 @@ int main(void) {
   assert(g.city.x>g.icon.x+g.icon.w);
   assert(fabs(g.icon.y+g.icon.h/2-(g.city.y+g.precipitation.y+g.precipitation.h)/2)<.001);
   g=WCCBalanceMeasuredStrip(g,w,h,500,500,500,500,500,500);
-  assert(g.greeting.x+g.greeting.w<=w-g.temperature.x+.001);
+  /* 1.2.14 greeting rail is text-independent and reaches module right. */
+  assert(fabs(g.greeting.x-g.temperature.x)<.001);
+  assert(fabs(g.greeting.x+g.greeting.w-w)<.001);
  }
  assert(WCCNormalizeIconPercent(NAN)==100);
  assert(WCCNormalizeIconPercent(0)==100 && WCCNormalizeIconPercent(151)==100);
