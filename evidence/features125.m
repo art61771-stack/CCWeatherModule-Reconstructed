@@ -29,7 +29,7 @@ int main(void){@autoreleasepool{
   WCCApplyMainContentAnimations(v,a,b,YES);assert((BOOL)[v.layer animationForKey:keys[0]]==(BOOL)opacity);assert((BOOL)[v.layer animationForKey:keys[1]]==(BOOL)scale);
  }
  assert(WCCSetMainContentSettings(0,@[@YES,@-1]));assert(WCCSetMainContentSettings(1,@[@YES,@1]));
- NSDictionary *snapshot=WCCCurrentSliderValues();assert(snapshot.count==28);assert(WCCSaveConfiguration(@"v5",nil,&error));NSString *identifier=WCCConfigurations(&error)[0][@"id"];
+ NSDictionary *snapshot=WCCCurrentSliderValues();assert(snapshot.count==29);assert(WCCSaveConfiguration(@"v5",nil,&error));NSString *identifier=WCCConfigurations(&error)[0][@"id"];
  assert(WCCSetMainContentSettings(0,@[@NO,@0]));NSDictionary *changed=WCCCurrentSliderValues();assert(WCCLoadConfiguration(identifier,&error));assert([snapshot isEqual:WCCCurrentSliderValues()]);
  assert(WCCLoadConfiguration(@"00000000-0000-0000-0000-000000000000",&error));assert([changed isEqual:WCCCurrentSliderValues()]);
  WCCTestFailCommit(YES);assert(!WCCSetMainContentSettings(0,@[@YES,@1]));assert(!WCCLoadConfiguration(identifier,&error));assert([changed isEqual:WCCCurrentSliderValues()]);WCCTestFailCommit(NO);

@@ -13,6 +13,6 @@ assert 'adjustsFontSizeToFitWidth=NO' in expanded and 'textAlignment=NSTextAlign
 assert 'if (_isExpanded) return;' in a
 assert 'WCCInformationAlignment' in a and 'textRectForBounds' in a
 info=plistlib.loads((p/'Resources/Info.plist').read_bytes()); assert info['CFBundleVersion']==info['CFBundleShortVersionString'] and tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,8)
-assert 'Version: 1.2.10' in (p/'control').read_text()
-for needle in ('runtime128.c','run128-foundation.sh','test128.py','run127-foundation.sh','run126-foundation.sh','run125-foundation.sh','run124-foundation.sh','CCWeatherModule-1.2.10-rootless'): assert needle in w
+assert 'Version: 1.2.11' in (p/'control').read_text()
+for needle in ('runtime128.c','run128-foundation.sh','test128.py','run127-foundation.sh','run126-foundation.sh','run125-foundation.sh','run124-foundation.sh','CCWeatherModule-1.2.11-rootless'): assert needle in w
 print('PASS128 static: visible-anchor helper, fixed collapsed font/truncation, expanded exclusion, region retention, metadata/workflow')

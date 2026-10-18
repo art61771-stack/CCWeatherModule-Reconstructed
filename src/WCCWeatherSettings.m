@@ -5,6 +5,7 @@
 @interface WCCWeatherSettings ()
 @property(nonatomic,strong) UISegmentedControl *source;
 @property(nonatomic,strong) NSArray<UITextField *> *fields;
+@property(nonatomic,strong) UISwitch *detailsSwitch;
 @end
 @implementation WCCWeatherSettings
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popover { return NO; }
@@ -13,6 +14,8 @@
     self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(done)];
     self.source=[[UISegmentedControl alloc] initWithItems:@[@"系统（默认）",@"彩云"]];
     self.source.selectedSegmentIndex=WCCWeatherSource.shared.caiyun?1:0;
+    self.detailsSwitch=[UISwitch new];self.detailsSwitch.on=WCCWeatherDetailsEnabled();
+    [self.detailsSwitch addTarget:self action:@selector(detailsChanged:) forControlEvents:UIControlEventValueChanged];
     NSMutableArray *fields=[NSMutableArray array];
     NSArray *placeholders=@[@"Token（留空保留；不回显）",@"经度 -180 … 180",@"纬度 -90 … 90",@"显示别名（可选）"];
     for(NSInteger i=0;i<4;i++) {
@@ -33,7 +36,7 @@
 - (void)done { self.fields[0].text=@""; void (^done)(void)=self.onDone; self.onDone=nil; if(done) [self dismissViewControllerAnimated:YES completion:done]; }
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller { return UIModalPresentationNone; }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)table { return 5; }
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==0?1:section==1?4:section==2?4:1; }
+- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section { return section==0?2:section==1?4:section==2?4:1; }
 - (NSString *)tableView:(UITableView *)table titleForHeaderInSection:(NSInteger)section { return @[@"来源（保存后生效）",@"彩云配置",@"操作（只使用已保存配置）",@"公开连接状态",@"自动刷新（立即保存）"][section]; }
 - (NSString *)tableView:(UITableView *)table titleForFooterInSection:(NSInteger)section {
     if(section==4)return [WCCPrefs() objectForKey:@"caiyunRefreshHours124"]?@"仅前台可用时调度；后台不保证定时联网，过期下次前台补刷。":@"当前：兼容旧默认15分钟（尚未选择）。选择后按所选周期缓存及自动刷新；后台过期下次前台补刷。";
@@ -44,7 +47,9 @@
 - (CGFloat)tableView:(UITableView *)table heightForRowAtIndexPath:(NSIndexPath *)index { return index.section==3?120:50; }
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)index {
     UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    if(index.section==4) {
+    if(index.section==0 && index.row==1) {
+        cell.textLabel.text=@"天气详细信息";cell.detailTextLabel.text=@"风向 / 风速风级 / 湿度 / 未来小时摘要";cell.accessoryView=self.detailsSwitch;cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    } else if(index.section==4) {
         UISegmentedControl *period=[[UISegmentedControl alloc] initWithItems:@[@"1小时",@"12小时",@"24小时"]];
         NSInteger hours=[WCCPrefs() integerForKey:@"caiyunRefreshHours124"];
         period.selectedSegmentIndex=hours==1?0:hours==12?1:hours==24?2:UISegmentedControlNoSegment;
@@ -80,6 +85,10 @@
         [a addAction:[UIAlertAction actionWithTitle:@"删除" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){self.fields[0].text=@"";[s deleteToken];}]];
         [self presentViewController:a animated:YES completion:nil];
     } else [s refreshManual:YES];
+}
+- (void)detailsChanged:(UISwitch *)sender {
+    BOOL before=!sender.on;
+    if(!WCCSetWeatherDetailsEnabled(sender.on)){sender.on=before;UIAlertController *a=[UIAlertController alertControllerWithTitle:@"保存失败" message:@"保留原天气详情设置，请重试。" preferredStyle:UIAlertControllerStyleAlert];[a addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleCancel handler:nil]];[self presentViewController:a animated:YES completion:nil];}
 }
 - (void)periodChanged:(UISegmentedControl *)sender {
     if(![WCCWeatherSource.shared setRefreshHours:[@[@1,@12,@24][sender.selectedSegmentIndex] integerValue]]) {

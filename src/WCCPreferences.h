@@ -8,6 +8,8 @@ FOUNDATION_EXPORT WCCLayoutSize WCCEffectiveSize(void);
 FOUNDATION_EXPORT NSUserDefaults *WCCPrefs(void);
 FOUNDATION_EXPORT BOOL WCCCommitSliderValues(NSDictionary *values);
 FOUNDATION_EXPORT BOOL WCCSetCaiyunRefreshHours(NSInteger hours);
+FOUNDATION_EXPORT BOOL WCCWeatherDetailsEnabled(void);
+FOUNDATION_EXPORT BOOL WCCSetWeatherDetailsEnabled(BOOL enabled);
 #ifdef WCC_TESTING
 FOUNDATION_EXPORT void WCCTestUsePreferences(NSString *suite);
 FOUNDATION_EXPORT void WCCTestFailCommit(BOOL fail);
@@ -19,6 +21,7 @@ FOUNDATION_EXPORT BOOL WCCAllowedRoot(NSString *path);
 FOUNDATION_EXPORT NSString * const WCCPreferencesChanged;
 FOUNDATION_EXPORT NSString * const WCCMainIconScaleChanged;
 FOUNDATION_EXPORT NSString * const WCCRegionPositionChanged;
+FOUNDATION_EXPORT NSString * const WCCWeatherDetailsChanged;
 FOUNDATION_EXPORT NSArray<NSString *> *WCCRegionPositionKeys(void);
 FOUNDATION_EXPORT double WCCRegionOffset(NSInteger index);
 FOUNDATION_EXPORT BOOL WCCSetRegionOffset(NSInteger index, double value);

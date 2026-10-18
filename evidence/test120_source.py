@@ -13,7 +13,7 @@ checks=[
  'CYCancelled' in p, 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly' in p,
  'Token' not in ''.join(re.findall(r'forKey:@"([^\"]+)"',s)),
  'return nil;' not in (root/'src/WCCModule.m').read_text().split('WCCLoadWeatherFrameworks();',1)[1].split('WCCContentViewController *controller',1)[0],
- 'Version: 1.2.10' in (root/'control').read_text(), 'Icon: https://' in (root/'control').read_text(),
+ 'Version: 1.2.11' in (root/'control').read_text(), 'Icon: https://' in (root/'control').read_text(),
 ]
 info=plistlib.loads((root/'Resources/Info.plist').read_bytes()); checks.extend([tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,8),tuple(map(int,info['CFBundleShortVersionString'].split('.'))) >= (1,2,8)])
 # All network-derived resource choices reside in audited component static mapping.

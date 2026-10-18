@@ -11,6 +11,7 @@
 #import "WCCABI.h"
 #import "WCCWeatherSource.h"
 #import "WCCSystemWeatherDetails.h"
+#import "WCCWeatherDetailProjection.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #include <stdbool.h>
@@ -38,8 +39,14 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) NSUInteger hourlyLayoutGeneration;
 @property(nonatomic) BOOL hourlyRefreshing;
 @property(nonatomic,copy) NSDictionary *caiyunRender;
+@property(nonatomic,copy) NSString *baseConditionText;
+@property(nonatomic,copy) NSString *basePrecipitationText;
+@property(nonatomic,copy) NSString *weatherDetailsText;
+@property(nonatomic,copy) NSString *weatherOutlookText;
 @property(nonatomic) NSUInteger sourceGeneration;
 - (void)weatherSourceChanged;
+- (void)applyWeatherTextProjection;
+- (void)weatherDetailsPreferenceChanged;
 - (void)bindCaiyunSnapshot;
 - (UIImage *)caiyunImage:(NSDictionary *)condition;
 - (void)stopSystemWeather;
@@ -238,6 +245,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     [self consumeHostSession];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(preferencesChanged) name:WCCPreferencesChanged object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(regionPositionChanged) name:WCCRegionPositionChanged object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(weatherDetailsPreferenceChanged) name:WCCWeatherDetailsChanged object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(mainIconScaleChanged) name:WCCMainIconScaleChanged object:nil];
     self.view.backgroundColor = UIColor.clearColor;
     [self setupHeaderView]; [self setupHourlyContainer];
@@ -474,12 +482,22 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     __weak typeof(self) weak = self;
     [WCCSettings editLandmarkFrom:self completion:^{ weak.mediaSuspended=NO; [weak preferencesChanged]; }];
 }
+- (void)applyWeatherTextProjection {
+    NSDictionary *projection=WCCProjectWeatherText(self.baseConditionText,self.basePrecipitationText,self.weatherDetailsText,self.weatherOutlookText,WCCWeatherDetailsEnabled());
+    _conditionLabel.text=projection[@"condition"];
+    _precipLabel.text=projection[@"precipitation"];
+}
+- (void)weatherDetailsPreferenceChanged {
+    [self applyWeatherTextProjection];
+    [self.view setNeedsLayout];
+}
 - (void)preferencesChanged {
     _displayMode = MAX(0, MIN(2, [WCCPrefs() integerForKey:@"displayMode"]));
     _customLocationName = [WCCPrefs() stringForKey:@"landmark"];
     if (_displayMode == 2 && !_customLocationName.length) _displayMode = 0;
     [self updateCityLabel]; [self updateWeatherIcon]; [self cacheHourlyMediaPaths]; [self refreshHourlyMedia];
     self.customMedia.active = self.mediaVisible && !self.mediaSuspended && !self.presentedViewController;
+    [self applyWeatherTextProjection];
 }
 - (void)viewDidAppear:(BOOL)animated { [super viewDidAppear:animated]; [self consumeHostSession]; self.mediaVisible = WCCCurrentHostState().visible; [WCCWeatherSource.shared setAutomaticActive:self.mediaVisible]; [self preferencesChanged]; }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; self.mediaVisible = NO; if(!self.presentedViewController || !WCCCurrentHostState().visible)[WCCWeatherSource.shared setAutomaticActive:NO]; self.customMedia.active = NO; [self refreshHourlyMedia]; }
@@ -501,7 +519,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     if(self.sourceGeneration!=s.generation) {
         self.sourceGeneration=s.generation;
         [self clearHourlyItems]; [self.customMedia loadPath:nil]; self.mediaAssetKey=nil;
-        self.caiyunRender=nil; _currentCity=nil; _cachedSubLocality=nil; _cachedLocationID=nil;
+        self.caiyunRender=nil; self.baseConditionText=@"未就绪";self.basePrecipitationText=@"降水概率: --";self.weatherDetailsText=nil;self.weatherOutlookText=nil; _currentCity=nil; _cachedSubLocality=nil; _cachedLocationID=nil;
         _cityLabel.text=@"未就绪"; _conditionLabel.text=@"未就绪"; _tempLabel.text=@"--°";
         _highLowLabel.text=@"-- / --"; _precipLabel.text=@"降水概率: --";
         // Provider changes must not retain detail/outlook text from the prior source.
@@ -520,9 +538,10 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     self.caiyunRender=WCCRenderCaiyunSnapshot(s.snapshot,[WCCPrefs() stringForKey:@"caiyunAlias"],s.stale);
     NSDictionary *r=self.caiyunRender;
     _cityLabel.text=r[@"city"]; _tempLabel.text=r[@"temperature"]; _highLowLabel.text=r[@"highLow"];
-    NSString *outlook=r[@"outlook"];
-    _precipLabel.text=outlook.length?[NSString stringWithFormat:@"%@ · %@",outlook,r[@"precipitation"]]:r[@"precipitation"];
-    _conditionLabel.text=![r[@"ready"] boolValue]?@"未就绪": [NSString stringWithFormat:@"%@%@",[r[@"condition"][@"text"] stringByAppendingString:([r[@"details"] length]?[@" · " stringByAppendingString:r[@"details"]]:@"")],s.stale?@" · 已过期":@""];
+    self.weatherOutlookText=r[@"outlook"] ?: @""; self.basePrecipitationText=r[@"precipitation"] ?: @"";
+    self.weatherDetailsText=r[@"details"] ?: @"";
+    self.baseConditionText=![r[@"ready"] boolValue]?@"未就绪":[NSString stringWithFormat:@"%@%@",r[@"condition"][@"text"]?:@"",s.stale?@" · 已过期":@""];
+    [self applyWeatherTextProjection];
     [self updateWeatherIcon]; if(_isExpanded)[self updateHourlyForecast];
 }
 - (void)updateWeatherDisplay {
@@ -541,13 +560,12 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
             NSDictionary *native=WCCRenderSystemWeatherDetails(_currentCity,[NSDate date],^NSString *(NSInteger code) {
                 return [self conditionStringForCode:code];
             });
-            NSString *details=native[@"details"];
-            _conditionLabel.text = details.length ? [NSString stringWithFormat:@"%@ · %@",condition,details] : condition;
+            self.baseConditionText=condition;self.weatherDetailsText=native[@"details"]?:@"";
             _tempLabel.text = [self temperatureString:[_currentCity temperature]];
             _highLowLabel.text = [self highLowTemperatureString];
             [self updatePrecipitation];
-            NSString *outlook=native[@"outlook"];
-            if(outlook.length) _precipLabel.text=[NSString stringWithFormat:@"%@ · %@",outlook,_precipLabel.text?:@""];
+            self.basePrecipitationText=_precipLabel.text?:@"";self.weatherOutlookText=native[@"outlook"]?:@"";
+            [self applyWeatherTextProjection];
             [self updateWeatherIcon];
             if (_isExpanded) [self updateHourlyForecast];
         } else {
@@ -601,6 +619,7 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         // Preserve the binary's strict <1 boundary: exactly 1 means 1%, not 100%.
         if (chance > 0 && chance < 1) chance *= 100;
         _precipLabel.text = chance > 0 ? [NSString stringWithFormat:@"降水概率: %.0f%%", (double)chance] : @"降水概率: 0%";
+        self.basePrecipitationText=_precipLabel.text;
     } @catch (NSException *exception) { _precipLabel.text = @""; }
 }
 - (NSString *)temperatureString:(id)temperature {
