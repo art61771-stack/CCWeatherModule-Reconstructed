@@ -71,7 +71,7 @@ int main(void){@autoreleasepool{
  for(NSDictionary *v in @[@{@"mainCustomIconPercent":@155},@{@"mainCustomIconPercent":@101},@{@"customIcon":@1}]){
   NSMutableDictionary *bad=[good mutableCopy];bad[@"values"]=v;writeDoc(identifier,bad);assert(!WCCLoadConfiguration(identifier,&e));
  }
- for(id version in @[@YES,@7,@"1"]){NSMutableDictionary *bad=[good mutableCopy];bad[@"version"]=version;writeDoc(identifier,bad);assert(!WCCLoadConfiguration(identifier,&e));}
+ for(id version in @[@YES,@8,@"1"]){NSMutableDictionary *bad=[good mutableCopy];bad[@"version"]=version;writeDoc(identifier,bad);assert(!WCCLoadConfiguration(identifier,&e));}
  NSMutableDictionary *bad=[good mutableCopy];bad[@"extra"]=@1;writeDoc(identifier,bad);assert(!WCCLoadConfiguration(identifier,&e));
  assert([@"{broken" writeToFile:path(identifier) atomically:YES encoding:NSUTF8StringEncoding error:&e]);assert(!WCCLoadConfiguration(identifier,&e));
  assert([[NSMutableData dataWithLength:16385] writeToFile:path(identifier) atomically:YES]);assert(!WCCLoadConfiguration(identifier,&e));
