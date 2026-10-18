@@ -28,7 +28,7 @@ assert 'UIPresentationController' in n and 'shouldRemovePresentersView { return 
 assert 'configureWithTransparentBackground' in n and 'configureWithDefaultBackground' in n
 assert 'sender.on forKey:@"settingsPanelTransparent"' in n
 assert 'UIPanGestureRecognizer' not in f+n and 'addChildViewController' not in f+n
-assert u.count('[[WCCNativeSettingsNavigation alloc] initWithRootViewController:')==4
+assert u.count('[[WCCNativeSettingsNavigation alloc] initWithRootViewController:')==5
 assert u.count('WCCShow(p, nav, completion);')==4
 assert 'WCCShow(p, a);' not in u
 assert 'p.transitionCoordinator' in u and 'if (p.presentedViewController != a && rejected) rejected();' in u
