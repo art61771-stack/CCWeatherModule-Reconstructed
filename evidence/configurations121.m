@@ -29,7 +29,7 @@ int main(void){@autoreleasepool{
  assert(WCCCustomGreetingEnabled() && [WCCCustomGreetingText() isEqual:@"你好"]);
  assert(WCCSetCustomGreeting(NO,@""));
  NSDictionary *defaults=WCCCurrentSliderValues();
- assert(defaults.count==28 && [defaults[@"mainIconCollapsedPercent"] intValue]==100);
+ assert(defaults.count==29 && [defaults[@"mainIconCollapsedPercent"] intValue]==100);
  for(NSNumber *invalid in @[@(NAN),@(INFINITY),@YES]) { NSMutableDictionary *v=[defaults mutableCopy];v[@"temperatureOffsetX"]=invalid;assert(!WCCCommitSliderValues(v));assert([WCCCurrentSliderValues() isEqual:defaults]); }
  for(NSString *k in WCCRegionPositionKeys())assert([defaults[k] intValue]==0);
  assert(WCCSaveConfiguration(@"一套",nil,&e));
