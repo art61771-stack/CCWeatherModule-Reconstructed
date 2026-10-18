@@ -9,6 +9,6 @@ assert 'WCCBackgroundPickerGenerationCurrent' in ui and 'ownerValid' in ui
 assert 'backgroundMaskView' in c and 'addSubview:self.backgroundMedia' in c and 'userInteractionEnabled=NO' in c
 assert 'aspectFill=YES' in c and 'didReceiveMemoryWarning' in c and 'updateBackgroundPlayback' in c
 assert 'version>7' in pref and 'backgroundMask1212' in pref and 'MIN(1,MAX(0' in pref
-assert '@"version":@7' in cfg and 'WCCBackgroundRelativeName' in cfg
+assert '@"version":@7' in cfg and 'backgroundFile1212' in cfg
 assert 'Version: 1.2.12' in (p/'control').read_text() and 'CCWeatherModule-1.2.12-rootless' in wf
 print('PASS1212 static: secure picker copy, confinement, atomic rollback, v7 mask/background, lifecycle wiring. UIKit/device NOT RUN.')

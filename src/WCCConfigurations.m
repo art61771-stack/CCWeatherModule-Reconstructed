@@ -2,7 +2,6 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "WCCPreferences.h"
 #import "WCCRuntime.h"
-#import "WCCBackground.h"
 #include <sys/stat.h>
 #include <errno.h>
 static NSString * const WCCBackupID=@"00000000-0000-0000-0000-000000000000";
@@ -86,7 +85,8 @@ NSDictionary *WCCCurrentSliderValues(void) {
     values[@"mainIconShadow124"]=@(WCCTextShadowEnabled(3));values[@"mainIconGlow124"]=@(WCCTextGlowEnabled(3));
     values[@"mainOpacity125"]=WCCMainContentSettings(0);values[@"mainScale125"]=WCCMainContentSettings(1);
     values[@"weatherDetailsEnabled1211"]=@(WCCWeatherDetailsEnabled());
-    values[@"backgroundType1212"]=@(WCCBackgroundType());values[@"backgroundFile1212"]=WCCBackgroundRelativeName()?:@"";values[@"backgroundMask1212"]=@(WCCBackgroundMask());
+    id backgroundType=[WCCPrefs() objectForKey:@"backgroundType1212"],backgroundFile=[WCCPrefs() objectForKey:@"backgroundFile1212"],backgroundMask=[WCCPrefs() objectForKey:@"backgroundMask1212"];
+    values[@"backgroundType1212"]=[backgroundType isKindOfClass:NSNumber.class]?backgroundType:@0;values[@"backgroundFile1212"]=[backgroundFile isKindOfClass:NSString.class]?backgroundFile:@"";double mask=[backgroundMask isKindOfClass:NSNumber.class]?[backgroundMask doubleValue]:.35;values[@"backgroundMask1212"]=@(MIN(1,MAX(0,isfinite(mask)?mask:.35)));
     return values;
 }
 NSArray<NSDictionary *> *WCCConfigurations(NSError **error) {
