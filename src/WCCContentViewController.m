@@ -334,6 +334,9 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
         self.collapsedIconBaselineGeneration++;
     self.collapsedIconGeometrySize=size;
     self.collapsedIconSlot=collapsed;
+    // Explicit one-time migration at a stable collapsed layout. The getter
+    // remains side-effect free; subsequent layouts only read normalized center.
+    WCCMaterializeMainIconAbsoluteCenter(size.width,g.headerHeight,self.layoutSize);
     _iconView.bounds=(CGRect){CGPointZero,collapsed.size};
     _iconView.center=CGPointMake(CGRectGetMidX(collapsed),CGRectGetMidY(collapsed));
     self.customMedia.transform = CGAffineTransformIdentity;
@@ -919,31 +922,38 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)layoutMainCustomMedia {
     if (!self.isViewLoaded || !_iconView) return;
-    // Host presentation callbacks can render weather before stable layout. Use
-    // only mode-specific baselines produced by geometry/constraints, never a
-    // UIView frame carrying the previous presentation's transform.
-    CGRect slot=_isExpanded?self.expandedIconSlot:self.collapsedIconSlot;
-    CGSize generationSize=_isExpanded?self.expandedIconGeometrySize:self.collapsedIconGeometrySize;
-    if(CGRectIsEmpty(slot) || generationSize.width<=0 || generationSize.height<=0)return;
-    WCCMainIconLayout layout=WCCMainIconLayoutForBaseline(
-        WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
-        _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,
-        (int)self.layoutSize.width,(int)self.layoutSize.height,
-        WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(_isExpanded));
+    double width=_headerView.bounds.size.width,height=_headerView.bounds.size.height;
+    if(!(width>0&&height>0))return;
+    WCCRect canonical;double centerX=0,centerY=0,percent=WCCMainIconPercentForMode(_isExpanded);
+    if(_isExpanded){
+        CGRect slot=self.expandedIconSlot;if(CGRectIsEmpty(slot))return;
+        canonical=WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height);
+        WCCMainIconLayout expanded=WCCMainIconLayoutForBaseline(canonical,width,height,1,
+            (int)self.layoutSize.width,(int)self.layoutSize.height,0,0,percent);
+        centerX=expanded.centerX;centerY=expanded.centerY;
+    }else{
+        // Every collapsed path starts from deterministic module geometry and the
+        // persisted final normalized center. Never consume cached slots/frames.
+        canonical=WCCCanonicalCollapsedIcon(width,height,(int)self.layoutSize.width,(int)self.layoutSize.height);
+        if(!WCCMainIconAbsoluteCenter(width,height,self.layoutSize,&centerX,&centerY))return;
+        WCCPoint clamped=WCCClampAbsoluteIconCenter(centerX,centerY,width,height,canonical.w,canonical.h,percent);
+        centerX=clamped.x;centerY=clamped.y;
+    }
+    double scale=WCCNormalizeIconPercentForMode(_isExpanded,percent)/100.;
+    if(!_isExpanded){double maximumHeight=fmax(0,height-16*fmin(1,height/76.));scale=fmin(scale,fmin(width/canonical.w,maximumHeight/canonical.h));}
+    CGSize finalSize=CGSizeMake(canonical.w*scale,canonical.h*scale);
     [CATransaction begin];[CATransaction setDisableActions:YES];
+    // Parent geometry is the final coordinate and final scaled size. It always
+    // stays identity; only the inner content view may animate.
     _iconView.transform=CGAffineTransformIdentity;
-    _iconView.bounds=(CGRect){CGPointZero,slot.size};
-    _iconView.center=CGPointMake(layout.centerX,layout.centerY);
+    _iconView.bounds=(CGRect){CGPointZero,finalSize};
+    _iconView.center=CGPointMake(centerX,centerY);
     _iconContentView.transform=CGAffineTransformIdentity;
     _iconContentView.frame=_iconView.bounds;
     _systemIconView.frame=_iconContentView.bounds;
     self.customMedia.transform=CGAffineTransformIdentity;
     self.customMedia.autoresizingMask=UIViewAutoresizingNone;
     self.customMedia.frame=_iconContentView.bounds;
-    // System image, PNG/GIF/MP4 and fallback all inherit the same parent scale.
-    // Translation is represented solely by center, so repeated host callbacks
-    // cannot multiply it by scale or accumulate a presentation transform.
-    _iconView.transform=CGAffineTransformMakeScale(layout.scaleX,layout.scaleY);
     [CATransaction commit];
 }
 - (void)viewDidLayoutSubviews {

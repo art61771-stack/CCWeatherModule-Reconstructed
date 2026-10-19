@@ -40,7 +40,7 @@ for n in ['WCCSettings.m','WCCRegionSettings.m','WCCWeatherSettings.m']:
 assert 'WCCCollapsedSliderPercent(self.slider.value)' in u
 assert 'self.expandedSlider.minimumValue=50;self.expandedSlider.maximumValue=150' in u
 info=plistlib.loads((p/'Resources/Info.plist').read_bytes());assert tuple(map(int,info['CFBundleVersion'].split('.'))) >= (1,2,8) and tuple(map(int,info['CFBundleShortVersionString'].split('.'))) >= (1,2,8)
-assert 'Version: 1.2.15' in (p/'control').read_text()
+assert 'Version: 1.2.16' in (p/'control').read_text()
 helpers=u[u.index('static void (^WCCOnce'):u.index('@interface WCCSettingsGallery')]
 entry='- (void)handleTwoFingerDoubleTap:'+method(c,'- (void)handleTwoFingerDoubleTap:','- (void)showCustomNameAlert')
 done='- (void)done {'+method(u,'- (void)done {','- (UIModalPresentationStyle)')

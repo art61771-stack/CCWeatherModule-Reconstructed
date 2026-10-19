@@ -238,9 +238,31 @@ static inline WCCRect WCCMainIconTargetForLayout(WCCRect baseline,double width,d
     target.y+=WCCRegionAxis(target.y,target.h,height,y);
     return target;
 }
-/* 1.2.15 parent-view contract. Baseline is immutable, untransformed layout
- * geometry. UIKit installs these bounds/center values with identity transform,
- * then applies scale only; position never comes from frame/presentation state. */
+/* 1.2.16 collapsed absolute-coordinate contract. The canonical slot is a pure
+ * function of module bounds and the selected size enum; it never reads UIView
+ * frame, content, intrinsic size, presentation state, callback order or an old
+ * baseline. Preferences persist the final normalized center. */
+typedef struct { double x,y; } WCCPoint;
+static inline WCCRect WCCCanonicalCollapsedIcon(double width,double height,int columns,int rows) {
+    return WCCComputeModuleGeometry(width,height,0,columns,rows).icon;
+}
+static inline WCCPoint WCCAbsoluteIconCenterFromLegacy(double width,double height,int columns,int rows,
+        double x,double y,double percent) {
+    WCCRect canonical=WCCCanonicalCollapsedIcon(width,height,columns,rows);
+    WCCRect target=WCCMainIconTargetForLayout(canonical,width,height,0,columns,rows,x,y,percent);
+    return (WCCPoint){target.x+target.w/2,target.y+target.h/2};
+}
+static inline WCCPoint WCCClampAbsoluteIconCenter(double centerX,double centerY,double width,double height,
+        double iconWidth,double iconHeight,double percent) {
+    double scale=WCCNormalizeIconPercentForMode(0,percent)/100.;
+    double maximumHeight=fmax(0,height-16*fmin(1,height/76.));
+    if(iconWidth>0 && iconHeight>0)scale=fmin(scale,fmin(width/iconWidth,maximumHeight/iconHeight));
+    double halfW=iconWidth*scale/2,halfH=iconHeight*scale/2;
+    centerX=fmax(halfW,fmin(width-halfW,centerX));
+    centerY=fmax(halfH,fmin(height-halfH,centerY));
+    return (WCCPoint){centerX,centerY};
+}
+/* 1.2.15 historical baseline contract remains for fixtures and expanded mode. */
 typedef struct { WCCRect baseline,target; double centerX,centerY,scaleX,scaleY; } WCCMainIconLayout;
 static inline WCCMainIconLayout WCCMainIconLayoutForBaseline(WCCRect baseline,double width,double height,
         int expanded,int columns,int rows,double x,double y,double percent) {

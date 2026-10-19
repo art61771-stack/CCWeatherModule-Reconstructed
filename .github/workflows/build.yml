@@ -1,4 +1,4 @@
-name: CCWeatherModule 1.2.15 rootless
+name: CCWeatherModule 1.2.16 rootless
 on:
   workflow_dispatch:
 permissions:
@@ -23,6 +23,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p verification
+          cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime1216.c -lm -o /tmp/runtime1216
+          /tmp/runtime1216 | tee verification/runtime1216.txt
+          python3 evidence/test1216.py | tee verification/static1216.txt
           cc -std=gnu11 -Wall -Wextra -Werror evidence/runtime1215.c -lm -o /tmp/runtime1215
           /tmp/runtime1215 | tee verification/runtime1215.txt
           python3 evidence/test1215.py | tee verification/static1215.txt
@@ -46,7 +49,7 @@ jobs:
           sh evidence/run128-foundation.sh 2>&1 | tee verification/foundation128.txt
           sh evidence/run1214-foundation.sh 2>&1 | tee verification/foundation1214.txt
           # 1.2.7/1.2.8 edge-anchor tests remain historical fixtures only;
-          # current production is governed by the 1.2.15 left-origin contract.
+          # current production is governed by the 1.2.16 left-origin contract.
           sh evidence/run126-foundation.sh 2>&1 | tee verification/foundation126.txt
           python3 evidence/test126.py | tee verification/static126.txt
           python3 evidence/test122_safety.py | tee verification/safety122-static.txt
@@ -109,25 +112,25 @@ jobs:
           cmp layout/DEBIAN/postinst /tmp/wcc-control/postinst
           sh -n /tmp/wcc-control/postinst
           sh evidence/test130_sileo_postinst.sh /tmp/wcc-control/postinst | tee verification/sileo130-packaged.txt
-          grep -qx ' Version: 1.2.15' verification/control.txt
+          grep -qx ' Version: 1.2.16' verification/control.txt
           dpkg-deb -x "$DEB" /tmp/wcc-payload
           BUNDLE=/tmp/wcc-payload/var/jb/Library/ControlCenter/Bundles/CCWeatherModule.bundle
           BIN="$BUNDLE/CCWeatherModule"
           test -f "$BUNDLE/SettingsIcon@3x.png"
           cmp Resources/SettingsIcon@3x.png "$BUNDLE/SettingsIcon@3x.png"
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$BUNDLE/Info.plist" | grep -qx '1.2.15'
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$BUNDLE/Info.plist" | grep -qx '1.2.15'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$BUNDLE/Info.plist" | grep -qx '1.2.16'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$BUNDLE/Info.plist" | grep -qx '1.2.16'
           lipo -info "$BIN" | tee verification/architectures.txt
           grep -q 'arm64 arm64e' verification/architectures.txt
           otool -L "$BIN" | tee verification/linkage.txt
           ldid -e "$BIN" > verification/entitlements.xml
           shasum -a 256 "$DEB" | tee verification/SHA256SUMS
           xcrun simctl list runtimes > verification/simulator-runtimes.txt
-          echo '1.2.15 background border mask plus 1.2.12 weather-details toggle Foundation/static tests and 1.2.10 Sileo dynamic-fd protocol: RUN. 1.2.9 through 1.2.4 historical regressions: RUN. True UIKit rendering, live network providers, Sileo completion button and iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
+          echo '1.2.16 background border mask plus 1.2.12 weather-details toggle Foundation/static tests and 1.2.10 Sileo dynamic-fd protocol: RUN. 1.2.9 through 1.2.4 historical regressions: RUN. True UIKit rendering, live network providers, Sileo completion button and iPhone 14 Pro Max iOS 16.6 RootHide: NOT RUN.' > verification/runtime-status.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: CCWeatherModule-1.2.15-rootless
+          name: CCWeatherModule-1.2.16-rootless
           path: |
             packages/*.deb
             verification/*

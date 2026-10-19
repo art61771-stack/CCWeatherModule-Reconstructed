@@ -1,13 +1,13 @@
-# CCWeatherModule 1.2.15 — 控制中心重复下拉主图位置稳定
+# CCWeatherModule 1.2.16 — 控制中心重复下拉主图位置稳定
 
-## 1.2.15
+## 1.2.16
 
-- 修复 CC host 每次展示时多条生命周期、天气刷新与异步媒体 ready 回调重复触发布局，旧实现可能把已带缩放/位移的 `_iconView.frame` 当作下一次基准，导致持久 X/Y 与 size 被重复套用，主图逐次偏离用户自行设定的问候语左缘。
-- 折叠基准只由当前稳定 module bounds 的 `WCCComputeModuleGeometry` 产生；展开基准只由 identity 状态下 Auto Layout 约束解算产生。两种基准分离并带 geometry size/generation，展开绝不覆盖折叠 slot，bounds 真正改变时按新 geometry 重算。
-- 每次应用都先清父视图 transform，安装 baseline `bounds/center`，再以纯 scale 设置 transform；最终位置仅由 center 表示，不读取 presentation layer，也不从带 transform 的 frame 反推。展开大小独立生效但不套折叠 X/Y，收回精确恢复折叠目标。
-- 系统图、PNG、GIF、MP4 与加载失败 fallback 共用同一父层链路。切换模式仅移除插件自己的 inner content scale 动画并恢复 identity，opacity、shadow/glow 及其余功能不受影响，动画恢复后不会累计父位置。
-- 新增 1215 生产 helper/几何压力测试：先复现 1.2.14 污染 frame 二次套用后的漂移，再覆盖折叠 50/100/150/200/250%、展开 50/100/150%、非零正负 X/Y、5 种媒体路径、动画开关、6 种回调顺序、天气/媒体重绘、100 次关闭再下拉与展开收回、设置修改及旋转/bounds 改变；按实际变换矩阵验证可见中心和 bounds，而非只断言 model position。
-- 1.2.14 问候左缘、1.2.13 背景 mask、1.2.12 天气详情、1.2.10 Sileo 动态 fd 与历史功能保持回归覆盖。真实 CCSupport 展示时序与用户截图场景仍需在目标真机复验。
+- 明确承认 1.2.15 仍失败：真机反例 `photo_839466F5.png` / `photo_5A5AA4F0.png` 中，同天气、同问候、同模块边框下问候左缘稳定，但同一主天气图标从约 x=111px 跳到约 x=105px（均相对各自模块左边框测量，人工约值）。这证明“缓存一个看似稳定 baseline”仍会继承 host presentation bounds/geometry、layout mode 或系统图 intrinsic/frame 时序变化。
+- 折叠主图改为绝对坐标模型：首次稳定折叠 layout 把旧 `mainIconOffsetX/Y` 与当前大小通过纯 canonical geometry 一次迁移为版本化 `mainIconAbsoluteNormalizedCenterX/Y1216`；getter 不写盘，迁移成功后不重复。真实 bounds 变化按归一化中心映射，微小 inset/slot/baseline 抖动不能改变相同 bounds 下的目标。
+- 设置页继续兼容显示 X ±1366pt / Y ±40pt；迁移后每次滑块变化直接把差值加到持久化最终中心，同轴 1pt 对应最终坐标 1pt，X/Y 互不影响。限幅只看模块可见边界与最终 scaled size，不读取城市、天气详情、问候文字或素材内容。
+- 所有折叠生产路径只调用 `WCCCanonicalCollapsedIcon(bounds,size enum)` 与持久化 normalized center；不读取 `_iconView.frame`、旧 slot、presentation layer、自动布局结果或媒体 intrinsic。父 `_iconView` 直接写最终 `bounds + center`，transform 始终 identity；系统图、PNG/GIF/MP4/fallback 和 media-ready 只替换内层内容，内层呼吸动画不移动父中心。
+- 展开仍使用原展开约束布局，不套折叠绝对目标；收回及每次下拉重新读取同一绝对目标。1215 baseline helper仅作为 historical fixture 保留，不再约束当前生产。
+- 1216 测试先复现两个动态 baseline 得出不同中心，再覆盖100次下拉、8种回调顺序、详情开关、长短文本、图片/视频背景、五媒体、动画、展开收回、微小 slot/inset 抖动与真实 bounds 归一映射，并验证实际父 view 的 final bounds/center 语义。1214问候左缘、1213 mask、Sileo脚本及历史功能继续回归。真机仍须在同一设备以同一设置连续下拉截图复验。
 
 ## 1.2.13
 

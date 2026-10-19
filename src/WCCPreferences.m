@@ -38,9 +38,46 @@ double WCCRegionOffset(NSInteger index) {
     id v=[WCCPrefs() objectForKey:WCCRegionPositionKeys()[index]];
     return WCCNumber(v)?WCCNormalizePositionOffset((int)index,[v doubleValue]):0;
 }
+static NSString * const WCCIconAbsoluteXKey=@"mainIconAbsoluteNormalizedCenterX1216";
+static NSString * const WCCIconAbsoluteYKey=@"mainIconAbsoluteNormalizedCenterY1216";
+static BOOL WCCStoredIconAbsolute(double *x,double *y) {
+    id vx=[WCCPrefs() objectForKey:WCCIconAbsoluteXKey],vy=[WCCPrefs() objectForKey:WCCIconAbsoluteYKey];
+    if(!WCCNumber(vx)||!WCCNumber(vy)||!isfinite([vx doubleValue])||!isfinite([vy doubleValue]))return NO;
+    if(x)*x=[vx doubleValue];if(y)*y=[vy doubleValue];return YES;
+}
+BOOL WCCMainIconAbsoluteCenter(double width,double height,WCCLayoutSize size,double *centerX,double *centerY) {
+    if(!(width>0&&height>0))return NO;double nx=0,ny=0;
+    if(WCCStoredIconAbsolute(&nx,&ny)){if(centerX)*centerX=nx*width;if(centerY)*centerY=ny*height;return YES;}
+    WCCPoint legacy=WCCAbsoluteIconCenterFromLegacy(width,height,(int)size.width,(int)size.height,
+        WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(NO));
+    if(centerX)*centerX=legacy.x;if(centerY)*centerY=legacy.y;return YES;
+}
+BOOL WCCMaterializeMainIconAbsoluteCenter(double width,double height,WCCLayoutSize size) {
+    if(!(width>0&&height>0))return NO;double nx=0,ny=0;
+    if(WCCStoredIconAbsolute(&nx,&ny)){
+        id oldW=[WCCPrefs() objectForKey:@"mainIconAbsoluteModuleWidth1216"],oldH=[WCCPrefs() objectForKey:@"mainIconAbsoluteModuleHeight1216"];
+        if(WCCNumber(oldW)&&WCCNumber(oldH)&&fabs([oldW doubleValue]-width)<.5&&fabs([oldH doubleValue]-height)<.5)return YES;
+        return WCCCommitPartial(@{@"mainIconAbsoluteModuleWidth1216":@(width),@"mainIconAbsoluteModuleHeight1216":@(height)});
+    }
+    double x=0,y=0;if(!WCCMainIconAbsoluteCenter(width,height,size,&x,&y))return NO;
+    return WCCCommitPartial(@{WCCIconAbsoluteXKey:@(x/width),WCCIconAbsoluteYKey:@(y/height),
+        @"mainIconAbsoluteModuleWidth1216":@(width),@"mainIconAbsoluteModuleHeight1216":@(height),
+        @"mainIconAbsoluteVersion1216":@1});
+}
 BOOL WCCSetRegionOffset(NSInteger index,double value) {
     if(index<0 || index>=8 || !isfinite(value))return NO;
-    BOOL ok=WCCCommitPartial(@{WCCRegionPositionKeys()[index]:@(WCCNormalizePositionOffset((int)index,value))});
+    NSMutableDictionary *changes=[@{WCCRegionPositionKeys()[index]:@(WCCNormalizePositionOffset((int)index,value))} mutableCopy];
+    // Once migration has materialized, each main-icon slider tick moves the
+    // persisted final center by exactly one point on its own axis.
+    if((index==2||index==3)){
+        double nx=0,ny=0;if(WCCStoredIconAbsolute(&nx,&ny)){
+            double old=WCCRegionOffset(index),next=WCCNormalizePositionOffset((int)index,value);
+            id w=[WCCPrefs() objectForKey:@"mainIconAbsoluteModuleWidth1216"],h=[WCCPrefs() objectForKey:@"mainIconAbsoluteModuleHeight1216"];
+            double bound=index==2?[w doubleValue]:[h doubleValue];
+            if(WCCNumber(index==2?w:h)&&bound>0){if(index==2)nx+=(next-old)/bound;else ny+=(next-old)/bound;changes[WCCIconAbsoluteXKey]=@(nx);changes[WCCIconAbsoluteYKey]=@(ny);}
+        }
+    }
+    BOOL ok=WCCCommitPartial(changes);
     if(ok)WCCNotify(WCCRegionPositionChanged); return ok;
 }
 BOOL WCCResetRegionOffsets(NSInteger region) {

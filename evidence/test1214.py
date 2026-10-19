@@ -18,9 +18,9 @@ for needle in ('adjustsFontSizeToFitWidth=NO','minimumScaleFactor=1','numberOfLi
 assert 'textAlignment=NSTextAlignmentLeft' in expanded
 assert 'WCCInformationAlignment' in a
 for f in ('control','package/control/control'):
- assert 'Version: 1.2.15' in (p/f).read_text()
-info=plistlib.loads((p/'Resources/Info.plist').read_bytes()); assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.15'
-assert 'CCWeatherModule-1.2.15-rootless' in wf and 'runtime1214.c' in wf and 'run1214-foundation.sh' in wf
+ assert 'Version: 1.2.16' in (p/f).read_text()
+info=plistlib.loads((p/'Resources/Info.plist').read_bytes()); assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.16'
+assert 'CCWeatherModule-1.2.16-rootless' in wf and 'runtime1214.c' in wf and 'run1214-foundation.sh' in wf
 for historical in ('runtime128.c','run128-foundation.sh'): assert historical in wf
-assert '1.2.15' in (p/'README.md').read_text()
+assert '1.2.16' in (p/'README.md').read_text()
 print('PASS1214 static: production greeting frame is a text-independent left-aligned rail; expanded excluded; metadata semantics retained; version/workflow wired')

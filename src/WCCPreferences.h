@@ -25,6 +25,10 @@ FOUNDATION_EXPORT NSString * const WCCWeatherDetailsChanged;
 FOUNDATION_EXPORT NSArray<NSString *> *WCCRegionPositionKeys(void);
 FOUNDATION_EXPORT double WCCRegionOffset(NSInteger index);
 FOUNDATION_EXPORT BOOL WCCSetRegionOffset(NSInteger index, double value);
+// 1.2.16 persists the collapsed main icon's final normalized center. Reading is
+// side-effect free; materialization is an explicit stable-layout/settings act.
+FOUNDATION_EXPORT BOOL WCCMainIconAbsoluteCenter(double moduleWidth, double moduleHeight, WCCLayoutSize layoutSize, double *centerX, double *centerY);
+FOUNDATION_EXPORT BOOL WCCMaterializeMainIconAbsoluteCenter(double moduleWidth, double moduleHeight, WCCLayoutSize layoutSize);
 // -1 resets all eight keys; 0...3 resets only one region.
 FOUNDATION_EXPORT BOOL WCCResetRegionOffsets(NSInteger region);
 FOUNDATION_EXPORT double WCCMainIconPercent(void);
