@@ -19,17 +19,18 @@ int main(void){
   for(unsigned i=0;i<sizeof(widths)/sizeof(widths[0]);i++){
    WCCRect ink=visible(rail,widths[i],i&1?18:12,align,d);
    assert(near(d.x,first.x)&&near(d.y,first.y));
-   if(WCCNormalizePositionOffset(6,x)>0) assert(near(ink.x+ink.w,rail.x+rail.w+d.x));
-   else assert(near(ink.x,rail.x+d.x));
+   /* 1.2.14 supersedes the historical positive-X right anchor: every
+      persisted request now controls a text-independent visible left edge. */
+   assert(near(ink.x,rail.x+d.x));
    assert(near(ink.y,rail.y+d.y));
   }
  }
  /* Saturated endpoints, stable Y, and unrelated information contract. */
  WCCRect dl=WCCGreetingTranslation(rail,320,76,-1366,-40),dr=WCCGreetingTranslation(rail,320,76,1366,40);
  assert(near(visible(rail,24,12,0,dl).x,0));
- WCCRect rr=visible(rail,24,12,2,dr);assert(near(rr.x+rr.w,320));
+ WCCRect rr=visible(rail,24,12,0,dr);assert(near(rr.x,319));
  assert(near(dl.y,-30)&&near(dr.y,28));
  WCCRect info=WCCAlignedTextBounds(WCCR(120,5,150,20),40,WCCInformationAlignment(0,2));assert(near(info.x,230));
- puts("PASS128 visible greeting anchor: 1.2.7 failure reproduced; zero/near-zero/negative left, positive right, short/long/fit/truncation/1-2-line and Y stable");
+ puts("PASS128 historical failure plus current left-origin greeting anchor: zero/near-zero/negative/positive, short/long/fit/truncation/1-2-line and Y stable");
  return 0;
 }

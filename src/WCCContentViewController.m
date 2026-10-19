@@ -68,6 +68,11 @@ static CGFloat WCCTextWidth(UILabel *label, CGFloat size, UIFontWeight weight) {
 @property(nonatomic) WCCGreetingState greetingState;
 @property(nonatomic,copy) NSString *selectedCustomGreeting;
 @property(nonatomic) CGRect collapsedIconSlot;
+@property(nonatomic) CGRect expandedIconSlot;
+@property(nonatomic) CGSize collapsedIconGeometrySize;
+@property(nonatomic) CGSize expandedIconGeometrySize;
+@property(nonatomic) NSUInteger collapsedIconBaselineGeneration;
+@property(nonatomic) NSUInteger expandedIconBaselineGeneration;
 @property(nonatomic) CGRect collapsedGreetingRail;
 @property(nonatomic) WCCLayoutSize layoutSize;
 @property(nonatomic,strong) WCCMediaView *customMedia;
@@ -158,6 +163,13 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     WCCModuleSession session=self.moduleSession;
     if (WCCConsumeExpansion(&session,expanded)) [self drawGreeting];
     self.moduleSession=session;
+    // A transition may interrupt the inner breathing scale. Remove only our
+    // content-scale presentation and normalize the parent before new geometry;
+    // opacity and the parent's shadow animation remain independent.
+    [_iconContentView.layer removeAnimationForKey:@"wcc.icon.transform.scale125"];
+    _iconContentView.transform=CGAffineTransformIdentity;
+    _iconView.layer.transform=CATransform3DIdentity;
+    _iconView.transform=CGAffineTransformIdentity;
     _isExpanded = expanded;
     if (expanded) [self updateHourlyForecast]; else [self clearHourlyItems];
     _hourlyContainer.alpha = expanded ? 1 : 0;
@@ -315,8 +327,15 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     _headerView.transform = CGAffineTransformIdentity;
     _headerView.frame = CGRectMake(0, 0, size.width, g.headerHeight);
     _iconView.transform = CGAffineTransformIdentity;
-    self.collapsedIconSlot=WCCCGRect(g.icon);
-    _iconView.frame = self.collapsedIconSlot;
+    // Cache collapsed baseline only while collapsed, from fresh geometry rather
+    // than the previous transformed frame. Bounds changes create a generation.
+    CGRect collapsed=WCCCGRect(g.icon);
+    if(!CGSizeEqualToSize(self.collapsedIconGeometrySize,size) || !CGRectEqualToRect(self.collapsedIconSlot,collapsed))
+        self.collapsedIconBaselineGeneration++;
+    self.collapsedIconGeometrySize=size;
+    self.collapsedIconSlot=collapsed;
+    _iconView.bounds=(CGRect){CGPointZero,collapsed.size};
+    _iconView.center=CGPointMake(CGRectGetMidX(collapsed),CGRectGetMidY(collapsed));
     self.customMedia.transform = CGAffineTransformIdentity;
     self.customMedia.frame = _iconView.bounds;
     _cityLabel.frame = WCCCGRect(g.city); _tempLabel.frame = WCCCGRect(g.temperature);
@@ -386,6 +405,15 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
     }
     [NSLayoutConstraint activateConstraints:self.originalExpandedConstraints];
     [_headerView layoutIfNeeded];
+    // Capture only the identity, constraint-resolved expanded slot. Never let a
+    // prior collapsed transform or presentation layer become expanded geometry.
+    _iconView.transform=CGAffineTransformIdentity;
+    CGRect expanded=(CGRect){CGPointMake(_iconView.center.x-_iconView.bounds.size.width/2,
+        _iconView.center.y-_iconView.bounds.size.height/2),_iconView.bounds.size};
+    if(!CGSizeEqualToSize(self.expandedIconGeometrySize,size) || !CGRectEqualToRect(self.expandedIconSlot,expanded))
+        self.expandedIconBaselineGeneration++;
+    self.expandedIconGeometrySize=size;
+    self.expandedIconSlot=expanded;
     WCCRect occupied[6]; int n=0;
     for (UIView *v in @[_iconView,_cityLabel,_conditionLabel,_precipLabel,_tempLabel,_highLowLabel]) {
         CGRect r=v.frame; occupied[n++]=WCCR(r.origin.x,r.origin.y,r.size.width,r.size.height);
@@ -891,26 +919,32 @@ static UILabel *WCCLabel(CGFloat size, UIFontWeight weight, CGFloat alpha) {
 }
 - (void)layoutMainCustomMedia {
     if (!self.isViewLoaded || !_iconView) return;
-    // Never read a scaled frame as baseline, or resize an Auto Layout slot.
-    // Identity recovers the original 118 center/bounds in both display modes.
-    _iconView.transform=CGAffineTransformIdentity;
-    CGRect slot=_isExpanded?_iconView.frame:self.collapsedIconSlot;
-    if(CGRectIsEmpty(slot))return;
-    if(!_isExpanded)_iconView.frame=slot;
-    WCCRect target=WCCMainIconTargetForLayout(WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
-        _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,(int)self.layoutSize.width,(int)self.layoutSize.height,
+    // Host presentation callbacks can render weather before stable layout. Use
+    // only mode-specific baselines produced by geometry/constraints, never a
+    // UIView frame carrying the previous presentation's transform.
+    CGRect slot=_isExpanded?self.expandedIconSlot:self.collapsedIconSlot;
+    CGSize generationSize=_isExpanded?self.expandedIconGeometrySize:self.collapsedIconGeometrySize;
+    if(CGRectIsEmpty(slot) || generationSize.width<=0 || generationSize.height<=0)return;
+    WCCMainIconLayout layout=WCCMainIconLayoutForBaseline(
+        WCCR(slot.origin.x,slot.origin.y,slot.size.width,slot.size.height),
+        _headerView.bounds.size.width,_headerView.bounds.size.height,_isExpanded,
+        (int)self.layoutSize.width,(int)self.layoutSize.height,
         WCCRegionOffset(2),WCCRegionOffset(3),WCCMainIconPercentForMode(_isExpanded));
-    CGFloat sx=slot.size.width>0?target.w/slot.size.width:1;
-    CGFloat sy=slot.size.height>0?target.h/slot.size.height:1;
+    [CATransaction begin];[CATransaction setDisableActions:YES];
+    _iconView.transform=CGAffineTransformIdentity;
+    _iconView.bounds=(CGRect){CGPointZero,slot.size};
+    _iconView.center=CGPointMake(layout.centerX,layout.centerY);
     _iconContentView.transform=CGAffineTransformIdentity;
     _iconContentView.frame=_iconView.bounds;
     _systemIconView.frame=_iconContentView.bounds;
     self.customMedia.transform=CGAffineTransformIdentity;
     self.customMedia.autoresizingMask=UIViewAutoresizingNone;
     self.customMedia.frame=_iconContentView.bounds;
-    // Native image, PNG/GIF/MP4 and failed-media fallback share this transform.
-    _iconView.transform=CGAffineTransformMake(sx,0,0,sy,
-        target.x+target.w/2-CGRectGetMidX(slot),target.y+target.h/2-CGRectGetMidY(slot));
+    // System image, PNG/GIF/MP4 and fallback all inherit the same parent scale.
+    // Translation is represented solely by center, so repeated host callbacks
+    // cannot multiply it by scale or accumulate a presentation transform.
+    _iconView.transform=CGAffineTransformMakeScale(layout.scaleX,layout.scaleY);
+    [CATransaction commit];
 }
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];

@@ -14,7 +14,7 @@ assert c[c.index('- (void)viewDidLayoutSubviews'):].index('[self layoutBackgroun
 for needle in ('kCACornerCurveContinuous','host.layer.mask','convertPoint:CGPointZero fromLayer:source','WCCBackgroundFallbackRadius','clipsToBounds=YES'):
     assert needle in m,needle
 assert 'src/WCCBackgroundClip.m' in mk
-assert 'Version: 1.2.14' in (p/'control').read_text()
-info=plistlib.loads((p/'Resources/Info.plist').read_bytes()); assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.14'
-assert 'CCWeatherModule-1.2.14-rootless' in wf and 'test1213.py' in wf
+assert 'Version: 1.2.15' in (p/'control').read_text()
+info=plistlib.loads((p/'Resources/Info.plist').read_bytes()); assert info['CFBundleVersion']==info['CFBundleShortVersionString']=='1.2.15'
+assert 'CCWeatherModule-1.2.15-rootless' in wf and 'test1213.py' in wf
 print('PASS1213 static: shared media/overlay clip, host shape/corner introspection, fallback, layout-before-display, root effects unmasked.')

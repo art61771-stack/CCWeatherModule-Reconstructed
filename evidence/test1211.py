@@ -8,7 +8,7 @@ method=vc[vc.index('- (void)weatherDetailsPreferenceChanged {'):vc.index('- (voi
 assert 'refreshManual' not in method
 assert 'drawGreeting' not in method
 assert '@"version":@7' in cfg and 'detailsBefore' in cfg
-assert 'Version: 1.2.14' in (p/'control').read_text()
-assert 'CCWeatherModule-1.2.14-rootless' in (p/'.github/workflows/build.yml').read_text()
-assert '1.2.14' in (p/'Resources/Info.plist').read_text()
+assert 'Version: 1.2.15' in (p/'control').read_text()
+assert 'CCWeatherModule-1.2.15-rootless' in (p/'.github/workflows/build.yml').read_text()
+assert '1.2.15' in (p/'Resources/Info.plist').read_text()
 print('PASS1211 static production wiring: shared source toggle, no network/greeting side effects, independent base projections, v6 configuration notification, UI and version consistency.')

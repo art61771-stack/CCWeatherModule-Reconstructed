@@ -238,6 +238,26 @@ static inline WCCRect WCCMainIconTargetForLayout(WCCRect baseline,double width,d
     target.y+=WCCRegionAxis(target.y,target.h,height,y);
     return target;
 }
+/* 1.2.15 parent-view contract. Baseline is immutable, untransformed layout
+ * geometry. UIKit installs these bounds/center values with identity transform,
+ * then applies scale only; position never comes from frame/presentation state. */
+typedef struct { WCCRect baseline,target; double centerX,centerY,scaleX,scaleY; } WCCMainIconLayout;
+static inline WCCMainIconLayout WCCMainIconLayoutForBaseline(WCCRect baseline,double width,double height,
+        int expanded,int columns,int rows,double x,double y,double percent) {
+    WCCMainIconLayout layout={0};layout.baseline=baseline;
+    layout.target=WCCMainIconTargetForLayout(baseline,width,height,expanded,columns,rows,
+        expanded?0:x,expanded?0:y,percent);
+    layout.centerX=layout.target.x+layout.target.w/2;
+    layout.centerY=layout.target.y+layout.target.h/2;
+    layout.scaleX=baseline.w>0?layout.target.w/baseline.w:1;
+    layout.scaleY=baseline.h>0?layout.target.h/baseline.h:1;
+    return layout;
+}
+static inline WCCRect WCCMainIconVisibleRect(WCCMainIconLayout layout) {
+    return WCCR(layout.centerX-layout.baseline.w*layout.scaleX/2,
+        layout.centerY-layout.baseline.h*layout.scaleY/2,
+        layout.baseline.w*layout.scaleX,layout.baseline.h*layout.scaleY);
+}
 static inline int WCCInformationAlignment(double preference,int defaultAlignment) {
     return preference<0?0:preference>0?2:defaultAlignment;
 }

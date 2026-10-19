@@ -1,12 +1,13 @@
-# CCWeatherModule 1.2.14 — 折叠问候语固定实际可见左缘
+# CCWeatherModule 1.2.15 — 控制中心重复下拉主图位置稳定
 
-## 1.2.14
+## 1.2.15
 
-- 修正 1.2.8 的错误规则：不再让正 X 偏移改为“固定右缘”。折叠问候语滑块现在始终控制实际可见文字左缘，负值、零、正值语义完全一致；文字始终左对齐并向右延展。
-- 问候 rail 宽度与当前文字无关：`origin.x = clamp(geometry greeting.x + normalized offset, 0, moduleWidth - 1pt)`，`rail.right = moduleWidth`。最右端保留 1pt 可见宽度；clamp 只依据模块 geometry，不使用 `textRect` 或当前句子宽度。默认 0 沿用原 geometry origin，已有 `greetingOffsetX` 不迁移、不重写。
-- 句子切换、随机问候、布局/天气刷新、1/2 行测试夹具及 fit/truncation 都不会改变左缘；空间不足仅在右侧截断/缩放。Y 继续按固定 rail frame 计算，不随文字高度或行数漂移。展开模式不应用折叠 offset，收回后恢复同一 origin。
-- 地区信息组继续保留负左、正右的实际文字逻辑；1.2.13 背景 mask、1.2.12 picker、1.2.10 Sileo 动态 fd、1.2.9 动画及其余功能保持回归覆盖。
-- 新增 1214 C/Apple Foundation UILabel 桩与生产接线测试：先复现 1.2.8 正 X 下短/长句 visibleLeft 不同，再覆盖五尺寸、0/±0.49/±数值/极限、100 次换句、1/2 行、fit/truncation、真实 frame/alignment 接线。UILabel 桩计算 actual visible left；不产生日志、不读取或记录问候正文。
+- 修复 CC host 每次展示时多条生命周期、天气刷新与异步媒体 ready 回调重复触发布局，旧实现可能把已带缩放/位移的 `_iconView.frame` 当作下一次基准，导致持久 X/Y 与 size 被重复套用，主图逐次偏离用户自行设定的问候语左缘。
+- 折叠基准只由当前稳定 module bounds 的 `WCCComputeModuleGeometry` 产生；展开基准只由 identity 状态下 Auto Layout 约束解算产生。两种基准分离并带 geometry size/generation，展开绝不覆盖折叠 slot，bounds 真正改变时按新 geometry 重算。
+- 每次应用都先清父视图 transform，安装 baseline `bounds/center`，再以纯 scale 设置 transform；最终位置仅由 center 表示，不读取 presentation layer，也不从带 transform 的 frame 反推。展开大小独立生效但不套折叠 X/Y，收回精确恢复折叠目标。
+- 系统图、PNG、GIF、MP4 与加载失败 fallback 共用同一父层链路。切换模式仅移除插件自己的 inner content scale 动画并恢复 identity，opacity、shadow/glow 及其余功能不受影响，动画恢复后不会累计父位置。
+- 新增 1215 生产 helper/几何压力测试：先复现 1.2.14 污染 frame 二次套用后的漂移，再覆盖折叠 50/100/150/200/250%、展开 50/100/150%、非零正负 X/Y、5 种媒体路径、动画开关、6 种回调顺序、天气/媒体重绘、100 次关闭再下拉与展开收回、设置修改及旋转/bounds 改变；按实际变换矩阵验证可见中心和 bounds，而非只断言 model position。
+- 1.2.14 问候左缘、1.2.13 背景 mask、1.2.12 天气详情、1.2.10 Sileo 动态 fd 与历史功能保持回归覆盖。真实 CCSupport 展示时序与用户截图场景仍需在目标真机复验。
 
 ## 1.2.13
 

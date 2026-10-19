@@ -8,7 +8,7 @@ for name in ['regionPositionChanged','applyTextShadows','layoutMainCustomMedia',
  t=c.split('- (void)'+name+' {',1)[1].split('\n- (',1)[0];assert 'drawGreeting' not in t and 'loadPath' not in t and 'arc4random' not in t
 assert 'WCCInformationAlignment(WCCRegionOffset(4)' in c
 assert c.index('WCCInformationAlignment(WCCRegionOffset(4)')<c.index('CGRect text=[label textRectForBounds')
-assert 'WCCMainIconTargetForLayout' in c
+assert 'WCCMainIconLayoutForBaseline' in c and 'WCCMainIconTargetForLayout' in read('WCCRuntime.h')
 assert 'setAutomaticActive:self.mediaVisible' in c and 'UIApplicationDidEnterBackgroundNotification' in c and 'UIApplicationProtectedDataWillBecomeUnavailable' in c
 assert '[self applyTextShadows]' in c.split('- (void)renderWeatherIcon {')[1].split('\n- (')[0]
 assert 'NSTimer scheduledTimerWithTimeInterval:delay repeats:NO' in source and 'self.provider.cacheTTL=self.refreshTTL' in source
