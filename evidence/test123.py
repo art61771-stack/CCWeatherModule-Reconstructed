@@ -15,8 +15,9 @@ for name,gate in [('consumeHostSession','WCCConsumeModuleHost'),('willTransition
 assert 'WCCPickCustomGreeting(texts.count,previous,arc4random())' in method('drawGreeting')
 assert 'indexOfObject:displayed' in method('drawGreeting') and 'self.greetingLabel.text ?: self.selectedCustomGreeting' in method('drawGreeting')
 assert 'textRectForBounds:label.bounds' in method('applyRegionPositions')
-assert '_iconView.bounds=(CGRect){CGPointZero,slot.size}' in method('layoutMainCustomMedia')
-assert '_iconView.center=CGPointMake(layout.centerX,layout.centerY)' in method('layoutMainCustomMedia')
+assert '_iconView.bounds=(CGRect){CGPointZero,finalSize}' in method('layoutMainCustomMedia')
+assert '_iconView.center=CGPointMake(centerX,centerY)' in method('layoutMainCustomMedia')
+assert '_iconView.transform=CGAffineTransformIdentity' in method('layoutMainCustomMedia')
 assert 'self.collapsedIconSlot=collapsed' in c
 assert 'WCCGreetingEntries().count+1' in ui and 'WCCSaveGreetingEntry(entry[@"id"]' in ui and 'WCCDeleteGreetingEntry(rows[index.row-1][@"id"])' in ui
 assert 'WCCApplyConfiguredTextEffects(label,enabled,glow,settings,' in c and 'WCCTextGlowEnabled(index)' in c
